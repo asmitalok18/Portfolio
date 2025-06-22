@@ -1,114 +1,3 @@
-// import React from 'react';
-// import { Container, Row, Col, Button } from 'react-bootstrap';
-// import { FaLinkedin, FaGithub, FaWhatsapp, FaTelegram, FaDownload } from 'react-icons/fa';
-// import '../styles/custom.css'
-
-// const Hero = () => {
-//   return (
-//     <section id="home" className="min-vh-100 d-flex align-items-center position-relative">
-//       <Container className="position-relative hero-content">
-//         <Row className="align-items-center min-vh-100">
-//           <Col lg={6} className="order-2 order-lg-1">
-//             <div data-aos="fade-right">
-//               <p className="text-primary-custom fs-5 mb-2">👋 Hello, I'm</p>
-//               <h1 className="display-2 fw-bold mb-3 text-light-custom">
-//                 Asmit Alok
-//               </h1>
-//               <h2 className="text-primary-custom fs-2 mb-4">
-//                 Full Stack Developer
-//               </h2>
-//               <p className="fs-5 text-gray-custom mb-4 lead">
-//                 Specializing in Angular, ReactJS, Python and Django | Crafting Scalable Web Apps with a User-Centric Approach
-//               </p>
-              
-//               <div className="d-flex gap-3 mb-4">
-//                 <Button 
-//                   href="#contact" 
-//                   className="btn-primary-custom"
-//                   size="lg"
-//                 >
-//                   Let's Connect
-//                 </Button>
-//                 <Button 
-//                   href="/resume.pdf" 
-//                   className="btn-outline-custom"
-//                   size="lg"
-//                   download
-//                 >
-//                   <FaDownload className="me-2" />
-//                   Resume
-//                 </Button>
-//               </div>
-
-//               <div className="d-flex gap-3">
-//                 <a 
-//                   href="https://www.linkedin.com/in/asmitalok" 
-//                   className="text-primary-custom fs-4"
-//                   target="_blank"
-//                   rel="noopener noreferrer"
-//                 >
-//                   <FaLinkedin />
-//                 </a>
-//                 <a 
-//                   href="https://github.com/asmitalok18" 
-//                   className="text-primary-custom fs-4"
-//                   target="_blank"
-//                   rel="noopener noreferrer"
-//                 >
-//                   <FaGithub />
-//                 </a>
-//                 <a 
-//                   href="https://wa.link/60n6aa" 
-//                   className="text-primary-custom fs-4"
-//                   target="_blank"
-//                   rel="noopener noreferrer"
-//                 >
-//                   <FaWhatsapp />
-//                 </a>
-//                 <a 
-//                   href="https://t.me/Vrm01234"
-//                   className="text-primary-custom fs-4"
-//                   target="_blank"
-//                   rel="noopener noreferrer"
-//                 >
-//                   <FaTelegram />
-//                 </a>
-//               </div>
-//             </div>
-//           </Col>
-          
-//           <Col lg={6} className="order-1 order-lg-2 text-center">
-//             <div data-aos="fade-left">
-//               <div className="position-relative d-inline-block">
-//                 <img 
-//                   src="/asmit_image1.png" 
-//                   alt="Asmit Alok"
-//                   className="img-fluid rounded-circle hero-image"
-//                   style={{ maxWidth: '400px',width:'100%', height:'400px', objectFit:'cover' }}
-//                 />
-//                 <div 
-//                   className="position-absolute bg-primary-custom rounded-circle d-flex align-items-center justify-content-center glow-effect"
-//                   style={{
-//                     width: '60px',
-//                     height: '60px',
-//                     bottom: '20px',
-//                     right: '20px',
-//                     animation: 'pulse 2s infinite'
-//                   }}
-//                 >
-//                   {/* <span className="text-dark fw-bold">👨‍💻</span> */}
-//                 </div>
-//               </div>
-//             </div>
-//           </Col>
-//         </Row>
-//       </Container>
-//     </section>
-//   );
-// };
-
-// export default Hero;
-
 import React from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import { FaLinkedin, FaGithub, FaWhatsapp, FaTelegram, FaDownload } from 'react-icons/fa';
@@ -200,9 +89,135 @@ const Hero = () => {
     }
   };
 
+  // Light reflection animation variants
+  const lightReflectionVariants = {
+    animate: {
+      rotate: [0, 360],
+      scale: [1, 1.2, 1],
+      opacity: [0.3, 0.7, 0.3],
+      transition: {
+        duration: 8,
+        repeat: Infinity,
+        ease: "easeInOut"
+      }
+    }
+  };
+
+  const lightBeamVariants = {
+    animate: {
+      scaleX: [0, 1, 0.8, 1, 0],
+      scaleY: [0, 0.5, 1, 0.5, 0],
+      rotate: [0, 15, -15, 0],
+      opacity: [0, 0.6, 0.3, 0.6, 0],
+      transition: {
+        duration: 6,
+        repeat: Infinity,
+        ease: "easeInOut",
+        times: [0, 0.2, 0.5, 0.8, 1]
+      }
+    }
+  };
+
   return (
-    <section id="home" className="min-vh-100 d-flex align-items-center position-relative">
-      <Container className="position-relative hero-content">
+    <section id="home" className="min-vh-100 d-flex align-items-center position-relative overflow-hidden">
+      {/* Top-left Light Reflection Effects */}
+      <motion.div
+        className="position-absolute"
+        style={{
+          top: '-10%',
+          left: '-10%',
+          width: '300px',
+          height: '300px',
+          background: 'radial-gradient(circle, rgba(0, 255, 136, 0.4) 0%, rgba(0, 255, 136, 0.1) 40%, transparent 70%)',
+          borderRadius: '50%',
+          filter: 'blur(20px)',
+          zIndex: 1,
+          pointerEvents: 'none'
+        }}
+        variants={lightReflectionVariants}
+        animate="animate"
+      />
+
+      {/* Secondary light beam */}
+      <motion.div
+        className="position-absolute"
+        style={{
+          top: '0',
+          left: '0',
+          width: '600px',
+          height: '400px',
+          background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.15) 0%, rgba(0, 204, 106, 0.1) 30%, transparent 60%)',
+          borderRadius: '0 0 50% 0',
+          filter: 'blur(15px)',
+          zIndex: 1,
+          pointerEvents: 'none',
+          transformOrigin: 'top left'
+        }}
+        variants={lightBeamVariants}
+        animate="animate"
+      />
+
+      {/* Animated light rays */}
+      {[...Array(5)].map((_, index) => (
+        <motion.div
+          key={index}
+          className="position-absolute"
+          style={{
+            top: '5%',
+            left: '5%',
+            width: `${100 + index * 50}px`,
+            height: '2px',
+            background: `linear-gradient(90deg, rgba(0, 255, 136, ${0.3 - index * 0.05}) 0%, transparent 100%)`,
+            transformOrigin: 'left',
+            zIndex: 1,
+            pointerEvents: 'none'
+          }}
+          animate={{
+            rotate: [0, 15 + index * 5, -10 + index * 3, 15 + index * 5, 0],
+            scaleX: [0, 1, 0.8, 1, 0],
+            opacity: [0, 0.6, 0.3, 0.6, 0]
+          }}
+          transition={{
+            duration: 4 + index,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: index * 0.5
+          }}
+        />
+      ))}
+
+      {/* Floating particles */}
+      {[...Array(8)].map((_, index) => (
+        <motion.div
+          key={`particle-${index}`}
+          className="position-absolute"
+          style={{
+            top: `${10 + index * 10}%`,
+            left: `${5 + index * 8}%`,
+            width: `${4 + index}px`,
+            height: `${4 + index}px`,
+            background: 'rgba(0, 255, 136, 0.6)',
+            borderRadius: '50%',
+            filter: 'blur(1px)',
+            zIndex: 1,
+            pointerEvents: 'none'
+          }}
+          animate={{
+            x: [0, 50, -20, 30, 0],
+            y: [0, -30, 20, -10, 0],
+            opacity: [0, 1, 0.5, 1, 0],
+            scale: [0.5, 1, 0.7, 1, 0.5]
+          }}
+          transition={{
+            duration: 6 + index * 0.5,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: index * 0.3
+          }}
+        />
+      ))}
+
+      <Container className="position-relative hero-content" style={{ zIndex: 2 }}>
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -214,12 +229,18 @@ const Hero = () => {
                 <motion.p 
                   className="text-primary-custom fs-5 mb-2"
                   variants={textAnimationVariants}
+                  style={{
+                    textShadow: '0 0 10px rgba(0, 255, 136, 0.3)'
+                  }}
                 >
                   👋 Hello, I'm
                 </motion.p>
                 <motion.h1 
                   className="display-2 fw-bold mb-3 text-light-custom"
                   variants={nameVariants}
+                  style={{
+                    textShadow: '0 0 20px rgba(0, 255, 136, 0.2), 0 0 40px rgba(0, 255, 136, 0.1)'
+                  }}
                 >
                   Asmit Alok
                 </motion.h1>
@@ -238,7 +259,8 @@ const Hero = () => {
                     background: "linear-gradient(45deg, #00ff88, #00cc6a, #00ff88)",
                     backgroundSize: "200% 200%",
                     WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent"
+                    WebkitTextFillColor: "transparent",
+                    textShadow: '0 0 30px rgba(0, 255, 136, 0.4)'
                   }}
                 >
                   Full Stack Developer
@@ -246,6 +268,9 @@ const Hero = () => {
                 <motion.p 
                   className="fs-5 text-gray-custom mb-4 lead"
                   variants={textAnimationVariants}
+                  style={{
+                    textShadow: '0 0 5px rgba(255, 255, 255, 0.1)'
+                  }}
                 >
                   Specializing in Angular, ReactJS, Python and Django | Crafting Scalable Web Apps with a User-Centric Approach
                 </motion.p>
@@ -255,19 +280,30 @@ const Hero = () => {
                   variants={itemVariants}
                 >
                   <motion.div
-                    whileHover={{ scale: 1.05, y: -5 }}
+                    whileHover={{ 
+                      scale: 1.05, 
+                      y: -5,
+                      boxShadow: "0 10px 30px rgba(0, 255, 136, 0.3)"
+                    }}
                     whileTap={{ scale: 0.95 }}
                   >
                     <Button 
                       href="#contact" 
                       className="btn-primary-custom"
                       size="lg"
+                      style={{
+                        boxShadow: '0 5px 15px rgba(0, 255, 136, 0.2)'
+                      }}
                     >
                       Let's Connect
                     </Button>
                   </motion.div>
                   <motion.div
-                    whileHover={{ scale: 1.05, y: -5 }}
+                    whileHover={{ 
+                      scale: 1.05, 
+                      y: -5,
+                      boxShadow: "0 10px 30px rgba(255, 255, 255, 0.1)"
+                    }}
                     whileTap={{ scale: 0.95 }}
                   >
                     <Button 
@@ -277,6 +313,9 @@ const Hero = () => {
                       download="Asmit_Alok_full_stack_resume.pdf"
                       target="_blank"
                       rel="noopener noreferrer"
+                      style={{
+                        boxShadow: '0 5px 15px rgba(255, 255, 255, 0.1)'
+                      }}
                     >
                       <FaDownload className="me-2" />
                       Resume
@@ -301,11 +340,17 @@ const Hero = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                       variants={socialIconVariants}
-                      whileHover="hover"
+                      whileHover={{
+                        ...socialIconVariants.hover,
+                        textShadow: "0 0 15px rgba(0, 255, 136, 0.6)"
+                      }}
                       whileTap="tap"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 1 + index * 0.1 }}
+                      style={{
+                        textShadow: '0 0 10px rgba(0, 255, 136, 0.3)'
+                      }}
                     >
                       <Icon />
                     </motion.a>
@@ -325,10 +370,17 @@ const Hero = () => {
                     src="/asmit_image1.png" 
                     alt="Asmit Alok"
                     className="img-fluid rounded-circle hero-image"
-                    style={{ maxWidth: '400px',width:'100%', height:'400px', objectFit:'cover' }}
+                    style={{ 
+                      maxWidth: '400px',
+                      width:'100%', 
+                      height:'400px', 
+                      objectFit:'cover',
+                      boxShadow: '0 0 50px rgba(0, 255, 136, 0.2), 0 0 100px rgba(0, 255, 136, 0.1)'
+                    }}
                     whileHover={{
                       scale: 1.1,
                       rotate: 5,
+                      boxShadow: '0 0 60px rgba(0, 255, 136, 0.4), 0 0 120px rgba(0, 255, 136, 0.2)',
                       transition: { duration: 0.3 }
                     }}
                   />
@@ -338,16 +390,46 @@ const Hero = () => {
                       width: '60px',
                       height: '60px',
                       bottom: '20px',
-                      right: '20px'
+                      right: '20px',
+                      boxShadow: '0 0 20px rgba(0, 255, 136, 0.5)'
                     }}
                     animate={{
                       scale: [1, 1.2, 1],
-                      rotate: [0, 180, 360]
+                      rotate: [0, 180, 360],
+                      boxShadow: [
+                        '0 0 20px rgba(0, 255, 136, 0.5)',
+                        '0 0 40px rgba(0, 255, 136, 0.8)',
+                        '0 0 20px rgba(0, 255, 136, 0.5)'
+                      ]
                     }}
                     transition={{
                       duration: 4,
                       repeat: Infinity,
                       ease: "easeInOut"
+                    }}
+                  />
+
+                  {/* Additional light reflection on image */}
+                  <motion.div
+                    className="position-absolute"
+                    style={{
+                      top: '-10px',
+                      left: '-10px',
+                      right: '-10px',
+                      bottom: '-10px',
+                      background: 'conic-gradient(from 0deg, transparent, rgba(0, 255, 136, 0.3), transparent)',
+                      borderRadius: '50%',
+                      filter: 'blur(10px)',
+                      zIndex: -1
+                    }}
+                    animate={{
+                      rotate: [0, 360],
+                      opacity: [0.3, 0.7, 0.3]
+                    }}
+                    transition={{
+                      duration: 6,
+                      repeat: Infinity,
+                      ease: "linear"
                     }}
                   />
                 </motion.div>

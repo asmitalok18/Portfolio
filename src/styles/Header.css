@@ -1,0 +1,241 @@
+/* Header/Navbar Styles - Add to custom.css */
+
+/* Main Navbar */
+.navbar-header {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 9999 !important;
+  padding: 1rem 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* Navbar States */
+.navbar-transparent {
+  background: rgba(10, 10, 10, 0.3) !important;
+  backdrop-filter: blur(5px) !important;
+  -webkit-backdrop-filter: blur(5px) !important;
+  border-bottom: 1px solid transparent !important;
+  box-shadow: none !important;
+}
+
+.navbar-scrolled {
+  background: rgba(10, 10, 10, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid rgba(0, 255, 136, 0.2) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 255, 136, 0.1) !important;
+}
+
+/* Navbar Brand */
+.navbar-brand-custom {
+  color: var(--text-light) !important;
+  font-weight: 700 !important;
+  font-size: 1.75rem !important;
+  background: linear-gradient(45deg, #00ff88, #00cc6a) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  text-decoration: none !important;
+  transition: all 0.3s ease !important;
+}
+
+.navbar-brand-custom.scrolled {
+  text-shadow: 0 0 20px rgba(0, 255, 136, 0.3) !important;
+}
+
+.navbar-brand-custom:hover {
+  text-decoration: none !important;
+  filter: brightness(1.2) !important;
+}
+
+/* Navbar Toggle Button */
+.navbar-toggle-custom {
+  border: 1px solid rgba(0, 255, 136, 0.5) !important;
+  outline: none !important;
+  box-shadow: none !important;
+  transition: all 0.3s ease !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+.navbar-toggle-custom:hover {
+  border-color: #00ff88 !important;
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.3) !important;
+}
+
+.navbar-toggle-custom:focus {
+  border-color: #00ff88 !important;
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.3) !important;
+}
+
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%2800, 255, 136, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='m4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+}
+
+/* Nav Links */
+.nav-link-header {
+  position: relative !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  padding: 10px 20px !important;
+  border-radius: 25px !important;
+  font-weight: 500 !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  margin: 0 0.5rem !important;
+  color: #ffffff !important;
+  text-decoration: none !important;
+}
+
+.nav-link-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 255, 136, 0.1);
+  border-radius: 25px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.nav-link-header:hover::before {
+  opacity: 1;
+}
+
+.nav-link-header:hover {
+  color: #00ff88 !important;
+  transform: translateY(-2px);
+  text-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+  text-decoration: none !important;
+}
+
+.nav-link-header.active {
+  color: #00ff88 !important;
+  font-weight: 600 !important;
+  text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+}
+
+/* Active Indicator */
+.nav-active-indicator {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  width: 30px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #00ff88, transparent);
+  border-radius: 2px;
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.6);
+  transform: translateX(-50%);
+  animation: indicatorGlow 2s ease-in-out infinite;
+}
+
+@keyframes indicatorGlow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(0, 255, 136, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.9);
+  }
+}
+
+/* Override Bootstrap navbar defaults */
+.navbar-header .navbar-nav .nav-link {
+  color: var(--text-light) !important;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  padding: 10px 20px !important;
+  border-radius: 25px;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.navbar-header .navbar-nav .nav-link:hover {
+  color: var(--primary-color) !important;
+  transform: translateY(-2px);
+  text-shadow: var(--neon-glow);
+}
+
+/* Mobile Responsive */
+@media (max-width: 991px) {
+  .navbar-collapse {
+    background: rgba(10, 10, 10, 0.95) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-radius: 15px;
+    margin-top: 15px;
+    padding: 20px;
+    border: 1px solid rgba(0, 255, 136, 0.2);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  }
+  
+  .nav-link-header {
+    margin: 5px 0 !important;
+    text-align: center;
+  }
+  
+  .nav-active-indicator {
+    bottom: -5px !important;
+    width: 20px !important;
+  }
+  
+  /* Ensure mobile navbar is always visible */
+  .navbar-header {
+    position: fixed !important;
+    top: 0 !important;
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar-brand-custom {
+    font-size: 1.5rem !important;
+  }
+  
+  .nav-link-header {
+    font-size: 1.1rem;
+    padding: 12px 20px !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .navbar-brand-custom {
+    font-size: 1.3rem !important;
+  }
+  
+  .nav-link-header {
+    font-size: 1rem;
+    padding: 10px 15px !important;
+  }
+}
+
+/* Smooth scrolling adjustment for fixed navbar */
+html {
+  scroll-padding-top: 100px;
+}
+
+/* Ensure navbar doesn't get hidden by other elements */
+.navbar-header * {
+  pointer-events: auto !important;
+}
+
+/* Fix for potential conflicts with framer-motion */
+[data-framer-motion] .navbar-header {
+  position: fixed !important;
+  top: 0 !important;
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}

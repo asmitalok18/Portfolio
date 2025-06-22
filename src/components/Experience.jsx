@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card } from 'react-bootstrap';
 import { FaCalendarAlt, FaMapMarkerAlt, FaCode, FaCogs, FaFileAlt, FaDatabase, FaBrain, FaReact, FaNodeJs, FaShieldAlt, FaUsers, FaMobile } from 'react-icons/fa';
+import '../styles/Experience.css'
 
 const Experience = () => {
   const [monthsExperience, setMonthsExperience] = useState(0);
@@ -132,12 +133,12 @@ const Experience = () => {
         
         <Row>
           <Col lg={12}>
-            <div className="position-relative">
+            <div className="timeline-container position-relative px-4">
               {/* Timeline line */}
               <div 
-                className="position-absolute bg-primary-custom"
+                className="timeline-line position-absolute bg-primary-custom"
                 style={{
-                  left: '30px',
+                  left: '50px',
                   top: '0',
                   bottom: '0',
                   width: '3px',
@@ -148,34 +149,40 @@ const Experience = () => {
               {experiences.map((exp, index) => (
                 <div 
                   key={index}
-                  className="position-relative mb-5"
+                  className="timeline-item position-relative mb-5"
                   data-aos="fade-up"
                   data-aos-delay={index * 200}
                 >
                   {/* Timeline dot */}
                   <div 
-                    className="position-absolute bg-primary-custom rounded-circle d-flex align-items-center justify-content-center"
+                    className="timeline-dot position-absolute bg-primary-custom rounded-circle d-flex align-items-center justify-content-center"
                     style={{
-                      left: '18px',
+                      left: '38px',
                       top: '30px',
                       width: '26px',
                       height: '26px',
-                      zIndex: 2
+                      zIndex: 2,
+                      boxShadow: '0 0 0 4px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 255, 136, 0.4)'
                     }}
                   >
                     
                   </div>
                   
                   <Card 
-                    className="card-custom ms-5 p-4"
-                    style={{ marginLeft: '60px' }}
+                    className="card-custom experience-card p-4"
+                    style={{ 
+                      marginLeft: '80px',
+                      border: '1px solid rgba(0, 255, 136, 0.3)',
+                      background: 'rgba(0, 0, 0, 0.4)',
+                      backdropFilter: 'blur(10px)'
+                    }}
                   >
                     <Row>
-                      <Col lg={8}>
-                        <h4 className="text-primary-custom mb-2">{exp.title}</h4>
+                      <Col lg={8} md={12}>
+                        <h4 className="text-primary-custom mb-2 fw-bold">{exp.title}</h4>
                         <h5 className="text-light-custom mb-3">{exp.company}</h5>
                       </Col>
-                      <Col lg={4} className="text-lg-end">
+                      <Col lg={4} md={12} className="text-lg-end text-md-start">
                         <div className="mb-2">
                           <FaCalendarAlt className="text-primary-custom me-2" />
                           <span className="text-gray">{exp.duration}</span>
@@ -184,13 +191,13 @@ const Experience = () => {
                           <FaMapMarkerAlt className="text-primary-custom me-2" />
                           <span className="text-gray">{exp.location}</span>
                         </div>
-                        <span className="badge bg-primary-custom text-dark px-3 py-2">
+                        <span className="badge bg-primary-custom text-dark px-3 py-2 fw-semibold">
                           {exp.type}
                         </span>
                       </Col>
                     </Row>
                     
-                    <hr className="border-primary-custom opacity-25 my-4" />
+                    <hr className="border-primary-custom opacity-50 my-4" />
                     
                     <div className="responsibilities-section">
                       <h6 className="text-light-custom mb-4 fw-bold">
@@ -203,7 +210,7 @@ const Experience = () => {
                             <div key={idx} className="col-12">
                               <div className="responsibility-item d-flex align-items-start p-3 rounded-3 border border-primary-custom border-opacity-25 bg-dark bg-opacity-25">
                                 <div 
-                                  className="icon-wrapper me-3 d-flex align-items-center justify-content-center rounded-circle bg-primary-custom"
+                                  className="icon-wrapper me-3 d-flex align-items-center justify-content-center rounded-circle bg-primary-custom flex-shrink-0"
                                   style={{ 
                                     minWidth: '32px', 
                                     height: '32px',
@@ -215,7 +222,7 @@ const Experience = () => {
                                     style={{ fontSize: '14px' }} 
                                   />
                                 </div>
-                                <p className="text-gray-custom mb-0 lh-base">
+                                <p className="text-gray-custom mb-0 lh-base flex-grow-1">
                                   {responsibility.text}
                                 </p>
                               </div>
@@ -231,88 +238,6 @@ const Experience = () => {
           </Col>
         </Row>
       </Container>
-
-      <style jsx>{`
-        .stats-container .card-custom {
-          transition: all 0.3s ease;
-          border: 1px solid rgba(var(--primary-color-rgb), 0.3);
-          background: rgba(0, 0, 0, 0.3);
-          backdrop-filter: blur(10px);
-        }
-        
-        .stats-container .card-custom:hover {
-          transform: translateY(-5px);
-          border-color: var(--primary-color);
-          box-shadow: 0 10px 30px rgba(var(--primary-color-rgb), 0.3);
-          background: rgba(var(--primary-color-rgb), 0.1);
-        }
-        
-        .stat-number {
-          background: linear-gradient(45deg, var(--primary-color), #ffd700);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          text-shadow: 0 0 20px rgba(var(--primary-color-rgb), 0.5);
-          font-family: 'Arial', sans-serif;
-          font-weight: 800;
-        }
-        
-        .stat-label {
-          font-size: 0.95rem;
-          font-weight: 500;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-        
-        .responsibility-item {
-          transition: all 0.3s ease;
-          cursor: default;
-        }
-        
-        .responsibility-item:hover {
-          transform: translateX(5px);
-          border-color: var(--primary-color) !important;
-          background-color: rgba(var(--primary-color-rgb), 0.1) !important;
-        }
-        
-        .icon-wrapper {
-          transition: all 0.3s ease;
-        }
-        
-        .responsibility-item:hover .icon-wrapper {
-          transform: scale(1.1);
-          box-shadow: 0 0 15px rgba(var(--primary-color-rgb), 0.5);
-        }
-        
-        .responsibilities-section {
-          animation: fadeInUp 0.6s ease forwards;
-        }
-        
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @media (max-width: 768px) {
-          .stats-container .col-md-6 {
-            margin-bottom: 1rem;
-          }
-          
-          .stat-number {
-            font-size: 2rem !important;
-          }
-          
-          .stat-label {
-            font-size: 0.85rem;
-          }
-        }
-      `}</style>
     </section>
   );
 };
