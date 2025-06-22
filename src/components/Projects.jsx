@@ -24,9 +24,9 @@ const Projects = () => {
       title: "Portfolio Website",
       description: "Developed a fully responsive portfolio website using React and Bootstrap, showcasing smooth scroll animations, modern UI design, and optimized performance across devices to highlight personal projects and skills.",
       image: "/portfolio.png",
-      technologies: ["React", "Bootstrap", "AOS", "CSS3","Javascript"],
-      github: "https://github.com/yourusername/portfolio",
-      live: "https://your-portfolio.vercel.app",
+      technologies: ["React", "Bootstrap", "AOS", "CSS3","Javascript","Framer Motion"],
+      github: "https://github.com/asmitalok18/Portfolio",
+      live: "https://portfolio-chi-one-53.vercel.app/",
       featured: false
     },
     {
