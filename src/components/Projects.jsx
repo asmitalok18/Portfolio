@@ -8,70 +8,52 @@ const Projects = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
   const projectsPerPage = 3;
 
-  const projects = [
-    {
-      title: "Blog Project",
-      description: "Built a full-stack blog app with Django REST and React, featuring JWT auth, role-based access, and scalable CRUD APIs. Integrated paginated blog cards, dynamic routing, voice-to-text blog creation, and a user-specific comment system.",
-      image: "/blog_app_image.png",
-      technologies: ["React", "Python", "Django", "MySQL", "JWT","Tailwind css"],
-      github: "https://github.com/yourusername/ecommerce",
-      live: "https://your-ecommerce-demo.vercel.app",
-    //   featured: true
-    },
-    {
-      title: "Portfolio Website",
-      description: "Developed a fully responsive portfolio website using React and Bootstrap, showcasing smooth scroll animations, modern UI design, and optimized performance across devices to highlight personal projects and skills.",
-      image: "/portfolio.png",
-      technologies: ["React", "Bootstrap", "AOS", "CSS3","Javascript","Framer Motion"],
-      github: "https://github.com/asmitalok18/Portfolio",
-      live: "https://portfolio-chi-one-53.vercel.app/",
-      featured: false
-    },
-    {
-      title: "Cricket Website",
-      description: "Developed a multi-page web app using IPL 2022 data with features like match winner prediction, team creation (Create XI), match highlights, and a user-friendly toggle switch for theme control.",
-      image: "/cricket_website.png",
-      technologies: ["React", "Material-UI","Javascript","Local Storage","Framer Motion","API"],
-      github: "https://github.com/asmitalok18/Cricket-website",
-      live: "https://cricket-website-five.vercel.app/",
-      featured: false
-    },
-    {
-      title: "PlayTube",
-      description: "Implemented secure authentication using JWT with access/refresh tokens and encrypted passwords. Integrated MongoDB via Mongoose for efficient data handling, and built custom middleware for auth, authorization, and secure file uploads.",
-      image: "/playtube.png",
-      technologies: [ "Node.js", "MongoDB","JWT","Mongoose","Express.js","Access & Refresh Tokens","Middleware","Multer"],
-      github: "https://github.com/asmitalok18/playTube",
-    //   live: "https://your-taskmanager.vercel.app",
-    //   featured: true
-    },
-    {
-      title: "EDUCATOR",
-      description: "Built a learning platform to help students explore multiple technologies, featuring a custom landing page and responsive design using CSS media queries for enhanced user experience.",
-      image: "/educator.png",
-      technologies: ["javascript","HTML","CSS"],
-      github: "https://github.com/asmitalok18/Educator",
-      live: "https://educatorweb.vercel.app/",
-      featured: false
-    },
-    {
-      title: "Student Report Management System",
-      description: "Built a C++ record management system with CRUD operations, linked list-based data storage, a percentage-based grading feature, and a user-friendly menu-driven interface for smooth navigation.",
-      image: "/student_management.jpg",
-      technologies: ["C++","Data Structure","OOPS"],
-      github: "https://github.com/yourusername/chatapp",
-      live: "https://your-chatapp.vercel.app",
-      featured: false
-    }
-  ];
+  // Fetch projects from API
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/api/projects/');
+        const data = await response.json();
+        console.log('API Response:', data); // Debug log
+        setProjects(data);
+      } catch (error) {
+        console.error('Failed to fetch projects:', error);
+        // Fallback to static data if API fails
+        setProjects([
+          {
+            name: "Blog Project",
+            description: "Built a full-stack blog app with Django REST and React, featuring JWT auth, role-based access, and scalable CRUD APIs. Integrated paginated blog cards, dynamic routing, voice-to-text blog creation, and a user-specific comment system.",
+            image_url: "/blog_app_image.png",
+            technologies: "React, Python, Django, MySQL, JWT, Tailwind css",
+            github_url: "https://github.com/yourusername/ecommerce",
+            live_url: "https://your-ecommerce-demo.vercel.app",
+          },
+          {
+            name: "Portfolio Website",
+            description: "Developed a fully responsive portfolio website using React and Bootstrap, showcasing smooth scroll animations, modern UI design, and optimized performance across devices to highlight personal projects and skills.",
+            image_url: "/portfolio.png",
+            technologies: "React, Bootstrap, AOS, CSS3, Javascript, Framer Motion",
+            github_url: "https://github.com/asmitalok18/Portfolio",
+            live_url: "https://portfolio-chi-one-53.vercel.app/",
+          }
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, []);
 
   const totalPages = Math.ceil(projects.length / projectsPerPage);
 
   // Auto-play functionality with hover pause
   useEffect(() => {
-    if (!isAutoPlay || isHovered) return;
+    if (!isAutoPlay || isHovered || totalPages <= 1) return;
     
     const interval = setInterval(() => {
       setCurrentPage((prev) => (prev + 1) % totalPages);
@@ -167,6 +149,20 @@ const Projects = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <section id="projects" className="section-padding">
+        <Container>
+          <div className="text-center">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading projects...</span>
+            </div>
+          </div>
+        </Container>
+      </section>
+    );
+  }
+
   return (
     <section id="projects" className="section-padding">
       <Container>
@@ -206,7 +202,9 @@ const Projects = () => {
             exit="exit"
           >
             <Row>
-              {getCurrentProjects().map((project, index) => (
+              {getCurrentProjects().map((project, index) => {
+                console.log('Rendering project:', project.name, project); // Debug log
+                return (
                 <Col lg={4} md={6} className="mb-4" key={`${currentPage}-${index}`}>
                   <motion.div 
                     variants={cardVariants}
@@ -216,67 +214,59 @@ const Projects = () => {
                     onMouseLeave={handleCardMouseLeave}
                   >
                     <Card className="card-custom" style={{ height: '600px' }}>
-                      <div className="position-relative overflow-hidden">
+                      <div className="position-relative" style={{ backgroundColor: '#f8f9fa', height: '250px', overflow: 'hidden', borderTopLeftRadius: '20px', borderTopRightRadius: '20px' }}>
                         <motion.img
-                          src={project.image}
-                          alt={project.title}
+                          src={project.image_url?.startsWith('/media/') 
+                            ? `http://localhost:8000${project.image_url}` 
+                            : (project.image_url || project.image)}
+                          alt={project.name || project.title}
                           className="card-img-top project-image"
-                          style={{ height: '200px', objectFit: 'cover' }}
+                          style={{ 
+                            height: '200px', 
+                            objectFit: 'contain',
+                            width: '100%',
+                            backgroundColor: 'white'
+                          }}
                           variants={imageVariants}
                           whileHover="hover"
                         />
-                        <motion.div 
-                          className="position-absolute top-0 start-0 w-100 h-100 bg-dark"
-                          initial={{ opacity: 0 }}
-                          whileHover={{ opacity: 0.8 }}
-                          transition={{ duration: 0.3 }}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                          }}
-                        >
-                          <motion.div
-                            initial={{ scale: 0 }}
-                            whileHover={{ scale: 1 }}
-                            transition={{ duration: 0.3, delay: 0.1 }}
-                          >
-                            <Button variant="outline-light" size="lg">
-                              View Project
-                            </Button>
-                          </motion.div>
-                        </motion.div>
+
                       </div>
                       
-                      <Card.Body className="d-flex flex-column" style={{ height: '400px' }}>
-                        <motion.h5 
-                          className="text-light-custom mb-3"
-                          style={{ height: '50px', overflow: 'hidden' }}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.2 }}
-                        >
-                          {project.title}
-                        </motion.h5>
+                      {/* Project name: placed just below the image */}
+                      <div className="project-name-container" style={{ padding: '12px 20px 0 20px' }}>
+                        <h3 style={{ 
+                          fontSize: '1.3rem',
+                          fontWeight: 700,
+                          color: '#ffffff',
+                          margin: '0 0 8px 0',
+                          padding: 0,
+                          textAlign: 'left',
+                          lineHeight: '1.3'
+                        }}>
+                          {project.name || project.title || 'Untitled Project'}
+                        </h3>
+                      </div>
+
+                      <Card.Body className="d-flex flex-column" style={{ height: '360px', padding: '20px 20px 20px 20px' }}>
                         
-                        <motion.p 
-                          className="text-gray-custom mb-3"
+                        <motion.div 
+                          className="text-gray-custom mb-3 project-description-scroll"
                           style={{ 
-                            height: '120px', 
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            display: '-webkit-box',
-                            WebkitLineClamp: 5,
-                            WebkitBoxOrient: 'vertical',
+                            height: '100px', 
+                            overflow: 'auto',
                             fontSize: '0.9rem',
-                            lineHeight: '1.4'
+                            lineHeight: '1.4',
+                            paddingRight: '8px'
                           }}
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           transition={{ delay: 0.3 }}
                         >
-                          {project.description}
-                        </motion.p>
+                          <p className="mb-0">
+                            {project.description}
+                          </p>
+                        </motion.div>
                         
                         <motion.div 
                           className="mb-3 flex-grow-1"
@@ -293,7 +283,7 @@ const Projects = () => {
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 0.4 }}
                         >
-                          {project.technologies.map((tech, techIndex) => (
+                          {(project.technologies || '').split(',').map((tech, techIndex) => (
                             <motion.span
                               key={techIndex}
                               whileHover={{ scale: 1.05 }}
@@ -314,7 +304,7 @@ const Projects = () => {
                                   display: 'inline-block'
                                 }}
                               >
-                                {tech}
+                                {tech.trim()}
                               </Badge>
                             </motion.span>
                           ))}
@@ -327,26 +317,15 @@ const Projects = () => {
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 0.5 }}
                         >
-                          <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
-                            <Button
-                              href={project.github}
-                              target="_blank"
-                              className="btn-outline-custom flex-fill"
-                            >
-                              <FaGithub className="me-2" />
-                              Code
-                            </Button>
-                          </motion.div>
-                          
-                          {project.live && (
-                            <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                          {(project.live_url || project.live) && (
+                            <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap" className="w-100">
                               <Button
-                                href={project.live}
+                                href={project.live_url || project.live}
                                 target="_blank"
-                                className="btn-primary-custom flex-fill"
+                                className="btn-primary-custom w-100"
                               >
                                 <FaExternalLinkAlt className="me-2" />
-                                Live
+                                View Project
                               </Button>
                             </motion.div>
                           )}
@@ -355,82 +334,65 @@ const Projects = () => {
                     </Card>
                   </motion.div>
                 </Col>
-              ))}
+                );
+              })}
             </Row>
           </motion.div>
         </AnimatePresence>
 
         {/* Navigation Controls */}
-        <Row className="mt-5">
-          <Col lg={12} className="text-center">
-            <motion.div 
-              className="d-flex justify-content-center align-items-center gap-3"
-              data-aos="fade-up"
-              data-aos-delay="300"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              <motion.button
-                className="btn btn-outline-primary"
-                onClick={handlePrevPage}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
+        {totalPages > 1 && (
+          <Row className="mt-5">
+            <Col lg={12} className="text-center">
+              <motion.div 
+                className="d-flex justify-content-center align-items-center gap-3"
+                data-aos="fade-up"
+                data-aos-delay="300"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
               >
-                <FaChevronLeft />
-              </motion.button>
+                <motion.button
+                  className="btn btn-outline-primary"
+                  onClick={handlePrevPage}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <FaChevronLeft />
+                </motion.button>
 
-              {/* Page indicators */}
-              <div className="d-flex gap-2">
-                {Array.from({ length: totalPages }, (_, index) => (
-                  <motion.button
-                    key={index}
-                    className={`btn ${currentPage === index ? 'btn-primary-custom' : 'btn-outline-secondary'}`}
-                    style={{ width: '40px', height: '40px' }}
-                    onClick={() => handlePageChange(index)}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    {index + 1}
-                  </motion.button>
-                ))}
-              </div>
+                {/* Page indicators */}
+                <div className="d-flex gap-2">
+                  {Array.from({ length: totalPages }, (_, index) => (
+                    <motion.button
+                      key={index}
+                      className={`btn ${currentPage === index ? 'btn-primary-custom' : 'btn-outline-secondary'}`}
+                      style={{ width: '40px', height: '40px' }}
+                      onClick={() => handlePageChange(index)}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      {index + 1}
+                    </motion.button>
+                  ))}
+                </div>
 
-              <motion.button
-                className="btn btn-outline-primary"
-                onClick={handleNextPage}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-              >
-                <FaChevronRight />
-              </motion.button>
-            </motion.div>
-
-            {/* Auto-play indicator */}
-            <motion.div 
-              className="mt-3"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
-            >
-              {/* <small className="text-gray-custom">
-                {isHovered ? (
-                  <span style={{ color: 'var(--primary-color)' }}>
-                    ⏸️ Auto-play paused (hover detected)
-                  </span>
-                ) : (
-                  <span>
-                    ▶️ Auto-play active
-                  </span>
-                )}
-              </small> */}
-            </motion.div>
-          </Col>
-        </Row>
+                <motion.button
+                  className="btn btn-outline-primary"
+                  onClick={handleNextPage}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <FaChevronRight />
+                </motion.button>
+              </motion.div>
+            </Col>
+          </Row>
+        )}
       </Container>
     </section>
   );

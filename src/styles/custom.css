@@ -365,12 +365,15 @@ html {
 
 .btn-primary-custom:active {
   transform: translateY(-1px) scale(1.02);
+  background: linear-gradient(45deg, var(--primary-color), #00cc6a) !important;
+  color: var(--dark-bg) !important;
 }
 
 .btn-primary-custom:focus {
   background: linear-gradient(45deg, var(--primary-color), #00cc6a) !important;
   color: var(--dark-bg) !important;
   box-shadow: var(--neon-glow), 0 0 0 0.2rem rgba(0, 255, 136, 0.25);
+  outline: none !important;
 }
 
 /* Enhanced outline button */
@@ -408,15 +411,25 @@ html {
 
 .btn-outline-custom:hover {
   color: var(--dark-bg) !important;
+  background: var(--primary-color) !important;
   transform: translateY(-3px) scale(1.05);
   box-shadow: var(--neon-glow);
   border-color: var(--primary-color) !important;
 }
 
+.btn-outline-custom:active {
+  color: var(--dark-bg) !important;
+  background: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  transform: translateY(-1px) scale(1.02);
+}
+
 .btn-outline-custom:focus {
   color: var(--primary-color) !important;
+  background: transparent !important;
   border-color: var(--primary-color) !important;
   box-shadow: var(--neon-glow), 0 0 0 0.2rem rgba(0, 255, 136, 0.25);
+  outline: none !important;
 }
 
 /* Enhanced cards with 3D effects */
@@ -770,6 +783,31 @@ html {
 .project-image:hover {
   transform: scale(1.05);
   filter: brightness(1.1) contrast(1.1);
+}
+
+/* Project description scrollable area */
+.project-description-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 255, 136, 0.5) transparent;
+}
+
+.project-description-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.project-description-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.project-description-scroll::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 136, 0.5);
+  border-radius: 3px;
+  transition: background 0.3s ease;
+}
+
+.project-description-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 136, 0.8);
 }
 
 /* Enhanced scrollbar */

@@ -5,12 +5,15 @@
 /.pnp
 .pnp.js
 
+venv/
 # testing
 /coverage
+*.pyc
 
+*.sqlite3
 # production
 /build
-
+.env
 # misc
 .DS_Store
 .env.local
