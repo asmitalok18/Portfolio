@@ -4,6 +4,9 @@ import { FaGithub, FaExternalLinkAlt, FaChevronLeft, FaChevronRight } from 'reac
 import { motion, AnimatePresence } from 'framer-motion';
 import '../styles/custom.css'
 
+// Base URL for backend API and media. Prefer REACT_APP_BASE_URL, then BASE_URL, then localhost default.
+const BASE_URL = process.env.REACT_APP_BASE_URL || process.env.BASE_URL || 'http://localhost:8000';
+
 const Projects = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
@@ -16,7 +19,7 @@ const Projects = () => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await fetch('http://localhost:8000/api/projects/');
+        const response = await fetch(`${BASE_URL}/api/projects/`);
         const data = await response.json();
         console.log('API Response:', data); // Debug log
         setProjects(data);
@@ -217,7 +220,7 @@ const Projects = () => {
                       <div className="position-relative" style={{ backgroundColor: '#f8f9fa', height: '250px', overflow: 'hidden', borderTopLeftRadius: '20px', borderTopRightRadius: '20px' }}>
                         <motion.img
                           src={project.image_url?.startsWith('/media/') 
-                            ? `http://localhost:8000${project.image_url}` 
+                            ? `${BASE_URL}${project.image_url}` 
                             : (project.image_url || project.image)}
                           alt={project.name || project.title}
                           className="card-img-top project-image"
