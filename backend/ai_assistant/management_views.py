@@ -4,14 +4,17 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse, HttpResponse, FileResponse
 from django.shortcuts import get_object_or_404
-from .models import ProjectInfo, PersonalInfo, Resume, PortfolioSettings
-from .serializers import ProjectInfoSerializer, PersonalInfoSerializer
-import json
+from django.http import FileResponse
+from .models import (
+    ProjectInfo, PersonalInfo, Resume, PortfolioSettings,
+    Skill, Experience, HeroSection, PersonalProfile, ContactSection
+)
+from .serializers import (
+    ProjectInfoSerializer, PersonalInfoSerializer, ResumeSerializer,
+    SkillSerializer, ExperienceSerializer, HeroSectionSerializer,
+    PersonalProfileSerializer, ContactSectionSerializer
+)
 import os
 
 class LoginView(APIView):
@@ -35,13 +38,12 @@ class CheckAuthView(APIView):
     def get(self, request):
         return Response({'authenticated': request.user.is_authenticated})
 
-@method_decorator(csrf_exempt, name='dispatch')
 class ProjectManagementView(APIView):
-    permission_classes = []  # Temporarily remove authentication requirement
+    permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
 
     def get(self, request):
-        projects = ProjectInfo.objects.all().order_by('-created_at')
+        projects = ProjectInfo.objects.all().order_by('display_order', '-created_at')
         serializer = ProjectInfoSerializer(projects, many=True)
         return Response(serializer.data)
 
@@ -58,7 +60,6 @@ class ProjectManagementView(APIView):
             
             # Handle image file
             if 'image' in request.FILES:
-                # Save image to media folder
                 image_file = request.FILES['image']
                 image_path = f'media/projects/{image_file.name}'
                 os.makedirs(os.path.dirname(image_path), exist_ok=True)
@@ -100,6 +101,7 @@ class ProjectManagementView(APIView):
         project.delete()
         return Response({'success': True, 'message': 'Project deleted successfully'})
 
+# Legacy PersonalInfo CRUD endpoint (kept for backward compatibility)
 class PersonalInfoManagementView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -128,45 +130,37 @@ class PersonalInfoManagementView(APIView):
         personal_info.delete()
         return Response({'success': True, 'message': 'Personal info deleted successfully'})
 
+# Resume management with versioning support
 class ResumeManagementView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
 
     def get(self, request):
         resumes = Resume.objects.all().order_by('-uploaded_at')
-        data = [{
-            'id': resume.id,
-            'title': resume.title,
-            'file': resume.file.name if resume.file else None,
-            'is_active': resume.is_active,
-            'uploaded_at': resume.uploaded_at
-        } for resume in resumes]
-        return Response(data)
+        serializer = ResumeSerializer(resumes, many=True)
+        return Response(serializer.data)
 
     def post(self, request):
         title = request.data.get('title', 'Resume')
+        version_name = request.data.get('version_name', 'v1.0')
         file = request.FILES.get('file')
+        is_active = request.data.get('is_active', 'true').lower() == 'true'
         
         if not file:
             return Response({'error': 'No file provided'}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Deactivate other resumes if this is set as active
-        if request.data.get('is_active', True):
+        if is_active:
             Resume.objects.all().update(is_active=False)
         
         resume = Resume.objects.create(
             title=title,
+            version_name=version_name,
             file=file,
-            is_active=request.data.get('is_active', True)
+            is_active=is_active
         )
         
-        return Response({
-            'id': resume.id,
-            'title': resume.title,
-            'file': resume.file.name,
-            'is_active': resume.is_active,
-            'uploaded_at': resume.uploaded_at
-        }, status=status.HTTP_201_CREATED)
+        serializer = ResumeSerializer(resume)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete(self, request, pk=None):
         resume = get_object_or_404(Resume, pk=pk)
@@ -191,6 +185,123 @@ class ResumeDownloadView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+# New structured management views
+class HeroSectionManagementView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        hero = HeroSection.objects.first()
+        if not hero:
+            hero = HeroSection.objects.create()
+        serializer = HeroSectionSerializer(hero)
+        return Response(serializer.data)
+
+    def put(self, request):
+        hero = HeroSection.objects.first()
+        if not hero:
+            hero = HeroSection.objects.create()
+        serializer = HeroSectionSerializer(hero, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class PersonalProfileManagementView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        profile = PersonalProfile.objects.first()
+        if not profile:
+            profile = PersonalProfile.objects.create()
+        serializer = PersonalProfileSerializer(profile)
+        return Response(serializer.data)
+
+    def put(self, request):
+        profile = PersonalProfile.objects.first()
+        if not profile:
+            profile = PersonalProfile.objects.create()
+        serializer = PersonalProfileSerializer(profile, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ContactSectionManagementView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        contact = ContactSection.objects.first()
+        if not contact:
+            contact = ContactSection.objects.create()
+        serializer = ContactSectionSerializer(contact)
+        return Response(serializer.data)
+
+    def put(self, request):
+        contact = ContactSection.objects.first()
+        if not contact:
+            contact = ContactSection.objects.create()
+        serializer = ContactSectionSerializer(contact, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class SkillManagementView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        skills = Skill.objects.all().order_by('display_order', 'id')
+        serializer = SkillSerializer(skills, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = SkillSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, pk=None):
+        skill = get_object_or_404(Skill, pk=pk)
+        serializer = SkillSerializer(skill, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk=None):
+        skill = get_object_or_404(Skill, pk=pk)
+        skill.delete()
+        return Response({'success': True, 'message': 'Skill deleted successfully'})
+
+class ExperienceManagementView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        experiences = Experience.objects.all().order_by('display_order', 'id')
+        serializer = ExperienceSerializer(experiences, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = ExperienceSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, pk=None):
+        experience = get_object_or_404(Experience, pk=pk)
+        serializer = ExperienceSerializer(experience, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk=None):
+        experience = get_object_or_404(Experience, pk=pk)
+        experience.delete()
+        return Response({'success': True, 'message': 'Experience deleted successfully'})
+
 class DashboardStatsView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -200,7 +311,8 @@ class DashboardStatsView(APIView):
         stats = {
             'total_projects': ProjectInfo.objects.count(),
             'total_chats': ChatHistory.objects.count(),
-            'recent_chats': ChatHistory.objects.count(),
+            'total_skills': Skill.objects.count(),
+            'total_experiences': Experience.objects.count(),
             'active_resume': Resume.objects.filter(is_active=True).exists()
         }
         

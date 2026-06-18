@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import TypewriterMessage from './TypewriterMessage';
 import '../styles/AIAssistant.css';
 
 const AIAssistant = () => {
@@ -9,7 +10,8 @@ const AIAssistant = () => {
     {
       type: 'ai',
       content: "👋 Hey there! I'm Asmit's AI assistant powered by advanced intelligence. I can tell you all about his projects, skills, experience, and professional background. What would you like to know?",
-      timestamp: new Date()
+      timestamp: new Date(),
+      isTyping: false
     }
   ]);
   const [inputMessage, setInputMessage] = useState('');
@@ -67,7 +69,8 @@ const AIAssistant = () => {
         const aiMessage = {
           type: 'ai',
           content: data.response,
-          timestamp: new Date()
+          timestamp: new Date(),
+          isTyping: true
         };
         setMessages(prev => [...prev, aiMessage]);
         setSessionId(data.session_id);
@@ -75,7 +78,8 @@ const AIAssistant = () => {
         const errorMessage = {
           type: 'ai',
           content: '🔧 Oops! I encountered a technical issue. Please try asking your question again, or feel free to explore the portfolio directly.',
-          timestamp: new Date()
+          timestamp: new Date(),
+          isTyping: true
         };
         setMessages(prev => [...prev, errorMessage]);
       }
@@ -83,7 +87,8 @@ const AIAssistant = () => {
       const errorMessage = {
         type: 'ai',
         content: '🌐 I\'m having trouble connecting right now. While I get back online, feel free to browse through Asmit\'s projects and contact information!',
-        timestamp: new Date()
+        timestamp: new Date(),
+        isTyping: true
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
@@ -96,6 +101,12 @@ const AIAssistant = () => {
       e.preventDefault();
       sendMessage();
     }
+  };
+
+  const handleTypingComplete = (messageIndex) => {
+    setMessages(prev => prev.map((msg, index) => 
+      index === messageIndex ? { ...msg, isTyping: false } : msg
+    ));
   };
 
   const quickQuestions = [
@@ -197,11 +208,20 @@ const AIAssistant = () => {
               >
                 <div className="message-content">
                   {message.type === 'ai' ? (
-                    <div className="markdown-content">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-                        {message.content}
-                      </ReactMarkdown>
-                    </div>
+                    message.isTyping ? (
+                      <TypewriterMessage
+                        content={message.content}
+                        speed={15}
+                        onComplete={() => handleTypingComplete(index)}
+                        markdownComponents={markdownComponents}
+                      />
+                    ) : (
+                      <div className="markdown-content">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                          {message.content}
+                        </ReactMarkdown>
+                      </div>
+                    )
                   ) : (
                     message.content
                   )}

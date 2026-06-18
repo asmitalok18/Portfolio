@@ -139,7 +139,7 @@
   position: fixed;
   bottom: 110px;
   right: 30px;
-  width: 380px;
+  width: 480px;
   height: 550px;
   background: linear-gradient(145deg, #1a1a1a 0%, #2c2c2c 100%);
   border-radius: 20px;
@@ -496,7 +496,7 @@
 @media (max-width: 1200px) {
   .ai-chat-window {
     right: 20px;
-    width: 350px;
+    width: 400px;
   }
 }
 
@@ -537,6 +537,20 @@
     padding: 15px 20px;
     max-height: 150px;
   }
+}
+
+/* Typewriter Effect */
+.typewriter-cursor {
+  display: inline-block;
+  background-color: #00ff88;
+  margin-left: 2px;
+  width: 2px;
+  animation: typewriter-blink 1s infinite;
+}
+
+@keyframes typewriter-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
 }
 
 /* Markdown Content Styling */

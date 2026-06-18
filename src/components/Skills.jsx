@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, ProgressBar } from 'react-bootstrap';
 import { 
   FaReact, 
@@ -23,8 +23,38 @@ import {
   SiPostman
 } from 'react-icons/si';
 
+const BASE_URL = process.env.REACT_APP_BASE_URL || process.env.BASE_URL || 'http://localhost:8000';
+
+const getIcon = (name) => {
+  const icons = {
+    FaReact: <FaReact />,
+    FaNodeJs: <FaNodeJs />,
+    FaDatabase: <FaDatabase />,
+    FaCode: <FaCode />,
+    FaGitAlt: <FaGitAlt />,
+    FaDocker: <FaDocker />,
+    FaTools: <FaTools />,
+    SiJavascript: <SiJavascript />,
+    SiTypescript: <SiTypescript />,
+    SiPython: <SiPython />,
+    SiMongodb: <SiMongodb />,
+    SiPostgresql: <SiPostgresql />,
+    SiMysql: <SiMysql />,
+    SiTailwindcss: <SiTailwindcss />,
+    SiBootstrap: <SiBootstrap />,
+    SiGithub: <SiGithub />,
+    SiVercel: <SiVercel />,
+    SiPostman: <SiPostman />
+  };
+  return icons[name] || <FaCode />;
+};
+
 const Skills = () => {
-  const skillCategories = [
+  const [skillCategories, setSkillCategories] = useState([]);
+  const [tools, setTools] = useState([]);
+
+  // Static Fallbacks
+  const fallbackCategories = [
     {
       title: "Frontend Development",
       icon: <FaCode className="fs-1 text-primary-custom" />,
@@ -56,19 +86,78 @@ const Skills = () => {
         { name: "PostgreSQL", level: 75, icon: <SiPostgresql /> },
         { name: "MySQL", level: 85, icon: <SiMysql /> },
         { name: "Docker", level: 50, icon: <FaDocker /> }
-        
       ]
     }
   ];
 
-  const tools = [
+  const fallbackTools = [
     { name: "Code Editor", icon: <FaCode /> },
     { name: "Git", icon: <FaGitAlt /> },
     { name: "GitHub", icon: <SiGithub /> },
     { name: "API Testing", icon: <FaTools /> },
     { name: "Vercel", icon: <SiVercel /> },
-    { name: "Postman",icon: <SiPostman/>}
+    { name: "Postman", icon: <SiPostman /> }
   ];
+
+  useEffect(() => {
+    const fetchSkills = async () => {
+      try {
+        const response = await fetch(`${BASE_URL}/api/portfolio-data/`);
+        if (!response.ok) throw new Error('Failed to fetch');
+        const data = await response.json();
+        
+        if (data.skills && data.skills.length > 0) {
+          // Process skills into categories & tools
+          const fetchedTools = data.skills
+            .filter(s => s.category === 'Tools')
+            .map(s => ({ name: s.name, icon: getIcon(s.icon) }));
+          
+          const categoriesMap = {
+            'Frontend Development': {
+              title: "Frontend Development",
+              icon: <FaCode className="fs-1 text-primary-custom" />,
+              skills: []
+            },
+            'Backend Development': {
+              title: "Backend Development",
+              icon: <FaNodeJs className="fs-1 text-primary-custom" />,
+              skills: []
+            },
+            'Database & DevOps': {
+              title: "Database & DevOps",
+              icon: <FaDatabase className="fs-1 text-primary-custom" />,
+              skills: []
+            }
+          };
+
+          data.skills.forEach(s => {
+            if (s.category !== 'Tools' && categoriesMap[s.category]) {
+              categoriesMap[s.category].skills.push({
+                name: s.name,
+                level: s.level,
+                icon: getIcon(s.icon)
+              });
+            }
+          });
+
+          // Convert back to array
+          const finalCategories = Object.values(categoriesMap).filter(cat => cat.skills.length > 0);
+          
+          setSkillCategories(finalCategories.length > 0 ? finalCategories : fallbackCategories);
+          setTools(fetchedTools.length > 0 ? fetchedTools : fallbackTools);
+        } else {
+          setSkillCategories(fallbackCategories);
+          setTools(fallbackTools);
+        }
+      } catch (error) {
+        console.error('Failed to load dynamic skills, using defaults:', error);
+        setSkillCategories(fallbackCategories);
+        setTools(fallbackTools);
+      }
+    };
+
+    fetchSkills();
+  }, []);
 
   return (
     <>
@@ -247,199 +336,6 @@ const Skills = () => {
           25% { transform: translateY(-20px) rotate(90deg); opacity: 1; }
           50% { transform: translateY(-10px) rotate(180deg); opacity: 0.8; }
           75% { transform: translateY(-15px) rotate(270deg); opacity: 0.9; }
-        }
-
-        /* Card Animations */
-        .animate-skill-card {
-          opacity: 0;
-          transform: translateY(30px) scale(0.9);
-          animation: slideInScale 0.6s ease-out forwards;
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .animate-skill-card:hover {
-          transform: translateY(-10px) scale(1.02);
-          box-shadow: 0 20px 40px rgba(100, 255, 218, 0.2);
-        }
-
-        @keyframes slideInScale {
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-
-        /* Icon Animations */
-        .animate-bounce-gentle {
-          animation: bounceGentle 2s ease-in-out infinite;
-        }
-
-        @keyframes bounceGentle {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-5px); }
-        }
-
-        .animate-rotate-gentle {
-          transition: transform 0.3s ease;
-        }
-
-        .animate-rotate-gentle:hover {
-          transform: rotate(360deg) scale(1.2);
-        }
-
-        /* Progress Bar Animation */
-        .animate-progress-bar {
-          overflow: hidden;
-          position: relative;
-        }
-
-        .animate-fill {
-          transform: translateX(-100%);
-          animation: fillProgress 1.5s ease-out forwards;
-        }
-
-        @keyframes fillProgress {
-          to {
-            transform: translateX(0);
-          }
-        }
-
-        .animate-fill::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          height: 100%;
-          width: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-          animation: shimmer 2s ease-in-out infinite;
-        }
-
-        @keyframes shimmer {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
-        }
-
-        /* Skill Item Animation */
-        .animate-skill-item {
-          opacity: 0;
-          transform: translateX(-20px);
-          animation: slideInLeft 0.5s ease-out forwards;
-        }
-
-        @keyframes slideInLeft {
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-
-        /* Count Up Animation */
-        .animate-count-up {
-          display: inline-block;
-          animation: countUp 0.8s ease-out;
-        }
-
-        @keyframes countUp {
-          from { 
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to { 
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        /* Tool Badge Animation */
-        .animate-tool-badge {
-          opacity: 0;
-          transform: translateY(20px) scale(0.8);
-          animation: popIn 0.4s ease-out forwards;
-          transition: all 0.3s ease;
-        }
-
-        .animate-tool-badge:hover {
-          transform: translateY(-3px) scale(1.05);
-          box-shadow: 0 10px 20px rgba(100, 255, 218, 0.3);
-        }
-
-        @keyframes popIn {
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-
-        /* Pulse Animation for Icons */
-        .animate-pulse-gentle {
-          animation: pulseGentle 2s ease-in-out infinite;
-        }
-
-        @keyframes pulseGentle {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.7; transform: scale(1.1); }
-        }
-
-        /* Fade In Up Animation */
-        .animate-fade-in-up {
-          opacity: 0;
-          transform: translateY(30px);
-          animation: fadeInUp 0.8s ease-out forwards;
-        }
-
-        @keyframes fadeInUp {
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        /* Slide In Animation */
-        .animate-slide-in {
-          opacity: 0;
-          transform: translateX(-30px);
-          animation: slideIn 0.6s ease-out forwards;
-        }
-
-        @keyframes slideIn {
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-
-        /* Enhanced Hover Effects */
-        .skill-card {
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-          position: relative;
-          overflow: hidden;
-        }
-
-        .skill-card::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(100, 255, 218, 0.1), transparent);
-          transition: left 0.5s ease;
-        }
-
-        .skill-card:hover::before {
-          left: 100%;
-        }
-
-        /* Mobile Responsive Animations */
-        @media (max-width: 768px) {
-          .animate-skill-card:hover {
-            transform: translateY(-5px) scale(1.01);
-          }
-          
-          .animate-tool-badge:hover {
-            transform: translateY(-2px) scale(1.02);
-          }
         }
       `}</style>
     </>

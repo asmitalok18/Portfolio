@@ -4,6 +4,9 @@ import { FaLinkedin, FaGithub, FaWhatsapp, FaTelegram, FaDownload } from 'react-
 import { motion } from 'framer-motion';
 import '../styles/custom.css'
 
+const BASE_URL = process.env.REACT_APP_BASE_URL || process.env.BASE_URL || 'http://localhost:8000';
+
+
 const Hero = () => {
   // Complex animation variants
   const containerVariants = {
@@ -307,7 +310,7 @@ const Hero = () => {
                     whileTap={{ scale: 0.95 }}
                   >
                     <Button 
-                      href="/resume.pdf" 
+                      href={`${BASE_URL}/api/resume/download/`} 
                       className="btn-outline-custom"
                       size="lg"
                       download="Asmit_Alok_full_stack_resume.pdf"
@@ -367,7 +370,7 @@ const Hero = () => {
                   animate={floatingAnimation}
                 >
                   <motion.img 
-                    src="/asmit_image1.png" 
+                    src="/image.jpg" 
                     alt="Asmit Alok"
                     className="img-fluid rounded-circle hero-image"
                     style={{ 

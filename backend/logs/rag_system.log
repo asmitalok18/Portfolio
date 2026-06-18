@@ -1,0 +1,140 @@
+INFO 2026-02-10 09:29:35,761 rag_service 96137 134389390374464 Loaded embedding model: all-MiniLM-L6-v2
+INFO 2026-02-10 09:29:39,037 rag_service 96137 134389390374464 Connected to Pinecone index: asmit
+INFO 2026-02-10 09:42:49,990 rag_service 99591 137253296467968 Loaded embedding model: all-MiniLM-L6-v2
+INFO 2026-02-10 09:42:53,231 rag_service 99591 137253296467968 Connected to Pinecone index: asmit
+INFO 2026-02-10 09:42:55,788 rag_service 99591 137253296467968 Initializing RAG knowledge base...
+INFO 2026-02-10 09:43:01,984 rag_service 99591 137253296467968 Processed 9 document chunks
+INFO 2026-02-10 09:43:01,986 rag_service 99591 137253296467968 Generating embeddings for 9 chunks...
+ERROR 2026-02-10 09:43:04,590 rag_service 99591 137253296467968 Error upserting vectors to Pinecone: (400)
+Reason: Bad Request
+HTTP response headers: HTTPHeaderDict({'Date': 'Tue, 10 Feb 2026 15:43:04 GMT', 'Content-Type': 'application/json', 'Content-Length': '103', 'Connection': 'keep-alive', 'x-pinecone-request-latency-ms': '924', 'x-envoy-upstream-service-time': '72', 'x-pinecone-response-duration-ms': '927', 'server': 'envoy'})
+HTTP response body: {"code":3,"message":"Vector dimension 384 does not match the dimension of the index 1024","details":[]}
+
+ERROR 2026-02-10 09:43:04,595 rag_service 99591 137253296467968 Failed to upsert vectors to Pinecone
+INFO 2026-02-10 09:47:54,212 rag_service 99938 135654596202496 Loaded embedding model: all-MiniLM-L6-v2
+INFO 2026-02-10 09:48:02,009 rag_service 99938 135654596202496 Loaded embedding model: all-MiniLM-L6-v2
+ERROR 2026-02-10 09:48:02,010 rag_service 99938 135654596202496 Dimension mismatch for Pinecone index 'asmit'!
+Expected dimension: 384 (using all-MiniLM-L6-v2)
+Existing index dimension: 1024
+
+SOLUTION: Delete the existing Pinecone index and run the initialization again.
+Pinecone console: https://app.pinecone.io/
+ERROR 2026-02-10 09:48:02,012 rag_service 99938 135654596202496 Failed to initialize Pinecone index: Dimension mismatch for Pinecone index 'asmit'!
+Expected dimension: 384 (using all-MiniLM-L6-v2)
+Existing index dimension: 1024
+
+SOLUTION: Delete the existing Pinecone index and run the initialization again.
+Pinecone console: https://app.pinecone.io/
+INFO 2026-02-10 09:48:53,052 rag_service 100134 140551559450624 Loaded embedding model: all-MiniLM-L6-v2
+INFO 2026-02-10 09:49:00,825 rag_service 100134 140551559450624 Loaded embedding model: all-MiniLM-L6-v2
+ERROR 2026-02-10 09:49:00,825 rag_service 100134 140551559450624 Dimension mismatch for Pinecone index 'asmit'!
+Expected dimension: 384 (using all-MiniLM-L6-v2)
+Existing index dimension: 1024
+
+SOLUTION: Delete the existing Pinecone index and run the initialization again.
+Pinecone console: https://app.pinecone.io/
+ERROR 2026-02-10 09:49:00,825 rag_service 100134 140551559450624 Failed to initialize Pinecone index: Dimension mismatch for Pinecone index 'asmit'!
+Expected dimension: 384 (using all-MiniLM-L6-v2)
+Existing index dimension: 1024
+
+SOLUTION: Delete the existing Pinecone index and run the initialization again.
+Pinecone console: https://app.pinecone.io/
+INFO 2026-02-10 09:53:11,874 rag_service 100382 125840302698496 Loaded embedding model: all-MiniLM-L6-v2
+INFO 2026-02-10 09:53:13,787 rag_service 100382 125840302698496 🗑️  Force deletion enabled - deleting existing index: asmit
+INFO 2026-02-10 09:53:23,789 rag_service 100382 125840302698496 Creating new Pinecone index: asmit with dimension 384
+ERROR 2026-02-10 09:53:24,223 rag_service 100382 125840302698496 Failed to initialize Pinecone index: (404)
+Reason: Not Found
+HTTP response headers: HTTPHeaderDict({'content-type': 'text/plain; charset=utf-8', 'vary': 'origin, access-control-request-method, access-control-request-headers', 'access-control-allow-origin': '*', 'access-control-expose-headers': '*', 'x-pinecone-api-version': '2025-10', 'x-cloud-trace-context': 'd774bb12ad58bc5b3ab31eebfec7270a', 'date': 'Tue, 10 Feb 2026 15:53:24 GMT', 'server': 'Google Frontend', 'Content-Length': '107', 'Via': '1.1 google', 'Alt-Svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'})
+HTTP response body: {"error":{"code":"NOT_FOUND","message":"Resource cloud: aws region: us-east-1-aws not found"},"status":404}
+
+INFO 2026-02-10 09:56:46,971 rag_service 100733 132901243359232 Loaded embedding model: all-MiniLM-L6-v2
+INFO 2026-02-10 09:56:49,007 rag_service 100733 132901243359232 Found existing Pinecone index with correct dimension: 384
+INFO 2026-02-10 09:56:49,068 rag_service 100733 132901243359232 Connected to Pinecone index: asmit-portfolio-rag
+INFO 2026-02-10 09:56:51,259 rag_service 100733 132901243359232 Initializing RAG knowledge base...
+INFO 2026-02-10 09:56:55,743 rag_service 100733 132901243359232 Processed 9 document chunks
+INFO 2026-02-10 09:56:55,744 rag_service 100733 132901243359232 Generating embeddings for 9 chunks...
+INFO 2026-02-10 09:56:57,609 rag_service 100733 132901243359232 Successfully upserted 9 vectors to Pinecone
+INFO 2026-02-10 09:56:57,609 rag_service 100733 132901243359232 Successfully initialized knowledge base with 9 vectors
+INFO 2026-02-10 09:57:39,326 rag_service 100908 138302459999808 Loaded embedding model: all-MiniLM-L6-v2
+INFO 2026-02-10 09:57:41,234 rag_service 100908 138302459999808 Found existing Pinecone index with correct dimension: 384
+INFO 2026-02-10 09:57:41,420 rag_service 100908 138302459999808 Connected to Pinecone index: asmit-portfolio-rag
+INFO 2026-02-10 10:08:40,341 rag_service 103831 135679233519616 Loaded embedding model: all-MiniLM-L6-v2
+INFO 2026-02-10 10:08:42,737 rag_service 103831 135679233519616 Found existing Pinecone index with correct dimension: 384
+INFO 2026-02-10 10:08:42,812 rag_service 103831 135679233519616 Connected to Pinecone index: asmit-portfolio-rag
+INFO 2026-02-10 10:08:43,180 rag_service 103831 135679233519616 Initializing RAG knowledge base...
+INFO 2026-02-10 10:08:47,727 rag_service 103831 135679233519616 Processed 16 document chunks
+INFO 2026-02-10 10:08:47,727 rag_service 103831 135679233519616 Generating embeddings for 16 chunks...
+INFO 2026-02-10 10:08:51,444 rag_service 103831 135679233519616 Successfully upserted 16 vectors to Pinecone
+INFO 2026-02-10 10:08:51,444 rag_service 103831 135679233519616 Successfully initialized knowledge base with 16 vectors
+INFO 2026-02-10 10:10:35,885 rag_service 104017 137014251877952 Loaded embedding model: all-MiniLM-L6-v2
+INFO 2026-02-10 10:10:38,351 rag_service 104017 137014251877952 Found existing Pinecone index with correct dimension: 384
+INFO 2026-02-10 10:10:38,543 rag_service 104017 137014251877952 Connected to Pinecone index: asmit-portfolio-rag
+INFO 2026-02-10 10:19:55,977 rag_service 104017 137014251877952 Loaded embedding model: all-MiniLM-L6-v2
+INFO 2026-02-10 10:19:58,010 rag_service 104017 137014251877952 Found existing Pinecone index with correct dimension: 384
+INFO 2026-02-10 10:19:58,011 rag_service 104017 137014251877952 Connected to Pinecone index: asmit-portfolio-rag
+INFO 2026-02-10 10:22:02,414 rag_service 105214 136163836819008 Loaded embedding model: all-MiniLM-L6-v2
+INFO 2026-02-10 10:22:05,310 rag_service 105214 136163836819008 Found existing Pinecone index with correct dimension: 384
+INFO 2026-02-10 10:22:05,479 rag_service 105214 136163836819008 Connected to Pinecone index: asmit-portfolio-rag
+INFO 2026-02-10 10:30:08,774 rag_service 105214 136163566286400 Loaded embedding model: all-MiniLM-L6-v2
+INFO 2026-02-10 10:30:11,534 rag_service 105214 136163566286400 Found existing Pinecone index with correct dimension: 384
+INFO 2026-02-10 10:30:11,536 rag_service 105214 136163566286400 Connected to Pinecone index: asmit-portfolio-rag
+INFO 2026-02-10 10:35:37,657 rag_service 105214 136163566286400 Loaded embedding model: all-MiniLM-L6-v2
+INFO 2026-02-10 10:35:39,897 rag_service 105214 136163566286400 Found existing Pinecone index with correct dimension: 384
+INFO 2026-02-10 10:35:39,899 rag_service 105214 136163566286400 Connected to Pinecone index: asmit-portfolio-rag
+INFO 2026-02-10 10:43:48,975 rag_service 109475 138774415668800 Loaded embedding model: all-MiniLM-L6-v2
+INFO 2026-02-10 10:43:51,626 rag_service 109475 138774415668800 Found existing Pinecone index with correct dimension: 384
+INFO 2026-02-10 10:43:51,704 rag_service 109475 138774415668800 Connected to Pinecone index: asmit-portfolio-rag
+INFO 2026-02-10 21:32:19,687 rag_service 7733 134161516983872 Loaded embedding model: all-MiniLM-L6-v2
+INFO 2026-02-10 21:32:23,602 rag_service 7733 134161516983872 Found existing Pinecone index with correct dimension: 384
+INFO 2026-02-10 21:32:23,773 rag_service 7733 134161516983872 Connected to Pinecone index: asmit-portfolio-rag
+INFO 2026-02-10 21:42:07,624 rag_service 11677 127685302022144 Loaded embedding model: all-MiniLM-L6-v2
+INFO 2026-02-10 21:42:09,864 rag_service 11677 127685302022144 Found existing Pinecone index with correct dimension: 384
+INFO 2026-02-10 21:42:09,938 rag_service 11677 127685302022144 Connected to Pinecone index: asmit-portfolio-rag
+INFO 2026-02-10 21:42:10,296 rag_service 11677 127685302022144 Initializing RAG knowledge base...
+INFO 2026-02-10 21:42:14,881 rag_service 11677 127685302022144 Processed 13 document chunks
+INFO 2026-02-10 21:42:14,882 rag_service 11677 127685302022144 Generating embeddings for 13 chunks...
+INFO 2026-02-10 21:42:20,103 rag_service 11677 127685302022144 Successfully upserted 13 vectors to Pinecone
+INFO 2026-02-10 21:42:20,103 rag_service 11677 127685302022144 Successfully initialized knowledge base with 13 vectors
+INFO 2026-02-10 21:42:59,244 rag_service 11912 135828099670016 Loaded embedding model: all-MiniLM-L6-v2
+INFO 2026-02-10 21:43:01,679 rag_service 11912 135828099670016 Found existing Pinecone index with correct dimension: 384
+INFO 2026-02-10 21:43:01,799 rag_service 11912 135828099670016 Connected to Pinecone index: asmit-portfolio-rag
+INFO 2026-02-10 21:43:09,553 rag_service 11912 135828099670016 Loaded embedding model: all-MiniLM-L6-v2
+INFO 2026-02-10 21:43:10,096 rag_service 11912 135828099670016 Successfully upserted 1 vectors to Pinecone
+INFO 2026-02-10 21:43:10,997 rag_service 11912 135828099670016 Deleted 1 vectors from Pinecone
+INFO 2026-02-10 21:43:13,045 rag_service 11912 135828099670016 Processed 13 document chunks
+INFO 2026-02-10 21:43:19,094 rag_service 11912 135828099670016 Loaded embedding model: all-MiniLM-L6-v2
+INFO 2026-02-10 21:43:21,853 rag_service 11912 135828099670016 Found existing Pinecone index with correct dimension: 384
+INFO 2026-02-10 21:43:21,855 rag_service 11912 135828099670016 Connected to Pinecone index: asmit-portfolio-rag
+INFO 2026-02-10 21:44:44,131 rag_service 12628 131729659524672 Loaded embedding model: all-MiniLM-L6-v2
+INFO 2026-02-10 21:44:46,341 rag_service 12628 131729659524672 Found existing Pinecone index with correct dimension: 384
+INFO 2026-02-10 21:44:46,432 rag_service 12628 131729659524672 Connected to Pinecone index: asmit-portfolio-rag
+INFO 2026-02-10 21:46:09,912 rag_service 12628 131729659524672 Loaded embedding model: all-MiniLM-L6-v2
+INFO 2026-02-10 21:46:12,649 rag_service 12628 131729659524672 Found existing Pinecone index with correct dimension: 384
+INFO 2026-02-10 21:46:12,653 rag_service 12628 131729659524672 Connected to Pinecone index: asmit-portfolio-rag
+INFO 2026-02-10 21:51:53,798 rag_service 30301 132754525120064 Loaded embedding model: all-MiniLM-L6-v2
+INFO 2026-02-10 21:51:55,875 rag_service 30301 132754525120064 Found existing Pinecone index with correct dimension: 384
+INFO 2026-02-10 21:51:56,063 rag_service 30301 132754525120064 Connected to Pinecone index: asmit-portfolio-rag
+INFO 2026-02-10 21:52:38,136 rag_service 30301 132754525120064 Loaded embedding model: all-MiniLM-L6-v2
+INFO 2026-02-10 21:52:41,199 rag_service 30301 132754525120064 Found existing Pinecone index with correct dimension: 384
+INFO 2026-02-10 21:52:41,201 rag_service 30301 132754525120064 Connected to Pinecone index: asmit-portfolio-rag
+INFO 2026-02-10 22:20:00,312 rag_service 56484 138618519680576 Loaded embedding model: all-MiniLM-L6-v2
+INFO 2026-02-10 22:20:02,569 rag_service 56484 138618519680576 Found existing Pinecone index with correct dimension: 384
+INFO 2026-02-10 22:20:02,844 rag_service 56484 138618519680576 Connected to Pinecone index: asmit-portfolio-rag
+INFO 2026-02-10 22:21:23,660 rag_service 56484 138618519680576 Loaded embedding model: all-MiniLM-L6-v2
+INFO 2026-02-10 22:21:26,214 rag_service 56484 138618519680576 Found existing Pinecone index with correct dimension: 384
+INFO 2026-02-10 22:21:26,216 rag_service 56484 138618519680576 Connected to Pinecone index: asmit-portfolio-rag
+INFO 2026-02-10 22:31:17,516 rag_service 56484 138618519680576 Loaded embedding model: all-MiniLM-L6-v2
+INFO 2026-02-10 22:31:20,345 rag_service 56484 138618519680576 Found existing Pinecone index with correct dimension: 384
+INFO 2026-02-10 22:31:20,347 rag_service 56484 138618519680576 Connected to Pinecone index: asmit-portfolio-rag
+INFO 2026-02-10 23:04:08,668 rag_service 56484 138618519680576 Loaded embedding model: all-MiniLM-L6-v2
+INFO 2026-02-10 23:04:11,219 rag_service 56484 138618519680576 Found existing Pinecone index with correct dimension: 384
+INFO 2026-02-10 23:04:11,220 rag_service 56484 138618519680576 Connected to Pinecone index: asmit-portfolio-rag
+INFO 2026-02-11 23:54:22,295 rag_service 79491 133932176635456 Loaded embedding model: all-MiniLM-L6-v2
+INFO 2026-02-11 23:54:25,113 rag_service 79491 133932176635456 Found existing Pinecone index with correct dimension: 384
+INFO 2026-02-11 23:54:25,365 rag_service 79491 133932176635456 Connected to Pinecone index: asmit-portfolio-rag
+INFO 2026-05-07 09:58:34,829 rag_service 651159 129486976706112 Loaded embedding model: all-MiniLM-L6-v2
+INFO 2026-05-07 09:58:37,751 rag_service 651159 129486976706112 Found existing Pinecone index with correct dimension: 384
+INFO 2026-05-07 09:58:37,898 rag_service 651159 129486976706112 Connected to Pinecone index: asmit-portfolio-rag
+INFO 2026-06-18 12:11:00,516 rag_service 741528 131180227720768 Loaded embedding model: all-MiniLM-L6-v2
+INFO 2026-06-18 12:11:03,996 rag_service 741528 131180227720768 Found existing Pinecone index with correct dimension: 384
+INFO 2026-06-18 12:11:04,128 rag_service 741528 131180227720768 Connected to Pinecone index: asmit-portfolio-rag

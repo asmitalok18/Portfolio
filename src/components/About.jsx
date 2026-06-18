@@ -137,7 +137,7 @@ const About = () => {
                   transition={{ duration: 0.6, delay: 0.6 }}
                 >
                   I specialize in React.js and Angular for frontend development and Python for backend 
-                  services, with experience in database design and . 
+                  services, with experience in database design and REST APIs. 
                   I'm committed to writing clean, efficient code and staying updated 
                   with the latest industry trends.
                 </motion.p>
