@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import '../styles/custom.css'
 
 // Base URL for backend API and media. Prefer REACT_APP_BASE_URL, then BASE_URL, then localhost default.
-const BASE_URL = process.env.REACT_APP_BASE_URL || process.env.BASE_URL || 'http://localhost:8000';
+const BASE_URL = process.env.REACT_APP_API_URL || process.env.REACT_APP_BASE_URL || 'http://localhost:8000';
 
 const Projects = () => {
   const [currentPage, setCurrentPage] = useState(0);

@@ -4,7 +4,7 @@ import { FaLinkedin, FaGithub, FaWhatsapp, FaTelegram, FaDownload } from 'react-
 import { motion } from 'framer-motion';
 import '../styles/custom.css'
 
-const BASE_URL = process.env.REACT_APP_BASE_URL || process.env.BASE_URL || 'http://localhost:8000';
+const BASE_URL = process.env.REACT_APP_API_URL || process.env.REACT_APP_BASE_URL || 'http://localhost:8000';
 
 
 const Hero = () => {

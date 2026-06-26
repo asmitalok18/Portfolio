@@ -24,3 +24,26 @@ venv/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+
+# Django generated static files
+backend/staticfiles/
+
+# Django cache/files
+backend/**/__pycache__/
+backend/**/*.pyc
+
+# Logs
+backend/logs/
+backend/*.log
+
+# Env files
+.env
+backend/.env
+
+# Local DB
+backend/db.sqlite3
+
+# Frontend build/dependencies
+node_modules/
+build/

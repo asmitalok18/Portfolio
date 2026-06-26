@@ -7,7 +7,7 @@ import {
 } from 'react-icons/fa';
 import '../styles/PortfolioManagement.css';
 
-const BASE_URL = process.env.REACT_APP_BASE_URL || process.env.BASE_URL || 'http://localhost:8000';
+const BASE_URL = process.env.REACT_APP_API_URL || process.env.REACT_APP_BASE_URL || 'http://localhost:8000';
 
 const PortfolioManagement = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
