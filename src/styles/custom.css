@@ -879,12 +879,13 @@ html {
 .project-image {
   display: block !important;
   width: 100% !important;
-  height: 250px !important;
-  object-fit: cover !important;
+  height: 100% !important;
+  object-fit: contain !important;
   object-position: center !important;
   border-radius: 20px 20px 0 0 !important;
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
+  padding: 8px;
 }
 
 .project-image::before {

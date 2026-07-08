@@ -56,9 +56,33 @@ class ProjectManagementView(APIView):
         
         serializer = ProjectInfoSerializer(data=data)
         if serializer.is_valid():
-            project = serializer.save()
-            
-            # Handle image file
+            try:
+                project = serializer.save()
+                
+                # Handle image file
+                if 'image' in request.FILES:
+                    image_file = request.FILES['image']
+                    image_path = f'media/projects/{image_file.name}'
+                    os.makedirs(os.path.dirname(image_path), exist_ok=True)
+                    
+                    with open(image_path, 'wb+') as destination:
+                        for chunk in image_file.chunks():
+                            destination.write(chunk)
+                    
+                    project.image_url = f'/media/projects/{image_file.name}'
+                    project.save()
+                
+                return Response(ProjectInfoSerializer(project).data, status=status.HTTP_201_CREATED)
+            except Exception as e:
+                return Response({'error': 'Server Error', 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, pk=None):
+        project = get_object_or_404(ProjectInfo, pk=pk)
+        data = request.data.copy()
+        
+        try:
+            # Handle image upload
             if 'image' in request.FILES:
                 image_file = request.FILES['image']
                 image_path = f'media/projects/{image_file.name}'
@@ -68,33 +92,15 @@ class ProjectManagementView(APIView):
                     for chunk in image_file.chunks():
                         destination.write(chunk)
                 
-                project.image_url = f'/media/projects/{image_file.name}'
-                project.save()
+                data['image_url'] = f'/media/projects/{image_file.name}'
             
-            return Response(ProjectInfoSerializer(project).data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def put(self, request, pk=None):
-        project = get_object_or_404(ProjectInfo, pk=pk)
-        data = request.data.copy()
-        
-        # Handle image upload
-        if 'image' in request.FILES:
-            image_file = request.FILES['image']
-            image_path = f'media/projects/{image_file.name}'
-            os.makedirs(os.path.dirname(image_path), exist_ok=True)
-            
-            with open(image_path, 'wb+') as destination:
-                for chunk in image_file.chunks():
-                    destination.write(chunk)
-            
-            data['image_url'] = f'/media/projects/{image_file.name}'
-        
-        serializer = ProjectInfoSerializer(project, data=data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            serializer = ProjectInfoSerializer(project, data=data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': 'Server Error', 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def delete(self, request, pk=None):
         project = get_object_or_404(ProjectInfo, pk=pk)

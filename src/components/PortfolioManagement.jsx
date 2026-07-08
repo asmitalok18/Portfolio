@@ -3,7 +3,8 @@ import {
   FaTachometerAlt, FaUser, FaCode, FaBriefcase, 
   FaFileAlt, FaEnvelope, FaPlus, FaEdit, 
   FaTrash, FaCloudUploadAlt, FaSignOutAlt, FaLink,
-  FaMapMarkerAlt, FaPhoneAlt, FaCheckCircle, FaProjectDiagram
+  FaMapMarkerAlt, FaPhoneAlt, FaCheckCircle, FaProjectDiagram,
+  FaSpinner
 } from 'react-icons/fa';
 import '../styles/PortfolioManagement.css';
 
@@ -986,12 +987,14 @@ const ExperienceTab = ({ experiences, setExperiences, refreshStats }) => {
 const ProjectsTab = ({ projects, setProjects, refreshStats }) => {
   const [showForm, setShowForm] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
+  const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
-    name: '', slug: '', description: '', short_description: '', technologies: '', features_list: '', github_url: '', live_url: '', status: 'Completed', is_featured: true, display_order: 0, image: null
+    name: '', slug: '', description: '', short_description: '', technologies: '', features_list: '', github_url: '', live_url: '', status: 'Completed', is_featured: true, display_order: 0, image: null, category: 'Web Application'
   });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSaving(true);
     const form = new FormData();
     
     // Convert features list newline to JSON
@@ -1037,14 +1040,20 @@ const ProjectsTab = ({ projects, setProjects, refreshStats }) => {
         }
         resetForm();
         refreshStats();
+      } else {
+        const errData = await response.json();
+        alert('Failed to save project: ' + JSON.stringify(errData));
       }
     } catch (error) {
       console.error('Failed to save project:', error);
+      alert('Error saving project: ' + error.message);
+    } finally {
+      setSaving(false);
     }
   };
 
   const resetForm = () => {
-    setFormData({ name: '', slug: '', description: '', short_description: '', technologies: '', features_list: '', github_url: '', live_url: '', status: 'Completed', is_featured: true, display_order: 0, image: null });
+    setFormData({ name: '', slug: '', description: '', short_description: '', technologies: '', features_list: '', github_url: '', live_url: '', status: 'Completed', is_featured: true, display_order: 0, image: null, category: 'Web Application' });
     setShowForm(false);
     setEditingProject(null);
   };
@@ -1071,7 +1080,8 @@ const ProjectsTab = ({ projects, setProjects, refreshStats }) => {
       status: project.status || 'Completed',
       is_featured: project.is_featured,
       display_order: project.display_order || 0,
-      image: null
+      image: null,
+      category: project.category || 'Web Application'
     });
     setShowForm(true);
   };
@@ -1112,43 +1122,54 @@ const ProjectsTab = ({ projects, setProjects, refreshStats }) => {
             <div className="form-grid-2">
               <div className="form-group-premium">
                 <label>Project Title / Display Title</label>
-                <input type="text" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} required />
+                <input type="text" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} required disabled={saving} />
               </div>
               <div className="form-group-premium">
                 <label>Slug URL string (e.g. ecommerce-react)</label>
-                <input type="text" value={formData.slug} onChange={(e) => setFormData({...formData, slug: e.target.value})} />
+                <input type="text" value={formData.slug} onChange={(e) => setFormData({...formData, slug: e.target.value})} disabled={saving} />
               </div>
             </div>
-            <div className="form-grid-2">
+            <div className="form-grid-3">
               <div className="form-group-premium">
-                <label>Short Description (for simple summary card)</label>
-                <input type="text" value={formData.short_description} onChange={(e) => setFormData({...formData, short_description: e.target.value})} />
+                <label>Short Description (simple summary card)</label>
+                <input type="text" value={formData.short_description} onChange={(e) => setFormData({...formData, short_description: e.target.value})} disabled={saving} />
               </div>
               <div className="form-group-premium">
                 <label>Tech Stack / Badges (comma separated)</label>
-                <input type="text" placeholder="React, Express, Node.js" value={formData.technologies} onChange={(e) => setFormData({...formData, technologies: e.target.value})} required />
+                <input type="text" placeholder="React, Express, Node.js" value={formData.technologies} onChange={(e) => setFormData({...formData, technologies: e.target.value})} required disabled={saving} />
+              </div>
+              <div className="form-group-premium">
+                <label>Project Category</label>
+                <select value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})} disabled={saving}>
+                  <option value="Web Application">Web Application</option>
+                  <option value="SaaS">SaaS</option>
+                  <option value="Mobile Application">Mobile Application</option>
+                  <option value="AI / Machine Learning">AI / Machine Learning</option>
+                  <option value="Content Management">Content Management</option>
+                  <option value="Other">Other</option>
+                </select>
               </div>
             </div>
             <div className="form-group-premium">
               <label>Detailed Description</label>
-              <textarea value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} required />
+              <textarea value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} required disabled={saving} />
             </div>
             <div className="form-group-premium">
               <label>Key Features & Highlights (one per line)</label>
-              <textarea placeholder="Payment gateway integration&#10;Real-time dashboard analytics..." value={formData.features_list} onChange={(e) => setFormData({...formData, features_list: e.target.value})} />
+              <textarea placeholder="Payment gateway integration&#10;Real-time dashboard analytics..." value={formData.features_list} onChange={(e) => setFormData({...formData, features_list: e.target.value})} disabled={saving} />
             </div>
             <div className="form-grid-3">
               <div className="form-group-premium">
                 <label>GitHub Repository URL</label>
-                <input type="url" value={formData.github_url} onChange={(e) => setFormData({...formData, github_url: e.target.value})} />
+                <input type="url" value={formData.github_url} onChange={(e) => setFormData({...formData, github_url: e.target.value})} disabled={saving} />
               </div>
               <div className="form-group-premium">
                 <label>Live Demo URL</label>
-                <input type="url" value={formData.live_url} onChange={(e) => setFormData({...formData, live_url: e.target.value})} />
+                <input type="url" value={formData.live_url} onChange={(e) => setFormData({...formData, live_url: e.target.value})} disabled={saving} />
               </div>
               <div className="form-group-premium">
                 <label>Project Status</label>
-                <select value={formData.status} onChange={(e) => setFormData({...formData, status: e.target.value})}>
+                <select value={formData.status} onChange={(e) => setFormData({...formData, status: e.target.value})} disabled={saving}>
                   <option value="Completed">Completed</option>
                   <option value="In Progress">In Progress</option>
                   <option value="Archived">Archived</option>
@@ -1158,20 +1179,28 @@ const ProjectsTab = ({ projects, setProjects, refreshStats }) => {
             <div className="form-grid-2">
               <div className="form-group-premium">
                 <label>Project Card Image File (overrides URL)</label>
-                <input type="file" accept="image/*" onChange={(e) => setFormData({...formData, image: e.target.files[0]})} />
+                <input type="file" accept="image/*" onChange={(e) => setFormData({...formData, image: e.target.files[0]})} disabled={saving} />
               </div>
               <div className="form-group-premium">
                 <label>Display Order Priority</label>
-                <input type="number" value={formData.display_order} onChange={(e) => setFormData({...formData, display_order: parseInt(e.target.value)})} />
+                <input type="number" value={formData.display_order} onChange={(e) => setFormData({...formData, display_order: parseInt(e.target.value)})} disabled={saving} />
               </div>
             </div>
             <div className="form-group-premium form-group-checkbox">
-              <input type="checkbox" checked={formData.is_featured} onChange={(e) => setFormData({...formData, is_featured: e.target.checked})} id="is_featured_project" />
+              <input type="checkbox" checked={formData.is_featured} onChange={(e) => setFormData({...formData, is_featured: e.target.checked})} id="is_featured_project" disabled={saving} />
               <label htmlFor="is_featured_project">Featured Showcase Item</label>
             </div>
             <div className="form-actions-premium">
-              <button type="submit" className="btn-premium-save">{editingProject ? 'Save Showcase' : 'Launch Project'}</button>
-              <button type="button" className="btn-premium-cancel" onClick={resetForm}>Cancel</button>
+              <button type="submit" className="btn-premium-save" disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {saving ? (
+                  <>
+                    <FaSpinner className="spinner-icon" /> Saving...
+                  </>
+                ) : (
+                  editingProject ? 'Save Showcase' : 'Launch Project'
+                )}
+              </button>
+              <button type="button" className="btn-premium-cancel" onClick={resetForm} disabled={saving}>Cancel</button>
             </div>
           </form>
         </div>
@@ -1181,7 +1210,30 @@ const ProjectsTab = ({ projects, setProjects, refreshStats }) => {
         {projects.map(proj => (
           <div key={proj.id} className="premium-item-card">
             {proj.image_url && (
-              <img src={`${BASE_URL}${proj.image_url}`} alt={proj.name} className="project-image" style={{ margin: '-25px -25px 20px -25px', width: 'calc(100% + 50px)', borderRadius: '16px 16px 0 0', height: '180px' }} />
+              <div 
+                className="overflow-hidden" 
+                style={{ 
+                  margin: '-25px -25px 20px -25px', 
+                  width: 'calc(100% + 50px)', 
+                  aspectRatio: '16/9',
+                  background: 'linear-gradient(135deg, #09090b, #18181b)',
+                  borderBottom: '1px solid rgba(0, 255, 136, 0.1)',
+                  borderRadius: '16px 16px 0 0'
+                }}
+              >
+                <img 
+                  src={`${BASE_URL}${proj.image_url}`} 
+                  alt={proj.name} 
+                  className="project-image" 
+                  style={{ 
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain',
+                    objectPosition: 'center',
+                    padding: '8px'
+                  }} 
+                />
+              </div>
             )}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>

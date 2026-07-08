@@ -217,7 +217,16 @@ const Projects = () => {
                     onMouseLeave={handleCardMouseLeave}
                   >
                     <Card className="card-custom" style={{ height: '600px' }}>
-                      <div className="position-relative" style={{ backgroundColor: '#f8f9fa', height: '250px', overflow: 'hidden', borderTopLeftRadius: '20px', borderTopRightRadius: '20px' }}>
+                      <div 
+                        className="position-relative w-100 overflow-hidden" 
+                        style={{ 
+                          aspectRatio: '16/9',
+                          background: 'linear-gradient(135deg, #09090b, #18181b)',
+                          borderBottom: '1px solid rgba(0, 255, 136, 0.1)',
+                          borderTopLeftRadius: '20px',
+                          borderTopRightRadius: '20px'
+                        }}
+                      >
                         <motion.img
                           src={project.image_url?.startsWith('/media/') 
                             ? `${BASE_URL}${project.image_url}` 
@@ -225,15 +234,15 @@ const Projects = () => {
                           alt={project.name || project.title}
                           className="card-img-top project-image"
                           style={{ 
-                            height: '200px', 
-                            objectFit: 'contain',
                             width: '100%',
-                            backgroundColor: 'white'
+                            height: '100%',
+                            objectFit: 'contain',
+                            objectPosition: 'center',
+                            padding: '8px'
                           }}
                           variants={imageVariants}
                           whileHover="hover"
                         />
-
                       </div>
                       
                       {/* Project name: placed just below the image */}
