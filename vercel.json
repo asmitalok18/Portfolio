@@ -1,4 +1,11 @@
 {
+  "framework": "create-react-app",
+  "build": {
+    "env": {
+      "CI": "false",
+      "REACT_APP_API_URL": "https://backend-two-tau-25.vercel.app"
+    }
+  },
   "rewrites": [
     {
       "source": "/(.*)",

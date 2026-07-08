@@ -3,10 +3,8 @@ import json
 import uuid
 import hashlib
 from typing import List, Dict, Any, Optional, Tuple
-import numpy as np
-from sentence_transformers import SentenceTransformer
-from pinecone import Pinecone, ServerlessSpec
 import openai
+from pinecone import Pinecone, ServerlessSpec
 from django.conf import settings
 from django.core.cache import cache
 from .models import KnowledgeBase, ProjectInfo, PersonalInfo, Resume, ChatHistory
@@ -16,32 +14,28 @@ import tiktoken
 logger = logging.getLogger(__name__)
 
 class EmbeddingService:
-    """Service for generating and managing embeddings"""
+    """Service for generating and managing embeddings using OpenAI"""
     
     def __init__(self):
-        self.model_name = "all-MiniLM-L6-v2"  # Fast and efficient embedding model
-        self.model = None
-        self.dimension = 384  # Dimension for all-MiniLM-L6-v2
-        self._load_model()
-    
-    def _load_model(self):
-        """Lazy load the embedding model"""
-        if self.model is None:
-            try:
-                self.model = SentenceTransformer(self.model_name)
-                logger.info(f"Loaded embedding model: {self.model_name}")
-            except Exception as e:
-                logger.error(f"Failed to load embedding model: {str(e)}")
-                raise
+        self.model_name = "text-embedding-3-small"
+        self.dimension = 1536  # Dimension for OpenAI's small embedding model
+        
+        api_key = getattr(settings, 'OPENAI_API_KEY', None)
+        if not api_key or api_key == 'your-openai-api-key-here':
+            logger.warning("OPENAI_API_KEY is not set. Embedding generation will fail.")
+        
+        self.client = openai.OpenAI(api_key=api_key)
     
     def generate_embedding(self, text: str) -> List[float]:
         """Generate embedding for a given text"""
         try:
-            self._load_model()
             # Clean and normalize text
             cleaned_text = self._clean_text(text)
-            embedding = self.model.encode(cleaned_text, normalize_embeddings=True)
-            return embedding.tolist()
+            response = self.client.embeddings.create(
+                input=[cleaned_text],
+                model=self.model_name
+            )
+            return response.data[0].embedding
         except Exception as e:
             logger.error(f"Error generating embedding: {str(e)}")
             raise
@@ -49,10 +43,12 @@ class EmbeddingService:
     def generate_embeddings_batch(self, texts: List[str]) -> List[List[float]]:
         """Generate embeddings for multiple texts efficiently"""
         try:
-            self._load_model()
             cleaned_texts = [self._clean_text(text) for text in texts]
-            embeddings = self.model.encode(cleaned_texts, normalize_embeddings=True, batch_size=32)
-            return embeddings.tolist()
+            response = self.client.embeddings.create(
+                input=cleaned_texts,
+                model=self.model_name
+            )
+            return [data.embedding for data in response.data]
         except Exception as e:
             logger.error(f"Error generating batch embeddings: {str(e)}")
             raise
@@ -74,8 +70,8 @@ class PineconeService:
     def __init__(self):
         self.api_key = settings.PINECONE_API_KEY
         self.environment = getattr(settings, 'PINECONE_ENVIRONMENT', 'us-east-1-aws')
-        self.index_name = getattr(settings, 'PINECONE_INDEX_NAME', 'asmit-portfolio-rag')
-        self.dimension = 384  # Must match embedding model dimension
+        self.index_name = getattr(settings, 'PINECONE_INDEX_NAME', 'asmit-portfolio-rag-v2')
+        self.dimension = 1536  # Must match embedding model dimension
         
         if not self.api_key or self.api_key == 'your-pinecone-api-key-here':
             raise ValueError("Pinecone API key is not configured. Please set PINECONE_API_KEY in your .env file.")

@@ -8,7 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-default-key-change-in-production')
 DEBUG = os.environ.get("DEBUG", "False") == "True"
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.onrender.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.onrender.com', '.vercel.app']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -99,6 +99,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "https://portfolio-chi-one-53.vercel.app",
+    "https://asmitportfolio-five.vercel.app",
+    "https://asmitportfolio-5yf60qhal-alokasmitgmailcoms-projects.vercel.app",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -108,6 +110,8 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "https://portfolio-chi-one-53.vercel.app",
+    "https://asmitportfolio-five.vercel.app",
+    "https://asmitportfolio-5yf60qhal-alokasmitgmailcoms-projects.vercel.app",
     "https://*.onrender.com",
 ]
 
@@ -155,12 +159,6 @@ LOGGING = {
         },
     },
     'handlers': {
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': BASE_DIR / 'logs' / 'rag_system.log',
-            'formatter': 'verbose',
-        },
         'console': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
@@ -169,15 +167,12 @@ LOGGING = {
     },
     'loggers': {
         'ai_assistant': {
-            'handlers': ['file', 'console'],
+            'handlers': ['console'],
             'level': 'INFO',
             'propagate': True,
         },
     },
 }
-
-# Create logs directory if it doesn't exist
-os.makedirs(BASE_DIR / 'logs', exist_ok=True)
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
