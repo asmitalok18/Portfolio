@@ -37,6 +37,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'portfolio_ai.urls'
 
+WSGI_APPLICATION = 'portfolio_ai.wsgi.application'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
