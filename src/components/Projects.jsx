@@ -142,7 +142,7 @@ const Projects = () => {
   const buttonVariants = {
     hover: {
       scale: 1.05,
-      boxShadow: "0 10px 25px rgba(0, 255, 136, 0.4)",
+      boxShadow: "0 10px 25px rgba(0, 0, 0, 0.3)",
       transition: {
         duration: 0.2
       }
@@ -221,12 +221,11 @@ const Projects = () => {
                         className="position-relative w-100 overflow-hidden" 
                         style={{ 
                           aspectRatio: '16/9',
-                          background: 'linear-gradient(135deg, #09090b, #18181b)',
-                          borderBottom: '1px solid rgba(0, 255, 136, 0.1)',
+                          background: '#0a0a0a',
+                          borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
                           borderTopLeftRadius: '20px',
                           borderTopRightRadius: '20px'
-                        }}
-                      >
+                        }}>
                         <motion.img
                           src={project.image_url?.startsWith('/media/') 
                             ? `${BASE_URL}${project.image_url}` 
@@ -305,9 +304,9 @@ const Projects = () => {
                                 bg="outline-primary" 
                                 className="badge-custom"
                                 style={{
-                                  backgroundColor: 'rgba(0, 255, 136, 0.1)',
-                                  border: '1px solid var(--primary-color)',
-                                  color: 'var(--primary-color)',
+                                  backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                                  color: '#b8afa8',
                                   fontSize: '0.7rem',
                                   padding: '0.4rem 0.8rem',
                                   borderRadius: '15px',

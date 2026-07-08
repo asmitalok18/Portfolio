@@ -39,11 +39,11 @@ const Header = () => {
   const linkVariants = {
     inactive: {
       scale: 1,
-      color: "#ffffff"
+      color: "#b8afa8"
     },
     active: {
-      scale: 1.1,
-      color: "#00ff88",
+      scale: 1.05,
+      color: "#ffffff",
       transition: {
         duration: 0.3,
         ease: "easeInOut"
@@ -52,7 +52,7 @@ const Header = () => {
     hover: {
       scale: 1.05,
       y: -2,
-      color: "#00ff88",
+      color: "#ffffff",
       transition: {
         duration: 0.2
       }
@@ -90,7 +90,7 @@ const Header = () => {
             href="#home" 
             className={`navbar-brand-custom ${scrolled ? 'scrolled' : ''}`}
           >
-            &lt;Asmit Alok/&gt;
+            &lt;Asmit Alok<span style={{ color: '#ff6a00' }}>/&gt;</span>
           </Navbar.Brand>
         </motion.div>
         

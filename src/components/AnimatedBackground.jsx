@@ -2,27 +2,15 @@ import React, { useEffect } from 'react';
 
 const AnimatedBackground = () => {
   useEffect(() => {
-    // Force dark background on component mount
-    document.body.style.background = 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 30%, #16213e 70%, #0a0a0a 100%)';
-    document.documentElement.style.background = '#0a0a0a';
-    
-    return () => {
-      // Cleanup if needed
-    };
+    document.body.style.background = 'radial-gradient(circle at 58% 8%, rgba(255, 106, 0, 0.10), transparent 34%), radial-gradient(circle at 82% 38%, rgba(120, 53, 15, 0.08), transparent 28%), radial-gradient(circle at 16% 22%, rgba(255, 150, 60, 0.05), transparent 26%), linear-gradient(135deg, #050302 0%, #0a0504 38%, #100a06 72%, #050302 100%)';
+    document.body.style.color = '#fffaf3';
+    document.documentElement.style.background = '#050302';
+
+    return () => {};
   }, []);
 
   return (
-    <>
-      {/* Dark Animated Background */}
-      <div className="dark-animated-background"></div>
-      
-      {/* Floating Particles */}
-      <div className="floating-particles">
-        {[...Array(15)].map((_, i) => (
-          <div key={i} className="particle"></div>
-        ))}
-      </div>
-    </>
+    <div className="dark-animated-background"></div>
   );
 };
 

@@ -1,36 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card } from 'react-bootstrap';
-import { 
-  FaCalendarAlt, FaMapMarkerAlt, FaCode, FaCogs, 
-  FaFileAlt, FaDatabase, FaBrain, FaReact, 
-  FaNodeJs, FaShieldAlt, FaUsers, FaMobile 
-} from 'react-icons/fa';
+import { Container, Row, Col } from 'react-bootstrap';
+import { FaCalendarAlt, FaMapMarkerAlt, FaBriefcase, FaChevronRight } from 'react-icons/fa';
+import { motion } from 'framer-motion';
 import '../styles/Experience.css'
 
 const BASE_URL = process.env.REACT_APP_API_URL || process.env.REACT_APP_BASE_URL || 'http://localhost:8000';
-
-const getResponsibilityIcon = (text) => {
-  const lower = text.toLowerCase();
-  if (lower.includes('angular') || lower.includes('react') || lower.includes('frontend') || lower.includes('ui') || lower.includes('component')) {
-    return FaCode;
-  }
-  if (lower.includes('ngrx') || lower.includes('state') || lower.includes('integrate') || lower.includes('workflows')) {
-    return FaCogs;
-  }
-  if (lower.includes('pdf') || lower.includes('report') || lower.includes('document') || lower.includes('pptx')) {
-    return FaFileAlt;
-  }
-  if (lower.includes('db') || lower.includes('database') || lower.includes('postgres') || lower.includes('sql') || lower.includes('api') || lower.includes('backend')) {
-    return FaDatabase;
-  }
-  return FaBrain;
-};
 
 const Experience = () => {
   const [monthsExperience, setMonthsExperience] = useState(0);
   const [experiences, setExperiences] = useState([]);
 
-  // Fallbacks if backend is empty or fails
   const fallbackExperiences = [
     {
       role: "Associate Consultant L1 - Frontend Development",
@@ -62,23 +41,16 @@ const Experience = () => {
     }
   ];
 
-  // Calculate months of experience from your start date
   useEffect(() => {
     const calculateExperience = () => {
-      // Set your career start date (June 2024 based on your internship)
       const startDate = new Date('2024-06-01');
       const currentDate = new Date();
-      
       const yearDiff = currentDate.getFullYear() - startDate.getFullYear();
       const monthDiff = currentDate.getMonth() - startDate.getMonth();
-      
       const totalMonths = yearDiff * 12 + monthDiff;
       setMonthsExperience(Math.max(1, totalMonths));
     };
-
     calculateExperience();
-    
-    // Update every day to keep it current
     const interval = setInterval(calculateExperience, 24 * 60 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
@@ -89,20 +61,12 @@ const Experience = () => {
         const response = await fetch(`${BASE_URL}/api/portfolio-data/`);
         if (!response.ok) throw new Error('Network error');
         const data = await response.json();
-        
         if (data.experiences && data.experiences.length > 0) {
-          // Parse responsibilities from JSON string if needed
           const processed = data.experiences.map(exp => {
             let respArray = [];
-            try {
-              respArray = JSON.parse(exp.responsibilities);
-            } catch {
-              respArray = Array.isArray(exp.responsibilities) ? exp.responsibilities : [exp.responsibilities];
-            }
-            return {
-              ...exp,
-              responsibilities: respArray
-            };
+            try { respArray = JSON.parse(exp.responsibilities); }
+            catch { respArray = Array.isArray(exp.responsibilities) ? exp.responsibilities : [exp.responsibilities]; }
+            return { ...exp, responsibilities: respArray };
           });
           setExperiences(processed);
         } else {
@@ -113,154 +77,103 @@ const Experience = () => {
         setExperiences(fallbackExperiences);
       }
     };
-
     fetchExperiences();
   }, []);
 
   const stats = [
-    { number: `${monthsExperience}+`, label: "Months Experience" },
-    { number: "15+", label: "Technologies" },
-    { number: "7+", label: "Projects Completed" },
-    { number: "24/7", label: "Learning Mode" }
+    { value: `${monthsExperience}+`, label: "Months Experience" },
+    { value: "15+", label: "Technologies" },
+    { value: "7+", label: "Projects Built" },
+    { value: "Open", label: "Availability" }
   ];
+
+  const fadeUp = {
+    hidden: { opacity: 0, y: 25 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+  };
 
   return (
     <section id="experience" className="section-padding">
       <Container>
-        <Row>
-          <Col lg={12} className="text-center mb-5">
-            <h2 className="section-title text-light-custom" data-aos="fade-up">
+        {/* Section Header */}
+        <Row className="mb-5">
+          <Col lg={8} className="mx-auto text-center">
+            <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
+              style={{ color: '#ffffff', fontSize: 'clamp(2rem, 4vw, 2.8rem)', fontWeight: '700', marginBottom: '16px' }}
+            >
               Professional Experience
-            </h2>
+            </motion.h2>
+            <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
+              style={{ color: '#8f8780', fontSize: '1.05rem', lineHeight: '1.6' }}
+            >
+              A summary of my professional journey building scalable web applications.
+            </motion.p>
           </Col>
         </Row>
 
-        {/* Stats Section */}
-        <Row className="mb-5">
-          <Col lg={12}>
-            <div className="stats-container">
-              <Row className="g-4">
-                {stats.map((stat, index) => (
-                  <Col lg={3} md={6} key={index}>
-                    <Card className="card-custom text-center p-4 h-100" data-aos="fade-up" data-aos-delay={index * 100}>
-                      <div className="stat-number text-primary-custom display-4 fw-bold mb-2">
-                        {stat.number}
-                      </div>
-                      <div className="stat-label text-gray-custom">
-                        {stat.label}
-                      </div>
-                    </Card>
-                  </Col>
-                ))}
-              </Row>
-            </div>
-          </Col>
+        {/* Stats Row */}
+        <Row className="g-3 mb-5">
+          {stats.map((s, i) => (
+            <Col lg={3} md={6} key={i}>
+              <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }}
+                variants={{ ...fadeUp, visible: { ...fadeUp.visible, transition: { ...fadeUp.visible.transition, delay: i * 0.08 } } }}
+                className="exp-stat-card"
+              >
+                <div className="exp-stat-value">{s.value}</div>
+                <div className="exp-stat-label">{s.label}</div>
+              </motion.div>
+            </Col>
+          ))}
         </Row>
-        
-        <Row>
-          <Col lg={12}>
-            <div className="timeline-container position-relative px-4">
-              {/* Timeline line */}
-              <div 
-                className="timeline-line position-absolute bg-primary-custom"
-                style={{
-                  left: '50px',
-                  top: '0',
-                  bottom: '0',
-                  width: '3px',
-                  zIndex: 1
-                }}
-              ></div>
-              
-              {experiences.map((exp, index) => (
-                <div 
-                  key={index}
-                  className="timeline-item position-relative mb-5"
-                  data-aos="fade-up"
-                  data-aos-delay={index * 200}
-                >
-                  {/* Timeline dot */}
-                  <div 
-                    className="timeline-dot position-absolute bg-primary-custom rounded-circle d-flex align-items-center justify-content-center"
-                    style={{
-                      left: '38px',
-                      top: '30px',
-                      width: '26px',
-                      height: '26px',
-                      zIndex: 2,
-                      boxShadow: '0 0 0 4px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 255, 136, 0.4)'
-                    }}
-                  ></div>
-                  
-                  <Card 
-                    className="card-custom experience-card p-4"
-                    style={{ 
-                      marginLeft: '80px',
-                      border: '1px solid rgba(0, 255, 136, 0.3)',
-                      background: 'rgba(0, 0, 0, 0.4)',
-                      backdropFilter: 'blur(10px)'
-                    }}
-                  >
-                    <Row>
-                      <Col lg={8} md={12}>
-                        <h4 className="text-primary-custom mb-2 fw-bold">{exp.role}</h4>
-                        <h5 className="text-light-custom mb-3">{exp.company}</h5>
-                      </Col>
-                      <Col lg={4} md={12} className="text-lg-end text-md-start">
-                        <div className="mb-2">
-                          <FaCalendarAlt className="text-primary-custom me-2" />
-                          <span className="text-gray">{exp.duration}</span>
-                        </div>
-                        <div className="mb-2">
-                          <FaMapMarkerAlt className="text-primary-custom me-2" />
-                          <span className="text-gray">{exp.location}</span>
-                        </div>
-                        <span className="badge bg-primary-custom text-dark px-3 py-2 fw-semibold">
-                          {exp.type}
-                        </span>
-                      </Col>
-                    </Row>
-                    
-                    <hr className="border-primary-custom opacity-50 my-4" />
-                    
-                    <div className="responsibilities-section">
-                      <h6 className="text-light-custom mb-4 fw-bold">
-                        Key Responsibilities & Achievements
-                      </h6>
-                      <div className="row g-3">
-                        {exp.responsibilities && exp.responsibilities.map((responsibility, idx) => {
-                          const IconComponent = getResponsibilityIcon(responsibility);
-                          return (
-                            <div key={idx} className="col-12">
-                              <div className="responsibility-item d-flex align-items-start p-3 rounded-3 border border-primary-custom border-opacity-25 bg-dark bg-opacity-25">
-                                <div 
-                                  className="icon-wrapper me-3 d-flex align-items-center justify-content-center rounded-circle bg-primary-custom flex-shrink-0"
-                                  style={{ 
-                                    minWidth: '32px', 
-                                    height: '32px',
-                                    marginTop: '2px'
-                                  }}
-                                >
-                                  <IconComponent 
-                                    className="text-dark" 
-                                    style={{ fontSize: '14px' }} 
-                                  />
-                                </div>
-                                <p className="text-gray-custom mb-0 lh-base flex-grow-1">
-                                  {responsibility}
-                                </p>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </Card>
+
+        {/* Experience Cards with Timeline */}
+        <div className="exp-timeline">
+          {experiences.map((exp, index) => (
+            <motion.div key={index} className="exp-timeline-item"
+              initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }}
+              variants={{ ...fadeUp, visible: { ...fadeUp.visible, transition: { ...fadeUp.visible.transition, delay: index * 0.15 } } }}
+            >
+              {/* Timeline indicator */}
+              <div className="exp-timeline-indicator">
+                <div className="exp-timeline-dot" />
+                {index < experiences.length - 1 && <div className="exp-timeline-line" />}
+              </div>
+
+              {/* Card content */}
+              <div className="exp-card">
+                <div className="exp-card-header">
+                  <div className="exp-card-titles">
+                    <h3 className="exp-card-role">{exp.role}</h3>
+                    <h4 className="exp-card-company">{exp.company}</h4>
+                  </div>
+                  <div className="exp-card-meta">
+                    <span className="exp-meta-item">
+                      <FaCalendarAlt /> {exp.duration}
+                    </span>
+                    <span className="exp-meta-item">
+                      <FaMapMarkerAlt /> {exp.location}
+                    </span>
+                    <span className="exp-type-badge">{exp.type}</span>
+                  </div>
                 </div>
-              ))}
-            </div>
-          </Col>
-        </Row>
+
+                <div className="exp-card-divider" />
+
+                <div className="exp-achievements">
+                  <h5 className="exp-achievements-title">Key Achievements</h5>
+                  <ul className="exp-achievements-list">
+                    {exp.responsibilities && exp.responsibilities.map((item, idx) => (
+                      <li key={idx} className="exp-achievement-item">
+                        <FaChevronRight className="exp-achievement-icon" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </Container>
     </section>
   );

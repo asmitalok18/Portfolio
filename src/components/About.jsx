@@ -74,7 +74,7 @@ const About = () => {
     hover: {
       scale: 1.2,
       rotate: 360,
-      color: "#00ff88",
+      color: "#ffffff",
       transition: {
         duration: 0.5,
         ease: "easeInOut"
