@@ -193,15 +193,15 @@ const Skills = () => {
       <style>{`
         /* Category Card */
         .skill-category-card {
-          background: rgba(255,255,255,0.025);
-          border: 1px solid rgba(255,255,255,0.06);
+          background: rgba(220, 232, 245, 0.02);
+          border: 1px solid rgba(220, 232, 245, 0.06);
           border-radius: 16px;
           padding: 28px;
           height: 100%;
           transition: all 0.35s ease;
         }
         .skill-category-card:hover {
-          border-color: rgba(255,255,255,0.12);
+          border-color: rgba(220, 232, 245, 0.12);
           transform: translateY(-3px);
           box-shadow: 0 20px 60px rgba(0,0,0,0.2);
         }
@@ -214,7 +214,7 @@ const Skills = () => {
           margin-bottom: 6px;
         }
         .skill-cat-desc {
-          color: #8f8780;
+          color: #aebdcc;
           font-size: 0.82rem;
           margin-bottom: 0;
         }
@@ -237,18 +237,18 @@ const Skills = () => {
           gap: 8px;
         }
         .skill-icon-sm {
-          color: #8f8780;
+          color: #aebdcc;
           font-size: 0.85rem;
           display: flex;
           align-items: center;
         }
         .skill-name {
-          color: #fffaf3;
+          color: #f5f7fa;
           font-size: 0.88rem;
           font-weight: 500;
         }
         .skill-level {
-          color: #8f8780;
+          color: #aebdcc;
           font-size: 0.78rem;
           font-weight: 500;
         }
@@ -256,13 +256,13 @@ const Skills = () => {
         /* Progress Bar */
         .skill-bar-track {
           height: 4px;
-          background: rgba(255,255,255,0.06);
+          background: rgba(220, 232, 245, 0.06);
           border-radius: 4px;
           overflow: hidden;
         }
         .skill-bar-fill {
           height: 100%;
-          background: linear-gradient(90deg, var(--accent-main), var(--accent-dim));
+          background: linear-gradient(90deg, #aebdcc, rgba(220, 232, 245, 0.3));
           border-radius: 4px;
           transition: width 0.8s ease;
         }
@@ -278,9 +278,9 @@ const Skills = () => {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.06);
-          color: #b8afa8;
+          background: rgba(220, 232, 245, 0.03);
+          border: 1px solid rgba(220, 232, 245, 0.06);
+          color: #cbd5df;
           padding: 8px 16px;
           border-radius: 100px;
           font-size: 0.82rem;
@@ -288,13 +288,13 @@ const Skills = () => {
           transition: all 0.25s ease;
         }
         .skill-tool-chip:hover {
-          border-color: rgba(255,255,255,0.15);
-          color: #fffaf3;
+          border-color: rgba(220, 232, 245, 0.15);
+          color: #ffffff;
         }
         .skill-tool-icon {
           font-size: 0.9rem;
           display: flex;
-          color: #8f8780;
+          color: #aebdcc;
         }
       `}</style>
     </section>

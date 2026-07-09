@@ -7,7 +7,8 @@
     radial-gradient(circle at 82% 42%, rgba(120, 145, 165, 0.06), transparent 42%),
     linear-gradient(180deg, #030406 0%, #05070a 54%, #030406 100%);
   color: #f5f7fa;
-  text-align: left; /* Fix inherited centering */
+  text-align: left;
+  /* Fix inherited centering */
 }
 
 .experience-editorial::before {
@@ -15,8 +16,8 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(rgba(255,255,255,0.012) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.012) 1px, transparent 1px);
+    linear-gradient(rgba(255, 255, 255, 0.012) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.012) 1px, transparent 1px);
   background-size: 64px 64px;
   mask-image: radial-gradient(circle at 74% 40%, black, transparent 72%);
   opacity: 0.35;
@@ -40,7 +41,8 @@
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 54px;
-  text-align: left; /* Ensure left alignment */
+  text-align: left;
+  /* Ensure left alignment */
 }
 
 .experience-editorial-top {
@@ -71,7 +73,7 @@
   letter-spacing: -0.04em;
   font-weight: 500;
   color: #ffffff;
-  text-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
 }
 
 .experience-title-block p {
@@ -88,11 +90,11 @@
   grid-template-columns: repeat(4, 1fr);
   border-radius: 20px;
   background:
-    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01)),
     rgba(8, 10, 14, 0.65);
   box-shadow:
-    0 24px 60px rgba(0,0,0,0.5),
-    inset 0 1px 0 rgba(255,255,255,0.06);
+    0 24px 60px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   overflow: hidden;
@@ -106,7 +108,7 @@
 }
 
 .experience-stats-panel div:hover {
-  background: rgba(255,255,255,0.02);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .experience-stats-panel div:not(:last-child)::after {
@@ -116,7 +118,7 @@
   top: 25%;
   bottom: 25%;
   width: 1px;
-  background: rgba(220,232,245,0.08);
+  background: rgba(220, 232, 245, 0.08);
 }
 
 .experience-stats-panel strong {
@@ -131,7 +133,7 @@
 .experience-stats-panel span {
   display: block;
   margin-top: 12px;
-  color: rgba(235,240,246,0.55);
+  color: rgba(235, 240, 246, 0.55);
   font-size: 11.5px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -149,13 +151,13 @@
   grid-template-columns: 48px 220px 1.2fr 1fr;
   gap: 48px;
   padding: 64px 0;
-  border-bottom: 1px solid rgba(220,232,245,0.05);
+  border-bottom: 1px solid rgba(220, 232, 245, 0.05);
   transition: background 0.4s ease;
   text-align: left;
 }
 
 .experience-entry:hover {
-  background: radial-gradient(ellipse at 50% 50%, rgba(220,232,245,0.02), transparent 70%);
+  background: radial-gradient(ellipse at 50% 50%, rgba(220, 232, 245, 0.02), transparent 70%);
 }
 
 .experience-rail {
@@ -170,8 +172,8 @@
   border-radius: 50%;
   background: #7a8d9e;
   box-shadow:
-    0 0 0 6px rgba(174,189,204,0.05),
-    0 0 18px rgba(174,189,204,0.2);
+    0 0 0 6px rgba(174, 189, 204, 0.05),
+    0 0 18px rgba(174, 189, 204, 0.2);
   margin-top: 6px;
   z-index: 2;
   transition: all 0.4s ease;
@@ -180,15 +182,15 @@
 .experience-entry:hover .rail-node {
   background: #aebdcc;
   box-shadow:
-    0 0 0 6px rgba(174,189,204,0.08),
-    0 0 24px rgba(174,189,204,0.3);
+    0 0 0 6px rgba(174, 189, 204, 0.08),
+    0 0 24px rgba(174, 189, 204, 0.3);
 }
 
 .rail-node.active {
   background: #ffffff;
   box-shadow:
-    0 0 0 8px rgba(220,232,245,0.08),
-    0 0 32px rgba(220,232,245,0.6);
+    0 0 0 8px rgba(220, 232, 245, 0.08),
+    0 0 32px rgba(220, 232, 245, 0.6);
 }
 
 .rail-line {
@@ -196,7 +198,7 @@
   top: 32px;
   bottom: -64px;
   width: 1px;
-  background: linear-gradient(to bottom, rgba(220,232,245,0.2), rgba(220,232,245,0.03));
+  background: linear-gradient(to bottom, rgba(220, 232, 245, 0.2), rgba(220, 232, 245, 0.03));
   z-index: 1;
 }
 
@@ -217,7 +219,7 @@
   margin-top: 8px;
   padding: 4px 10px;
   border-radius: 6px;
-  background: rgba(220,232,245,0.06);
+  background: rgba(220, 232, 245, 0.06);
   color: #aebdcc;
   font-size: 12px;
   font-weight: 600;
@@ -228,7 +230,7 @@
 .experience-meta small {
   display: block;
   margin-top: 12px;
-  color: rgba(235,240,246,0.45);
+  color: rgba(235, 240, 246, 0.45);
   font-size: 13.5px;
   display: flex;
   align-items: center;
@@ -291,7 +293,7 @@
 .experience-role p {
   margin: 22px 0 0;
   max-width: 580px;
-  color: rgba(235,240,246,0.65);
+  color: rgba(235, 240, 246, 0.65);
   font-size: 15.5px;
   line-height: 1.75;
   font-weight: 300;
@@ -307,9 +309,9 @@
 .experience-tech span {
   padding: 8px 14px;
   border-radius: 999px;
-  background: rgba(220,232,245,0.03);
-  border: 1px solid rgba(220,232,245,0.08);
-  color: rgba(235,240,246,0.75);
+  background: rgba(220, 232, 245, 0.03);
+  border: 1px solid rgba(220, 232, 245, 0.08);
+  color: rgba(235, 240, 246, 0.75);
   font-size: 12.5px;
   font-weight: 500;
   letter-spacing: 0.02em;
@@ -317,8 +319,8 @@
 }
 
 .experience-entry:hover .experience-tech span {
-  border-color: rgba(220,232,245,0.15);
-  background: rgba(220,232,245,0.05);
+  border-color: rgba(220, 232, 245, 0.15);
+  background: rgba(220, 232, 245, 0.05);
 }
 
 .experience-impact {
@@ -334,7 +336,7 @@
 .experience-impact li {
   position: relative;
   padding-left: 24px;
-  color: rgba(235,240,246,0.72);
+  color: rgba(235, 240, 246, 0.72);
   font-size: 15px;
   line-height: 1.65;
   font-weight: 300;
@@ -349,24 +351,24 @@
   height: 6px;
   border-radius: 50%;
   background: #6f7d8c;
-  box-shadow: 0 0 8px rgba(111,125,140,0.3);
+  box-shadow: 0 0 8px rgba(111, 125, 140, 0.3);
   transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .experience-entry:hover .experience-impact li::before {
   background: #cbd5df;
-  box-shadow: 0 0 12px rgba(203,213,223,0.5);
+  box-shadow: 0 0 12px rgba(203, 213, 223, 0.5);
 }
 
 @media (max-width: 1200px) {
   .experience-editorial-container {
     padding: 0 42px;
   }
-  
+
   .experience-editorial-top {
     gap: 40px;
   }
-  
+
   .experience-entry {
     grid-template-columns: 42px 180px 1fr 1fr;
     gap: 32px;
@@ -397,16 +399,16 @@
     gap: 12px;
     padding-top: 0;
   }
-  
-  .experience-meta p, 
-  .experience-meta span, 
+
+  .experience-meta p,
+  .experience-meta span,
   .experience-meta small {
     margin: 0;
   }
 
   .experience-impact {
     margin-top: 24px;
-    border-top: 1px solid rgba(220,232,245,0.06);
+    border-top: 1px solid rgba(220, 232, 245, 0.06);
     padding-top: 28px;
   }
 }
@@ -427,7 +429,7 @@
   .experience-stats-panel {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .experience-stats-panel div:nth-child(2)::after {
     display: none;
   }
@@ -436,7 +438,7 @@
     padding: 48px 0;
     gap: 20px;
   }
-  
+
   .experience-role h3 {
     font-size: 26px;
   }

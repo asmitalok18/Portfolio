@@ -6,7 +6,7 @@ const AnimatedBackground = () => {
     document.body.style.color = '#fffaf3';
     document.documentElement.style.background = '#050302';
 
-    return () => {};
+    return () => { };
   }, []);
 
   return (
