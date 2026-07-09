@@ -92,9 +92,11 @@ const ProjectImageShowcase = ({ project }) => {
         }}
       >
         <motion.img
-          src={project.image_url?.startsWith('/media/') 
-            ? `${BASE_URL}${project.image_url}` 
-            : (project.image_url || project.image)}
+          src={project.name?.toLowerCase().includes('trident') || project.title?.toLowerCase().includes('trident')
+            ? '/Trident_image.png' 
+            : (project.image_url?.startsWith('/media/') 
+              ? `${BASE_URL}${project.image_url}` 
+              : (project.image_url || project.image))}
           alt={project.name || project.title}
           style={{ 
             width: '100%',

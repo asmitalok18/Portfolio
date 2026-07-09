@@ -470,6 +470,8 @@ const Contact = () => {
                     color: rgba(235, 240, 246, 0.5);
                     margin-bottom: 10px;
                     font-weight: 600;
+                    display: block;
+                    text-align: left;
                 }
                 .contact-info-icon-box {
                     width: 54px;
