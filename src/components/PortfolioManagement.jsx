@@ -292,7 +292,7 @@ const DashboardTab = ({ stats }) => (
         <div className="stat-card-icon"><FaFileAlt /></div>
         <div className="stat-card-info">
           <span className="stat-card-label">Active Resume</span>
-          <span className="stat-card-value" style={{ color: stats.active_resume ? '#ff6a00' : '#ff6b6b', fontSize: '18px', fontWeight: 'bold' }}>
+          <span className="stat-card-value" style={{ color: stats.active_resume ? 'var(--accent-main)' : '#ff6b6b', fontSize: '18px', fontWeight: 'bold' }}>
             {stats.active_resume ? 'ACTIVE' : 'INACTIVE'}
           </span>
         </div>
@@ -1217,7 +1217,7 @@ const ProjectsTab = ({ projects, setProjects, refreshStats }) => {
                   width: 'calc(100% + 50px)', 
                   aspectRatio: '16/9',
                   background: 'linear-gradient(135deg, #09090b, #18181b)',
-                  borderBottom: '1px solid rgba(255, 122, 26, 0.1)',
+                  borderBottom: '1px solid rgba(190, 210, 230, 0.1)',
                   borderRadius: '16px 16px 0 0'
                 }}
               >

@@ -43,7 +43,7 @@ const Hero = () => {
         <div className="hero-right">
           <div className="hero-arc-lines"></div>
           <div className="hero-light-streaks"></div>
-          
+
           <div className="hero-feature-card card-code">
             <div className="hero-feature-icon"><FaCode /></div>
             <h4>Clean Code</h4>
@@ -64,6 +64,39 @@ const Hero = () => {
 
           <div className="hero-portrait-wrap">
             <img src="/portfolio_image.png" alt="Asmit Alok" />
+          </div>
+        </div>
+      </div>
+
+      {/* Premium Skills Ticker */}
+      <div className="premium-ticker-wrapper">
+        <div className="premium-ticker-track">
+          <div className="premium-ticker-content">
+            <span>PYTHON</span><div className="ticker-dot"></div>
+            <span>DJANGO</span><div className="ticker-dot"></div>
+            <span>REACT</span><div className="ticker-dot"></div>
+            <span>ANGULAR</span><div className="ticker-dot"></div>
+            <span>DRF</span><div className="ticker-dot"></div>
+            <span>POSTGRESQL</span><div className="ticker-dot"></div>
+            <span>AWS</span><div className="ticker-dot"></div>
+            <span>DOCKER</span><div className="ticker-dot"></div>
+            <span>REDIS</span><div className="ticker-dot"></div>
+            <span>GIT</span><div className="ticker-dot"></div>
+            <span>LINUX</span><div className="ticker-dot"></div>
+          </div>
+          {/* Duplicate for seamless infinite scrolling */}
+          <div className="premium-ticker-content" aria-hidden="true">
+            <span>PYTHON</span><div className="ticker-dot"></div>
+            <span>DJANGO</span><div className="ticker-dot"></div>
+            <span>REACT</span><div className="ticker-dot"></div>
+            <span>ANGULAR</span><div className="ticker-dot"></div>
+            <span>DRF</span><div className="ticker-dot"></div>
+            <span>POSTGRESQL</span><div className="ticker-dot"></div>
+            <span>AWS</span><div className="ticker-dot"></div>
+            <span>DOCKER</span><div className="ticker-dot"></div>
+            <span>REDIS</span><div className="ticker-dot"></div>
+            <span>GIT</span><div className="ticker-dot"></div>
+            <span>LINUX</span><div className="ticker-dot"></div>
           </div>
         </div>
       </div>

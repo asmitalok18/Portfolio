@@ -262,7 +262,7 @@ const Skills = () => {
         }
         .skill-bar-fill {
           height: 100%;
-          background: linear-gradient(90deg, #ff6a00, #c2410c);
+          background: linear-gradient(90deg, var(--accent-main), var(--accent-dim));
           border-radius: 4px;
           transition: width 0.8s ease;
         }

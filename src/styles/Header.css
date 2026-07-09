@@ -108,7 +108,8 @@
   left: 50%;
   width: 16px;
   height: 2px;
-  background: #ff6a00;
+  background: linear-gradient(90deg, transparent, #d9e4ef, transparent);
+  box-shadow: 0 0 16px rgba(217,228,239,0.5);
   border-radius: 2px;
   transform: translateX(-50%);
   opacity: 0.8;

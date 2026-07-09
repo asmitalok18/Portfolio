@@ -173,7 +173,7 @@ const Contact = () => {
     };
 
     return (
-        <section id="contact" className="section-padding bg-dark-custom">
+        <section id="contact" className="position-relative" style={{ padding: '100px 0', background: 'radial-gradient(circle at 50% 0%, rgba(220, 232, 245, 0.03), transparent 70%), #030406' }}>
             <Container>
                 <motion.div
                     variants={containerVariants}
@@ -181,120 +181,149 @@ const Contact = () => {
                     whileInView="visible"
                     viewport={{ once: true }}
                 >
-                    <Row>
-                        <Col lg={12} className="text-center mb-5">
+                    {/* Header Section */}
+                    <Row className="mb-5">
+                        <Col lg={8} className="mx-auto text-center">
                             <motion.h2 
-                                className="section-title text-light-custom"
                                 variants={itemVariants}
+                                style={{ 
+                                    fontFamily: 'Georgia, "Times New Roman", serif', 
+                                    letterSpacing: '-0.02em', 
+                                    fontSize: 'clamp(2.5rem, 5vw, 3.5rem)',
+                                    fontWeight: 600,
+                                    color: '#ffffff',
+                                    marginBottom: '1rem'
+                                }}
                             >
-                                Get In Touch
+                                Let's Build Together.
                             </motion.h2>
-                            <motion.p 
-                                className="text-gray lead"
+                            <motion.div 
+                                style={{ height: '1px', width: '60px', background: 'linear-gradient(90deg, transparent, #aebdcc, transparent)', margin: '0 auto 1.5rem auto' }}
                                 variants={itemVariants}
+                            />
+                            <motion.p 
+                                variants={itemVariants}
+                                style={{ color: 'rgba(235, 240, 246, 0.65)', fontSize: '1.1rem', maxWidth: '600px', margin: '0 auto' }}
                             >
-                                Let's discuss your next project or collaboration opportunity
+                                Currently open for new opportunities. Whether you have a question or just want to say hi, I'll try my best to get back to you!
                             </motion.p>
                         </Col>
                     </Row>
                     
-                    <Row>
-                        <Col lg={8} className="mb-5 mb-lg-0">
-                            <motion.div variants={formVariants}>
-                                <Card className="card-custom p-4">
-                                    <motion.h4 
-                                        className="text-primary-custom mb-4 text-start"
-                                        initial={{ opacity: 0, x: -20 }}
-                                        whileInView={{ opacity: 1, x: 0 }}
-                                        viewport={{ once: true }}
-                                        transition={{ delay: 0.2 }}
-                                    >
-                                        Send Me a Message
-                                    </motion.h4>
+                    <Row className="g-5 mt-2">
+                        {/* Contact Form Column */}
+                        <Col lg={7}>
+                            <motion.div variants={formVariants} className="h-100">
+                                <Card className="h-100 border-0" style={{ 
+                                    background: 'linear-gradient(145deg, rgba(15, 17, 21, 0.7), rgba(10, 12, 16, 0.9))',
+                                    backdropFilter: 'blur(20px)',
+                                    borderRadius: '24px',
+                                    border: '1px solid rgba(220, 232, 245, 0.08)',
+                                    boxShadow: '0 30px 60px rgba(0,0,0,0.4)',
+                                    padding: '40px'
+                                }}>
+                                    <h4 style={{ 
+                                        color: '#ffffff', 
+                                        fontFamily: 'Georgia, serif', 
+                                        fontSize: '1.6rem', 
+                                        marginBottom: '32px' 
+                                    }}>
+                                        Send a Message
+                                    </h4>
                                     
                                     {showAlert && (
                                         <motion.div
-                                            initial={{ opacity: 0, y: -20, scale: 0.8 }}
-                                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                                            exit={{ opacity: 0, y: -20, scale: 0.8 }}
-                                            transition={{ duration: 0.4 }}
+                                            initial={{ opacity: 0, y: -10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0 }}
                                         >
-                                            <Alert variant={alertVariant} className={alertVariant === 'success' ? "bg-primary-custom text-dark border-0" : "border-0"}>
+                                            <Alert variant={alertVariant} style={{ 
+                                                background: alertVariant === 'success' ? 'rgba(46, 204, 113, 0.1)' : 'rgba(231, 76, 60, 0.1)',
+                                                border: `1px solid ${alertVariant === 'success' ? 'rgba(46, 204, 113, 0.3)' : 'rgba(231, 76, 60, 0.3)'}`,
+                                                color: alertVariant === 'success' ? '#2ecc71' : '#e74c3c',
+                                                borderRadius: '12px'
+                                            }}>
                                                 {alertMessage}
                                             </Alert>
                                         </motion.div>
                                     )}
                                     
                                     <Form onSubmit={handleSubmit}>
-                                        <Row>
+                                        <Row className="g-4 mb-4">
                                             <Col md={6}>
-                                                <Form.Group className="mb-3">
-                                                    <Form.Label className="text-light-custom text-start d-block">Name *</Form.Label>
+                                                <Form.Group>
+                                                    <Form.Label className="contact-label">Your Name</Form.Label>
                                                     <Form.Control
                                                         type="text"
                                                         name="name"
                                                         value={formData.name}
                                                         onChange={handleChange}
                                                         required
-                                                        className="form-control"
-                                                        placeholder="Enter your name"
+                                                        className="contact-input"
+                                                        placeholder="John Doe"
                                                     />
                                                 </Form.Group>
                                             </Col>
                                             <Col md={6}>
-                                                <Form.Group className="mb-3">
-                                                    <Form.Label className="text-light-custom text-start d-block">Email *</Form.Label>
+                                                <Form.Group>
+                                                    <Form.Label className="contact-label">Email Address</Form.Label>
                                                     <Form.Control
                                                         type="email"
                                                         name="email"
                                                         value={formData.email}
                                                         onChange={handleChange}
                                                         required
-                                                        className="form-control"
-                                                        placeholder="Enter your email"
+                                                        className="contact-input"
+                                                        placeholder="john@example.com"
                                                     />
                                                 </Form.Group>
                                             </Col>
                                         </Row>
                                         
-                                        <Form.Group className="mb-3">
-                                            <Form.Label className="text-light-custom text-start d-block">Subject *</Form.Label>
+                                        <Form.Group className="mb-4">
+                                            <Form.Label className="contact-label">Subject</Form.Label>
                                             <Form.Control
                                                 type="text"
                                                 name="subject"
                                                 value={formData.subject}
                                                 onChange={handleChange}
                                                 required
-                                                className="form-control"
-                                                placeholder="Enter subject"
+                                                className="contact-input"
+                                                placeholder="How can I help you?"
                                             />
                                         </Form.Group>
                                         
-                                        <Form.Group className="mb-4">
-                                            <Form.Label className="text-light-custom text-start d-block">Message *</Form.Label>
+                                        <Form.Group className="mb-5">
+                                            <Form.Label className="contact-label">Message</Form.Label>
                                             <Form.Control
                                                 as="textarea"
-                                                rows={6}
+                                                rows={5}
                                                 name="message"
                                                 value={formData.message}
                                                 onChange={handleChange}
                                                 required
-                                                className="form-control"
-                                                placeholder="Enter your message"
+                                                className="contact-input"
+                                                placeholder="Write your message here..."
+                                                style={{ resize: 'none' }}
                                             />
                                         </Form.Group>
                                         
-                                        <motion.div
-                                            whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}
-                                        >
+                                        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                                             <Button 
                                                 type="submit" 
-                                                className="btn-primary-custom" 
-                                                size="lg"
                                                 disabled={isLoading}
+                                                className="w-100 border-0 d-flex align-items-center justify-content-center"
                                                 style={{
-                                                    pointerEvents: 'auto',
+                                                    background: 'linear-gradient(135deg, rgba(220, 232, 245, 0.15), rgba(220, 232, 245, 0.05))',
+                                                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 10px 20px rgba(0,0,0,0.2)',
+                                                    color: '#ffffff',
+                                                    borderRadius: '12px',
+                                                    padding: '16px',
+                                                    fontWeight: 600,
+                                                    letterSpacing: '0.05em',
+                                                    textTransform: 'uppercase',
+                                                    fontSize: '0.9rem',
+                                                    transition: 'all 0.3s ease',
                                                     cursor: isLoading ? 'not-allowed' : 'pointer'
                                                 }}
                                             >
@@ -306,71 +335,59 @@ const Contact = () => {
                             </motion.div>
                         </Col>
                         
-                        <Col lg={4}>
-                            <motion.div variants={cardVariants}>
-                                <Card className="card-custom p-4 mb-4">
-                                    <motion.h4 
-                                        className="text-primary-custom mb-4 text-start"
-                                        initial={{ opacity: 0, x: 20 }}
-                                        whileInView={{ opacity: 1, x: 0 }}
-                                        viewport={{ once: true }}
-                                        transition={{ delay: 0.2 }}
-                                    >
-                                        Contact Information
-                                    </motion.h4>
+                        {/* Contact Info Column */}
+                        <Col lg={5}>
+                            <motion.div variants={cardVariants} className="h-100 d-flex flex-column gap-4">
+                                
+                                {/* Info Card */}
+                                <Card className="border-0" style={{ 
+                                    background: 'linear-gradient(145deg, rgba(15, 17, 21, 0.4), rgba(10, 12, 16, 0.6))',
+                                    backdropFilter: 'blur(20px)',
+                                    borderRadius: '24px',
+                                    border: '1px solid rgba(220, 232, 245, 0.05)',
+                                    padding: '40px'
+                                }}>
+                                    <h4 style={{ color: '#ffffff', fontFamily: 'Georgia, serif', fontSize: '1.6rem', marginBottom: '32px' }}>
+                                        Contact Info
+                                    </h4>
                                     
-                                    {contactInfo.map((info, index) => (
-                                        <motion.div 
-                                            key={index} 
-                                            className="d-flex align-items-center mb-4"
-                                            whileHover={{ x: 10 }}
-                                            initial={{ opacity: 0, x: 20 }}
-                                            whileInView={{ opacity: 1, x: 0 }}
-                                            viewport={{ once: true }}
-                                            transition={{ delay: 0.3 + index * 0.1 }}
-                                        >
-                                            <motion.div 
-                                                className="text-primary-custom fs-4 me-3"
-                                                whileHover={{ 
-                                                    scale: 1.2, 
-                                                    rotate: 360,
-                                                    transition: { duration: 0.5 }
-                                                }}
+                                    <div className="d-flex flex-column gap-4">
+                                        {contactInfo.map((info, index) => (
+                                            <motion.a 
+                                                key={index} 
+                                                href={info.link}
+                                                className="contact-info-row text-decoration-none d-flex align-items-center"
+                                                whileHover={{ x: 8 }}
+                                                initial={{ opacity: 0, x: 20 }}
+                                                whileInView={{ opacity: 1, x: 0 }}
+                                                viewport={{ once: true }}
+                                                transition={{ delay: 0.3 + index * 0.1 }}
                                             >
-                                                {info.icon}
-                                            </motion.div>
-                                            <div className="text-start">
-                                                <h6 className="text-light-custom mb-1">{info.title}</h6>
-                                                <a 
-                                                    href={info.link}
-                                                    className="text-gray text-decoration-none"
-                                                    style={{ pointerEvents: 'auto', cursor: 'pointer' }}
-                                                >
-                                                    {info.value}
-                                                </a>
-                                            </div>
-                                        </motion.div>
-                                    ))}
+                                                <div className="contact-info-icon-box me-4">
+                                                    {info.icon}
+                                                </div>
+                                                <div className="text-start">
+                                                    <div className="contact-label mb-1" style={{ fontSize: '0.65rem' }}>{info.title}</div>
+                                                    <div style={{ color: '#ffffff', fontWeight: 500, fontSize: '1.05rem' }}>
+                                                        {info.value}
+                                                    </div>
+                                                </div>
+                                            </motion.a>
+                                        ))}
+                                    </div>
                                 </Card>
-                            </motion.div>
-                            
-                            <motion.div
-                                variants={cardVariants}
-                                initial={{ opacity: 0, x: 100 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: 0.5 }}
-                            >
-                                <Card className="card-custom p-4">
-                                    <motion.h4 
-                                        className="text-primary-custom mb-4 text-start"
-                                        initial={{ opacity: 0, x: 20 }}
-                                        whileInView={{ opacity: 1, x: 0 }}
-                                        viewport={{ once: true }}
-                                        transition={{ delay: 0.6 }}
-                                    >
-                                        Follow Me
-                                    </motion.h4>
+
+                                {/* Social Links Card */}
+                                <Card className="border-0 flex-grow-1" style={{ 
+                                    background: 'linear-gradient(145deg, rgba(15, 17, 21, 0.4), rgba(10, 12, 16, 0.6))',
+                                    backdropFilter: 'blur(20px)',
+                                    borderRadius: '24px',
+                                    border: '1px solid rgba(220, 232, 245, 0.05)',
+                                    padding: '40px'
+                                }}>
+                                    <h4 style={{ color: '#ffffff', fontFamily: 'Georgia, serif', fontSize: '1.6rem', marginBottom: '32px' }}>
+                                        Social Profiles
+                                    </h4>
                                     <motion.div 
                                         className="d-flex gap-3 flex-wrap"
                                         initial={{ opacity: 0 }}
@@ -386,27 +403,25 @@ const Contact = () => {
                                                 rel="noopener noreferrer"
                                                 className="d-flex align-items-center justify-content-center text-decoration-none"
                                                 style={{
-                                                    width: '50px',
-                                                    height: '50px',
-                                                    borderRadius: '50%',
-                                                    backgroundColor: 'rgba(26, 26, 46, 0.8)',
-                                                    border: '1px solid #333',
-                                                    color: social.color,
-                                                    fontSize: '20px',
-                                                    transition: 'all 0.3s ease',
-                                                    cursor: 'pointer',
+                                                    width: '56px',
+                                                    height: '56px',
+                                                    borderRadius: '16px',
+                                                    backgroundColor: 'rgba(220, 232, 245, 0.03)',
+                                                    border: '1px solid rgba(220, 232, 245, 0.08)',
+                                                    color: '#aebdcc',
+                                                    fontSize: '22px',
                                                     pointerEvents: 'auto'
                                                 }}
                                                 whileHover={{
-                                                    scale: 1.2,
-                                                    rotate: 360,
+                                                    scale: 1.1,
                                                     y: -5,
                                                     backgroundColor: social.color,
-                                                    color: '#fff',
-                                                    boxShadow: `0 10px 20px ${social.color}40`
+                                                    borderColor: social.color,
+                                                    color: '#ffffff',
+                                                    boxShadow: `0 15px 30px ${social.color}40`
                                                 }}
-                                                whileTap={{ scale: 0.9 }}
-                                                initial={{ opacity: 0, scale: 0 }}
+                                                whileTap={{ scale: 0.95 }}
+                                                initial={{ opacity: 0, scale: 0.5 }}
                                                 whileInView={{ opacity: 1, scale: 1 }}
                                                 viewport={{ once: true }}
                                                 transition={{ 
@@ -421,11 +436,62 @@ const Contact = () => {
                                         ))}
                                     </motion.div>
                                 </Card>
+
                             </motion.div>
                         </Col>
                     </Row>
                 </motion.div>
             </Container>
+
+            <style>{`
+                .contact-input {
+                    background: rgba(220, 232, 245, 0.02) !important;
+                    border: 1px solid rgba(220, 232, 245, 0.08) !important;
+                    color: #ffffff !important;
+                    border-radius: 12px !important;
+                    padding: 16px 20px !important;
+                    font-size: 0.95rem;
+                    transition: all 0.3s ease !important;
+                    box-shadow: none !important;
+                }
+                .contact-input:focus {
+                    background: rgba(220, 232, 245, 0.06) !important;
+                    border-color: rgba(220, 232, 245, 0.3) !important;
+                    box-shadow: 0 0 0 4px rgba(220, 232, 245, 0.05) !important;
+                    transform: translateY(-2px);
+                }
+                .contact-input::placeholder {
+                    color: rgba(235, 240, 246, 0.3) !important;
+                }
+                .contact-label {
+                    font-size: 0.75rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.12em;
+                    color: rgba(235, 240, 246, 0.5);
+                    margin-bottom: 10px;
+                    font-weight: 600;
+                }
+                .contact-info-icon-box {
+                    width: 54px;
+                    height: 54px;
+                    border-radius: 14px;
+                    background: linear-gradient(135deg, rgba(220, 232, 245, 0.08), rgba(220, 232, 245, 0.01));
+                    border: 1px solid rgba(220, 232, 245, 0.1);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 1.3rem;
+                    color: #aebdcc;
+                    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+                .contact-info-row:hover .contact-info-icon-box {
+                    background: rgba(220, 232, 245, 0.15);
+                    color: #ffffff;
+                    transform: scale(1.1) rotate(5deg);
+                    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+                    border-color: rgba(220, 232, 245, 0.3);
+                }
+            `}</style>
         </section>
     );
 };

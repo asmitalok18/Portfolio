@@ -49,9 +49,8 @@ const TypewriterMessage = ({ content, speed = 30, onComplete, markdownComponents
   return (
     <div className="markdown-content">
       <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-        {displayedContent}
+        {displayedContent + (!isComplete ? ' ▍' : '')}
       </ReactMarkdown>
-      {!isComplete && <span className="typewriter-cursor">|</span>}
     </div>
   );
 };

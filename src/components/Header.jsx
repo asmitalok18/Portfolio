@@ -90,7 +90,7 @@ const Header = () => {
             href="#home" 
             className={`navbar-brand-custom ${scrolled ? 'scrolled' : ''}`}
           >
-            &lt;Asmit Alok<span style={{ color: '#ff6a00' }}>/&gt;</span>
+            &lt;Asmit Alok<span style={{ color: 'var(--accent-main)' }}>/&gt;</span>
           </Navbar.Brand>
         </motion.div>
         
