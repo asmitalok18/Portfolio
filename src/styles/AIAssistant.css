@@ -97,9 +97,9 @@
 
 .ai-launcher--open:hover {
   transform: scale(1.05) translateY(-2px);
-  background: rgba(255, 80, 80, 0.15);
-  border-color: rgba(255, 80, 80, 0.3);
-  color: #ff6b6b;
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
 }
 
 .ai-launcher__icon {
@@ -256,9 +256,9 @@
 }
 
 .ai-panel__close:hover {
-  background: rgba(255, 80, 80, 0.15);
-  border-color: rgba(255, 80, 80, 0.3);
-  color: #ff8080;
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
   transform: scale(1.05);
 }
 
@@ -311,6 +311,7 @@
   line-height: 1.6;
   word-wrap: break-word;
   position: relative;
+  text-align: left;
 }
 
 .ai-msg--user .ai-msg__bubble {

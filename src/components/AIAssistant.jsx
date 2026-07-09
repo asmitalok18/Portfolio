@@ -9,7 +9,7 @@ const AIAssistant = () => {
   const [messages, setMessages] = useState([
     {
       type: 'ai',
-      content: "👋 Hey! I'm Asmit's AI assistant. Ask me anything about his projects, skills, experience, or how to get in touch.",
+      content: "✨ Hey! I'm Asmit's AI assistant. Ask me anything about his projects, skills, experience, or how to get in touch.",
       timestamp: new Date(),
       isTyping: false
     }
@@ -219,7 +219,6 @@ const AIAssistant = () => {
           <div className="ai-panel__header-info">
             <span className="ai-panel__title">Ask Asmit AI</span>
             <span className="ai-panel__status">
-              <span className="ai-panel__status-dot" aria-hidden="true" />
               Portfolio assistant · Online
             </span>
           </div>
