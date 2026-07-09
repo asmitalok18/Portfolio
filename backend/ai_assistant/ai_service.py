@@ -350,9 +350,7 @@ class AIService:
         }
         return context
 
-    def generate_system_prompt(self, context_data):
-        """Generate a comprehensive system prompt with portfolio context and professional guidelines"""
-        
+    def generate_system_prompt(self, context_data, intent="unknown"):
         # Format personal information
         personal_info = []
         for key, value in context_data['personal_info'].items():
@@ -364,8 +362,8 @@ class AIService:
         projects_info = []
         for p in context_data['projects']:
             project_text = f"\n**{p['name']}** ({p['category']})"
-            project_text += f"\n- Description: {p['description']}"
-            project_text += f"\n- Technologies: {p['technologies']}"
+            project_text += f"\n- Short Purpose/Description: {p['description']}"
+            project_text += f"\n- Technologies/Tech Stack: {p['technologies']}"
             
             if p.get('github_url'):
                 project_text += f"\n- GitHub: {p['github_url']}"
@@ -379,209 +377,93 @@ class AIService:
         # Resume information
         resume_text = context_data.get('resume_info', 'No resume information available')
 
-        return f"""You are Asmit Alok's AI Portfolio Assistant. Your primary goal is to answer visitor questions about Asmit's skills, experience, projects, and contact details.
+        return f"""You are "Ask Asmit AI", the professional portfolio assistant for Asmit Alok.
+You help visitors learn about Asmit Alok, his skills, projects, professional experience, resume, contact details, hiring availability, and suitable roles.
 
-CRITICAL IDENTITY & GROUNDING INSTRUCTIONS:
-1. You represent Asmit Alok. You must answer questions using ONLY the official portfolio data source of truth provided below.
-2. Do not invent, infer, guess, or assume any information not present in the context.
-3. If a question is about projects, skills, education, companies, or achievements that are not listed in the provided data below, you must reply: "I don't have that information in the current portfolio data."
-4. Never list generic project categories (e.g. AI-powered portfolios, Web applications, CMS, video streaming, student management systems, educational platforms) as if they are projects Asmit worked on.
-5. If only one project is listed in the projects data, explicitly state that he currently has only one featured project.
-6. Keep your answers concise, professional, clear, and recruiter-friendly. Do not mention "based on the provided context". Just answer directly.
+TONE & STYLE:
+- Professional, friendly, confident, and concise. Recruiter-friendly.
+- Natural English. Use Hinglish/Hindi ONLY if the visitor uses Hindi/Hinglish first (e.g., if they say "Tumhare projects kya hai?", reply in Hinglish).
+- Do not write long paragraphs. Use 3-6 lines max for general questions. Use bullets only when useful.
+- Do not repeat "Asmit Alok" unnaturally in every answer.
+
+PRONOUN AND IDENTITY RULES:
+- For profile-related questions (skills, projects, who are you, experience), you can answer in the first person as Asmit (use "I", "me", "my").
+  - Example: "I'm Asmit Alok's portfolio assistant. I can help you explore my skills, projects..."
+  - Example: User: "Whom am I asking about?" -> "You're asking about me — Asmit Alok and my portfolio."
+- For hiring, coordination, or contact actions, act strictly as his assistant and refer to him in the third person ("Asmit", "he", "his").
+  - Example: "Asmit is open to suitable roles. Could you share your details? I will pass this to Asmit, and he will contact you soon."
+
+PROJECT RESPONSE DEPTH CONTROL (CRITICAL):
+- DO NOT give complete project details immediately.
+- If intent is 'project_list' (e.g., "What projects have you worked on?"):
+  - ONLY provide a short numbered list of project names with a ONE-LINE summary.
+  - End by asking: "Which one would you like details about?"
+  - Do NOT include tech stack, full descriptions, or links here.
+- If intent is 'project_detail' (e.g., "Tell me about Trident Marine", or "second one details"):
+  - Provide structured details ONLY for the requested project(s): Project name, Short purpose, My role, Tech stack, Key features, What I built / impact, Link if available.
+- If intent is 'project_tech': Give only the technology stack for that project.
+- If intent is 'project_link': Give the link if available. If not, say politely: "I don't have a public link available for that right now."
+
+HR / RECRUITER / HIRING FLOW (Intent: 'hiring' or 'contact'):
+Step 1: Greet and acknowledge interest ("Thank you for reaching out. Asmit is open to suitable Full Stack, Frontend, and GenAI-related opportunities.")
+Step 2: Ask for missing details to coordinate: Name, Company name, Role details, Email/Phone, Preferred time to connect, Location/Remote option.
+Step 3: If user gives partial details, ask ONLY for missing details.
+Step 4: Once enough details are collected, say: "Thanks for sharing the details. I've noted them down. I'll pass this to Asmit, and he will contact you soon."
+- NEVER promise joining, accept offers, negotiate salary, or hallucinate a joining date.
+
+GENERAL Q&A / FALLBACKS:
+- If you don't know the answer or it's out of scope, do not hallucinate. Say: "I don't have that information available right now, but you can contact Asmit directly for confirmation."
+- For unrelated tech questions, answer briefly and connect back to Asmit's work if relevant.
 
 PORTFOLIO DATA SOURCE OF TRUTH:
 
-ASMIT ALOK PROFILE:
+ASMIT ALOK PROFILE / CONTACT / SKILLS / EXPERIENCE:
 {personal_info_text}
 
 ACTIVE RESUME COPY:
 {resume_text}
 
 FEATURED PROJECTS:
-{projects_text}"""
+{projects_text}
+"""
+
+    def _detect_intent(self, message, context_data):
+        msg_lower = message.lower()
+        if any(w in msg_lower for w in ["hire", "hiring", "job", "opening", "recruiter", "hr", "opportunity"]):
+            return "hiring"
+        
+        project_keywords = ["project", "projects", "work"]
+        project_detail_keywords = ["detail", "explain", "tell me more", "tech stack", "role"]
+        
+        # Check for specific project names
+        has_project_name = False
+        for p in context_data.get('projects', []):
+            if p['name'].lower() in msg_lower:
+                has_project_name = True
+                break
+                
+        if any(w in msg_lower for w in project_keywords) or has_project_name:
+            if has_project_name or any(w in msg_lower for w in project_detail_keywords):
+                return "project_detail"
+            return "project_list"
+            
+        if any(w in msg_lower for w in ["who are you", "your name", "who am i asking", "whom am i asking"]):
+            return "identity"
+            
+        if any(w in msg_lower for w in ["resume", "cv"]):
+            return "resume"
+            
+        if any(w in msg_lower for w in ["contact", "connect", "email", "phone"]):
+            return "contact"
+            
+        return "unknown"
 
     def check_deterministic_response(self, message, context_data):
         """
         Check if user query can be answered deterministically from database records.
         Returns (response_text, True) if deterministic answer is found, otherwise (None, False).
         """
-        msg_lower = message.lower().strip("?. ")
-        projects = context_data.get('projects', [])
-        skills = Skill.objects.all().order_by('display_order')
-        experiences = Experience.objects.all().order_by('display_order')
-        profile = PersonalProfile.objects.first()
-        contact = ContactSection.objects.first()
-        resume = Resume.objects.filter(is_active=True).first()
-
-        # 1. Specific project queries
-        # e.g., "tell me about Local Newsletter OS", "what is Local Newsletter OS"
-        for p in projects:
-            p_name = p['name'].lower()
-            if p_name in msg_lower:
-                tech_stack = p.get('technologies', '')
-                live_url = p.get('live_url', '')
-                github_url = p.get('github_url', '')
-                links_text = ""
-                if live_url:
-                    links_text += f" [Live Demo]({live_url})"
-                if github_url:
-                    links_text += f" [GitHub]({github_url})"
-                
-                return f"**{p['name']}** ({p['category']}):\n\n" \
-                       f"**Description**: {p['description']}\n" \
-                       f"**Technologies**: {tech_stack}\n" \
-                       f"**Links**:{links_text}", True
-
-        # Check for specific non-existent projects to deny them explicitly
-        non_existent_keywords = {
-            "video streaming": "video streaming",
-            "streaming": "video streaming",
-            "student management": "student management system",
-            "student": "student management system",
-            "educational": "educational platform",
-            "cms": "content management system",
-            "portfolio": "AI-powered portfolio",
-        }
-        for kw, proj_name in non_existent_keywords.items():
-            if kw in msg_lower:
-                # Double check if any real project contains this keyword
-                matched = False
-                for p in projects:
-                    if kw in p['name'].lower():
-                        matched = True
-                        break
-                if not matched:
-                    if len(projects) == 0:
-                        return f"The current portfolio data does not list a {proj_name} project. Currently, there are no projects listed.", True
-                    elif len(projects) == 1:
-                        return f"The current portfolio data does not list a {proj_name} project. Asmit currently has one featured project listed in this portfolio: **{projects[0]['name']}**. It is described as: {projects[0]['description']}.", True
-                    else:
-                        proj_titles = ", ".join([f"**{p['name']}**" for p in projects])
-                        return f"The current portfolio data does not list a {proj_name} project. The featured projects currently listed are: {proj_titles}.", True
-
-        # 2. General projects queries
-        project_keywords = ["what projects", "list projects", "what has asmit built", "show me asmit's work", "what has he built", "projects has asmit worked on", "tell me about projects", "list of projects", "any projects", "worked on any projects", "projects is listed", "projects are listed", "how many projects"]
-        if any(kw in msg_lower for kw in project_keywords) or msg_lower == "projects":
-            if len(projects) == 0:
-                return "Asmit currently does not have any featured projects listed in this portfolio.", True
-            elif len(projects) == 1:
-                p = projects[0]
-                tech_stack = p.get('technologies', '')
-                live_url = p.get('live_url', '')
-                github_url = p.get('github_url', '')
-                links_text = ""
-                if live_url:
-                    links_text += f" [Live Demo]({live_url})"
-                if github_url:
-                    links_text += f" [GitHub]({github_url})"
-                
-                return f"Asmit currently has one featured project listed in this portfolio: **{p['name']}**.\n\n" \
-                       f"**Description**: {p['description']}\n" \
-                       f"**Category**: {p['category']}\n" \
-                       f"**Technologies**: {tech_stack}\n" \
-                       f"**Links**:{links_text}\n\n" \
-                       f"The portfolio does not currently list any other projects.", True
-            else:
-                resp = f"Asmit Alok currently has {len(projects)} featured projects listed in this portfolio:\n\n"
-                for p in projects:
-                    tech_stack = p.get('technologies', '')
-                    live_url = p.get('live_url', '')
-                    github_url = p.get('github_url', '')
-                    links_text = ""
-                    if live_url:
-                        links_text += f" [Live Demo]({live_url})"
-                    if github_url:
-                        links_text += f" [GitHub]({github_url})"
-                    
-                    resp += f"### **{p['name']}** ({p['category']})\n"
-                    resp += f"- **Description**: {p['description']}\n"
-                    resp += f"- **Technologies**: {tech_stack}\n"
-                    if links_text:
-                        resp += f"- **Links**:{links_text}\n"
-                    resp += "\n"
-                return resp, True
-
-        # 3. Skills Query
-        skills_keywords = ["what are asmit's skills", "what skills", "technical skills", "skills", "technologies", "what technologies", "languages", "frameworks", "databases", "what can he do", "specialize in", "tech stack"]
-        if any(kw in msg_lower for kw in skills_keywords):
-            if not skills.exists():
-                return "Asmit's skills information is not currently listed in the portfolio data.", True
-            
-            skills_by_cat = {}
-            for s in skills:
-                skills_by_cat.setdefault(s.category, []).append(s.name)
-            
-            resp = "Asmit Alok's technical skills and specializations listed in the portfolio are:\n\n"
-            for cat, items in skills_by_cat.items():
-                resp += f"- **{cat}**: {', '.join(items)}\n"
-            return resp, True
-
-        # 4. Experience Query
-        exp_keywords = ["experience", "job", "work history", "companies", "where did he work", "position", "career", "employment", "professional experience"]
-        if any(kw in msg_lower for kw in exp_keywords):
-            if not experiences.exists():
-                return "Asmit's professional experience is not currently listed in the portfolio data.", True
-            
-            resp = "Asmit Alok's professional experience records listed in the portfolio are:\n\n"
-            for e in experiences:
-                resp += f"### **{e.role}** at **{e.company}**\n"
-                resp += f"- **Duration**: {e.duration}\n"
-                if e.location:
-                    resp += f"- **Location**: {e.location}\n"
-                if e.technologies:
-                    resp += f"- **Technologies**: {e.technologies}\n"
-                
-                resp += "- **Responsibilities**:\n"
-                if e.responsibilities:
-                    try:
-                        resp_list = json.loads(e.responsibilities)
-                        for r in resp_list:
-                            resp += f"  - {r}\n"
-                    except:
-                        for r in e.responsibilities.split('\n'):
-                            if r.strip():
-                                resp += f"  - {r.strip().lstrip('- ')}\n"
-                resp += "\n"
-            return resp, True
-
-        # 5. Contact Query
-        contact_keywords = ["contact", "email", "phone", "social", "linkedin", "github", "hire", "reach out", "connect", "meeting"]
-        if any(kw in msg_lower for kw in contact_keywords):
-            contact_info = []
-            if profile:
-                contact_info.append(f"- **Email**: {profile.email}")
-                contact_info.append(f"- **Location**: {profile.location}")
-            elif contact:
-                contact_info.append(f"- **Email**: {contact.email}")
-                contact_info.append(f"- **Location**: {contact.location}")
-            
-            if contact and contact.meeting_link:
-                contact_info.append(f"- **Schedule a Meeting**: [Book a time]({contact.meeting_link})")
-            
-            social_links = {}
-            if contact and contact.social_links:
-                social_links = contact.social_links
-            elif profile and profile.social_profiles:
-                social_links = profile.social_profiles
-            
-            for network, link in social_links.items():
-                if link:
-                    contact_info.append(f"- **{network.title()}**: [{network.title()}]({link})")
-            
-            if not contact_info:
-                return "Contact information is not currently listed in the portfolio data.", True
-            
-            resp = "You can connect with Asmit Alok through the following channels:\n\n" + "\n".join(contact_info)
-            return resp, True
-
-        # 6. Resume Query
-        resume_keywords = ["resume", "cv", "download resume"]
-        if any(kw in msg_lower for kw in resume_keywords):
-            if resume:
-                return f"You can download Asmit's active resume copy here: [Download Resume](/api/resume/download/).\n" \
-                       f"File details: **{resume.title}** (uploaded: {resume.uploaded_at.strftime('%Y-%m-%d')}).", True
-            return "Asmit's resume document is not currently listed as active in the portfolio data.", True
-
+        # We disable this to allow the LLM to follow complex conversational rules
         return None, False
 
     def get_ai_response(self, user_message, session_id=None):
@@ -592,22 +474,25 @@ FEATURED PROJECTS:
         try:
             context_data = self.get_context_data()
             
-            # Check deterministic response layer first to guarantee 100% accuracy and prevent hallucination
-            det_response, is_found = self.check_deterministic_response(user_message, context_data)
-            if is_found:
-                # Save to chat history
-                from .models import ChatHistory
-                ChatHistory.objects.create(
-                    session_id=session_id,
-                    user_message=user_message,
-                    ai_response=det_response
-                )
-                return det_response, session_id
+            # Get intent
+            intent = self._detect_intent(user_message, context_data)
 
-            system_prompt = self.generate_system_prompt(context_data)
+            system_prompt = self.generate_system_prompt(context_data, intent)
 
-            # Enhanced message preprocessing
-            processed_message = self._preprocess_message(user_message, context_data)
+            # Preprocess message
+            processed_message = self._preprocess_message(user_message, context_data, intent)
+
+            # Fetch Chat History
+            from .models import ChatHistory
+            recent_history = ChatHistory.objects.filter(session_id=session_id).order_by('-timestamp')[:5]
+            
+            messages = [{'role': 'system', 'content': system_prompt}]
+            
+            for hist in reversed(recent_history):
+                messages.append({'role': 'user', 'content': hist.user_message})
+                messages.append({'role': 'assistant', 'content': hist.ai_response})
+                
+            messages.append({'role': 'user', 'content': processed_message})
 
             headers = {
                 'Authorization': f'Bearer {self.api_key}',
@@ -615,13 +500,10 @@ FEATURED PROJECTS:
             }
             
             data = {
-                'model': 'llama-3.1-8b-instant',  # Updated to currently supported model
-                'messages': [
-                    {'role': 'system', 'content': system_prompt},
-                    {'role': 'user', 'content': processed_message}
-                ],
-                'max_tokens': 1000,  # Increased for more detailed responses
-                'temperature': 0.3,  # Lower temperature for more consistent, professional responses
+                'model': 'llama-3.1-8b-instant',
+                'messages': messages,
+                'max_tokens': 1000,
+                'temperature': 0.3,
                 'top_p': 0.9,
                 'stream': False
             }
@@ -637,11 +519,14 @@ FEATURED PROJECTS:
                 result = response.json()
                 ai_response = result['choices'][0]['message']['content']
                 
+                # Clean up thinking/reasoning blocks if any
+                import re
+                ai_response = re.sub(r'<think>.*?</think>', '', ai_response, flags=re.DOTALL).strip()
+                
                 # Post-process the response for better formatting
                 ai_response = self._postprocess_response(ai_response)
                 
                 # Save to chat history
-                from .models import ChatHistory
                 ChatHistory.objects.create(
                     session_id=session_id,
                     user_message=user_message,
@@ -660,61 +545,21 @@ FEATURED PROJECTS:
             logger.error(f"Unexpected error in AI service: {str(e)}")
             return f"I apologize, but I'm having trouble processing your request right now. Please try again later.", session_id
 
-    def _preprocess_message(self, message, context_data):
+    def _preprocess_message(self, message, context_data, intent="unknown"):
         """Preprocess user message to add context and improve response quality"""
-        # Check if message is asking about specific projects
-        project_names = [p['name'].lower() for p in context_data['projects']]
-        message_lower = message.lower()
-        
         # Add context hints for better responses
-        context_hints = []
-        
-        # Check for project name mentions
-        for project in context_data['projects']:
-            if project['name'].lower() in message_lower:
-                if project.get('live_url'):
-                    context_hints.append(f"Note: {project['name']} is live at {project['live_url']}")
-                if project.get('github_url'):
-                    context_hints.append(f"Source code available at {project['github_url']}")
-        
-        # Check for URL mentions
-        import re
-        urls = re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', message)
-        for url in urls:
-            for project in context_data['projects']:
-                if project.get('live_url') and url in project['live_url']:
-                    context_hints.append(f"This URL corresponds to the {project['name']} project")
-                    break
-        
-        # Check for technology-specific queries
-        tech_keywords = ['features', 'technologies', 'tech stack', 'built with', 'uses', 'framework', 'language']
-        if any(keyword in message_lower for keyword in tech_keywords):
-            context_hints.append("User is asking about technical details - provide comprehensive technology information")
-        
-        # Check for project listing queries
-        project_keywords = ['projects', 'work', 'portfolio', 'built', 'created', 'developed']
-        if any(keyword in message_lower for keyword in project_keywords):
-            context_hints.append("User wants to know about projects - provide detailed project information with links")
+        context_hints = [f"Detected Intent: {intent}"]
         
         # Enhanced message with context
         if context_hints:
-            enhanced_message = f"{message}\n\nContext for AI: {' | '.join(context_hints)}"
+            enhanced_message = f"{message}\n\n[SYSTEM NOTE - DO NOT MENTION TO USER: {' | '.join(context_hints)}]"
             return enhanced_message
         
         return message
 
     def _postprocess_response(self, response):
         """Post-process AI response for better formatting and professionalism"""
-        # Ensure proper formatting
         response = response.strip()
-        
-        # Add professional closing if response doesn't have one
-        closing_phrases = ['feel free to', 'let me know', 'contact', 'reach out', 'explore', 'check out']
-        has_closing = any(phrase in response.lower() for phrase in closing_phrases)
-        
-        if not has_closing and len(response) > 100:
-            response += "\n\nFeel free to explore the live projects or reach out if you have any questions!"
-        
         return response
 
     def _handle_api_error(self, response):
