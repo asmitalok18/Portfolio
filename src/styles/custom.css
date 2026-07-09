@@ -1113,15 +1113,15 @@ button,
 }
 
 .hero-actions .btn {
-  min-width: 180px;
-  height: 68px;
-  padding: 0 32px;
+  min-width: 160px;
+  height: 54px;
+  padding: 0 24px;
   border-radius: 12px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
-  font-size: 18px;
+  gap: 12px;
+  font-size: 16px;
   font-weight: 700;
   text-decoration: none;
   transition: 0.25s ease;
@@ -1166,8 +1166,8 @@ button,
 }
 
 .hero-socials a {
-  width: 54px;
-  height: 54px;
+  width: 52px;
+  height: 52px;
   border-radius: 12px;
   display: grid;
   place-items: center;
@@ -1175,15 +1175,17 @@ button,
   background: rgba(8, 10, 14, 0.58);
   border: 1px solid rgba(220,232,245,0.12);
   text-decoration: none;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   transition: 0.25s ease;
 }
 
 .hero-socials a:hover {
   transform: translateY(-3px);
-  border-color: rgba(220,232,245,0.28);
-  box-shadow: 0 0 26px rgba(190,210,230,0.16);
+  background: #ffffff;
+  color: #05070a;
+  border-color: #ffffff;
+  box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
 }
 
 .hero-right {
