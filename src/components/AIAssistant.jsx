@@ -9,7 +9,7 @@ const AIAssistant = () => {
   const [messages, setMessages] = useState([
     {
       type: 'ai',
-      content: "✨ Hey! I'm Asmit's AI assistant. Ask me anything about his projects, skills, experience, or how to get in touch.",
+      content: "Hey! I'm Asmit's AI assistant. Ask me anything about his projects, skills, experience, or how to get in touch.",
       timestamp: new Date(),
       isTyping: false
     }
@@ -165,6 +165,7 @@ const AIAssistant = () => {
   const toggleChat = () => setIsOpen(prev => !prev);
 
   const showChips = messages.length === 1 && !isLoading;
+  const isInputDisabled = isLoading || messages.some(msg => msg.isTyping);
 
   return (
     <>
@@ -243,20 +244,33 @@ const AIAssistant = () => {
             >
               <div className="ai-msg__bubble">
                 {message.type === 'ai' ? (
-                  message.isTyping ? (
-                    <TypewriterMessage
-                      content={message.content}
-                      speed={15}
-                      onComplete={() => handleTypingComplete(index)}
-                      markdownComponents={markdownComponents}
-                    />
-                  ) : (
-                    <div className="markdown-content">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-                        {message.content}
-                      </ReactMarkdown>
+                  <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+                    {index === 0 && (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ai-primary)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px', marginRight: '10px' }}>
+                        <polyline points="15 18 21 12 15 6" />
+                        <polyline points="9 6 3 12 9 18" />
+                        <circle cx="12" cy="12" r="2.5" />
+                        <line x1="12" y1="3" x2="12" y2="9.5" />
+                        <line x1="12" y1="14.5" x2="12" y2="21" />
+                      </svg>
+                    )}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      {message.isTyping ? (
+                        <TypewriterMessage
+                          content={message.content}
+                          speed={15}
+                          onComplete={() => handleTypingComplete(index)}
+                          markdownComponents={markdownComponents}
+                        />
+                      ) : (
+                        <div className="markdown-content">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                            {message.content}
+                          </ReactMarkdown>
+                        </div>
+                      )}
                     </div>
-                  )
+                  </div>
                 ) : (
                   <span>{message.content}</span>
                 )}
@@ -289,7 +303,9 @@ const AIAssistant = () => {
                 <button
                   key={chip.label}
                   className="ai-chip"
-                  onClick={() => handleChip(chip.query)}
+                  onClick={() => !isInputDisabled && handleChip(chip.query)}
+                  disabled={isInputDisabled}
+                  style={{ opacity: isInputDisabled ? 0.6 : 1, cursor: isInputDisabled ? 'not-allowed' : 'pointer' }}
                   aria-label={`Ask: ${chip.query}`}
                 >
                   {chip.label}
@@ -307,16 +323,16 @@ const AIAssistant = () => {
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Ask about Asmit's work..."
+            placeholder={isInputDisabled ? "AI is typing..." : "Ask about Asmit's work..."}
             rows={1}
-            disabled={isLoading}
+            disabled={isInputDisabled}
             aria-label="Type your message"
             aria-multiline="true"
           />
           <button
             className="ai-panel__send"
             onClick={() => sendMessage()}
-            disabled={!inputMessage.trim() || isLoading}
+            disabled={!inputMessage.trim() || isInputDisabled}
             aria-label="Send message"
           >
             {isLoading ? (
