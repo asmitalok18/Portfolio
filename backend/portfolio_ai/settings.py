@@ -98,11 +98,13 @@ REST_FRAMEWORK = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://portfolio-chi-one-53.vercel.app",
-    "https://asmitportfolio-five.vercel.app",
-    "https://asmitportfolio-5yf60qhal-alokasmitgmailcoms-projects.vercel.app",
+    # "http://localhost:3000",
+    # "http://127.0.0.1:3000",
+    # "https://portfolio-chi-one-53.vercel.app",
+    # "https://asmitportfolio-five.vercel.app",
+    # "https://asmitportfolio-5yf60qhal-alokasmitgmailcoms-projects.vercel.app",
+    "https://www.asmitalok.in",
+    "https://asmitalok.in",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
