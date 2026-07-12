@@ -9,6 +9,7 @@ import {
   SiTailwindcss, SiGithub, SiVercel, SiPostman, SiAngular
 } from 'react-icons/si';
 import { motion } from 'framer-motion';
+import { usePortfolioData } from '../contexts/PortfolioDataContext';
 
 const BASE_URL = process.env.REACT_APP_API_URL || process.env.REACT_APP_BASE_URL || 'http://localhost:8000';
 
@@ -26,6 +27,7 @@ const getIcon = (name) => {
 };
 
 const Skills = () => {
+  const { skills } = usePortfolioData();
   const [skillCategories, setSkillCategories] = useState([]);
   const [tools, setTools] = useState([]);
 
@@ -118,67 +120,54 @@ const Skills = () => {
   ];
 
   useEffect(() => {
-    const fetchSkills = async () => {
-      try {
-        const response = await fetch(`${BASE_URL}/api/portfolio-data/`);
-        if (!response.ok) throw new Error('Failed to fetch');
-        const data = await response.json();
-        if (data.skills && data.skills.length > 0) {
-          const fetchedTools = data.skills
-            .filter(s => s.category === 'Tools')
-            .map(s => ({ name: s.name, icon: getIcon(s.icon) }));
-          const categoriesMap = {
-            'Frontend Development': { title: "Frontend Development", description: "Building responsive, performant UIs", skills: [] },
-            'Backend Development': { title: "Backend Development", description: "Server-side logic & API design", skills: [] },
-            'Database & DevOps': { title: "Database & DevOps", description: "Data storage & deployment", skills: [] },
-            'AI': { title: "AI", description: "Artificial Intelligence & LLMs", skills: [] }
-          };
-          
-          data.skills.forEach(s => {
-            if (s.name.toLowerCase() === 'bootstrap') return; // Strip Bootstrap
-            if (s.category !== 'Tools' && categoriesMap[s.category]) {
-              categoriesMap[s.category].skills.push({ name: s.name, level: s.level, icon: getIcon(s.icon) });
-            }
-          });
-
-          // Inject mandatory overrides
-          const injectSkill = (cat, name, level, iconNode) => {
-              const catObj = categoriesMap[cat];
-              if (!catObj) return;
-              const existing = catObj.skills.find(s => s.name.toLowerCase() === name.toLowerCase());
-              if (existing) {
-                  existing.level = level;
-                  existing.icon = iconNode;
-              } else {
-                  catObj.skills.push({ name, level, icon: iconNode });
-              }
-          };
-
-          injectSkill('Frontend Development', 'Angular', 60, getIcon('SiAngular'));
-          injectSkill('Database & DevOps', 'AWS', 60, getIcon('FaAws'));
-          injectSkill('Database & DevOps', 'CI/CD', 70, getIcon('FaTools'));
-          injectSkill('Database & DevOps', 'Chroma DB', 60, getIcon('FaDatabase'));
-          
-          injectSkill('AI', 'Vector Database', 55, getIcon('FaDatabase'));
-          injectSkill('AI', 'RAG', 60, getIcon('FaCode'));
-          injectSkill('AI', 'GENAI', 50, getIcon('FaCode'));
-          injectSkill('AI', 'Open AI', 60, getIcon('FaCode'));
-
-          const finalCategories = Object.values(categoriesMap).filter(cat => cat.skills.length > 0);
-          setSkillCategories(finalCategories.length > 0 ? finalCategories : fallbackCategories);
-          setTools(fetchedTools.length > 0 ? fetchedTools : fallbackTools);
-        } else {
-          setSkillCategories(fallbackCategories);
-          setTools(fallbackTools);
+    if (skills && skills.length > 0) {
+      const fetchedTools = skills
+        .filter(s => s.category === 'Tools')
+        .map(s => ({ name: s.name, icon: getIcon(s.icon) }));
+      const categoriesMap = {
+        'Frontend Development': { title: "Frontend Development", description: "Building responsive, performant UIs", skills: [] },
+        'Backend Development': { title: "Backend Development", description: "Server-side logic & API design", skills: [] },
+        'Database & DevOps': { title: "Database & DevOps", description: "Data storage & deployment", skills: [] },
+        'AI': { title: "AI", description: "Artificial Intelligence & LLMs", skills: [] }
+      };
+      
+      skills.forEach(s => {
+        if (s.name.toLowerCase() === 'bootstrap') return;
+        if (s.category !== 'Tools' && categoriesMap[s.category]) {
+          categoriesMap[s.category].skills.push({ name: s.name, level: s.level, icon: getIcon(s.icon) });
         }
-      } catch (error) {
-        console.error('Failed to load dynamic skills, using defaults:', error);
-        setSkillCategories(fallbackCategories);
-        setTools(fallbackTools);
-      }
-    };
-    fetchSkills();
-  }, []);
+      });
+
+      const injectSkill = (cat, name, level, iconNode) => {
+          const catObj = categoriesMap[cat];
+          if (!catObj) return;
+          const existing = catObj.skills.find(s => s.name.toLowerCase() === name.toLowerCase());
+          if (existing) {
+              existing.level = level;
+              existing.icon = iconNode;
+          } else {
+              catObj.skills.push({ name, level, icon: iconNode });
+          }
+      };
+
+      injectSkill('Frontend Development', 'Angular', 60, getIcon('SiAngular'));
+      injectSkill('Database & DevOps', 'AWS', 60, getIcon('FaAws'));
+      injectSkill('Database & DevOps', 'CI/CD', 70, getIcon('FaTools'));
+      injectSkill('Database & DevOps', 'Chroma DB', 60, getIcon('FaDatabase'));
+      
+      injectSkill('AI', 'Vector Database', 55, getIcon('FaDatabase'));
+      injectSkill('AI', 'RAG', 60, getIcon('FaCode'));
+      injectSkill('AI', 'GENAI', 50, getIcon('FaCode'));
+      injectSkill('AI', 'Open AI', 60, getIcon('FaCode'));
+
+      const finalCategories = Object.values(categoriesMap).filter(cat => cat.skills.length > 0);
+      setSkillCategories(finalCategories.length > 0 ? finalCategories : fallbackCategories);
+      setTools(fetchedTools.length > 0 ? fetchedTools : fallbackTools);
+    } else {
+      setSkillCategories(fallbackCategories);
+      setTools(fallbackTools);
+    }
+  }, [skills]);
 
   const fadeUp = {
     hidden: { opacity: 0, y: 25 },

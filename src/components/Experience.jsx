@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { usePortfolioData } from '../contexts/PortfolioDataContext';
 import '../styles/Experience.css';
 
 const BASE_URL = process.env.REACT_APP_API_URL || process.env.REACT_APP_BASE_URL || 'http://localhost:8000';
@@ -33,6 +34,7 @@ const AnimatedCounter = ({ value, isFloat = false }) => {
 };
 
 const Experience = () => {
+  const { experiences: contextExperiences, projects, skills } = usePortfolioData();
   const [yearsExperience, setYearsExperience] = useState(0);
   const [experiences, setExperiences] = useState([]);
   const [totalProjects, setTotalProjects] = useState(7);
@@ -87,55 +89,37 @@ const Experience = () => {
   }, []);
 
   useEffect(() => {
-    const fetchExperiences = async () => {
-      try {
-        const response = await fetch(`${BASE_URL}/api/portfolio-data/`);
-        if (!response.ok) throw new Error('Network error');
-        const data = await response.json();
+    if (projects && projects.length > 0) {
+      setTotalProjects(projects.length);
+    }
+    if (skills && skills.length > 0) {
+      setTotalTech(skills.length);
+    }
+
+    if (contextExperiences && contextExperiences.length > 0) {
+      const processed = contextExperiences.map((exp, index) => {
+        const respArray = Array.isArray(exp.responsibilities) ? exp.responsibilities : [];
+        const impacts = respArray.map((text) => ({ text })).slice(0, 4);
         
-        if (data.projects && Array.isArray(data.projects)) {
-          setTotalProjects(data.projects.length > 0 ? data.projects.length : 7);
-        }
-        if (data.skills && Array.isArray(data.skills)) {
-          setTotalTech(data.skills.length > 0 ? data.skills.length : 15);
+        let techArray = Array.isArray(exp.technologies) ? exp.technologies : [];
+        if (techArray.length === 0) {
+          techArray = ["React", "Django", "APIs"];
         }
 
-        if (data.experiences && data.experiences.length > 0) {
-          const processed = data.experiences.map((exp, index) => {
-            let respArray = [];
-            try { respArray = JSON.parse(exp.responsibilities); }
-            catch { respArray = Array.isArray(exp.responsibilities) ? exp.responsibilities : [exp.responsibilities]; }
-
-            const impacts = respArray.map((text) => ({ text })).slice(0, 4);
-
-            let techArray = [];
-            if (exp.technologies) {
-              try { techArray = JSON.parse(exp.technologies); }
-              catch { techArray = typeof exp.technologies === 'string' ? exp.technologies.split(',') : []; }
-            } else {
-              techArray = ["React", "Django", "APIs"];
-            }
-
-            return {
-              ...exp,
-              impacts,
-              tech: techArray,
-              label: index === 0 ? "CURRENT" : "PREVIOUS",
-              type: index === 0 ? "Current" : exp.type || "Previous",
-              mission: "Worked across full-stack development to build and deliver production-ready features."
-            };
-          });
-          setExperiences(processed);
-        } else {
-          setExperiences(fallbackExperiences);
-        }
-      } catch (error) {
-        console.error('Failed to fetch experiences, using fallbacks:', error);
-        setExperiences(fallbackExperiences);
-      }
-    };
-    fetchExperiences();
-  }, []);
+        return {
+          ...exp,
+          impacts,
+          tech: techArray,
+          label: index === 0 ? "CURRENT" : "PREVIOUS",
+          type: index === 0 ? "Current" : exp.type || "Previous",
+          mission: "Worked across full-stack development to build and deliver production-ready features."
+        };
+      });
+      setExperiences(processed);
+    } else {
+      setExperiences(fallbackExperiences);
+    }
+  }, [contextExperiences, projects, skills]);
 
   return (
     <section className="experience-editorial" id="experience">

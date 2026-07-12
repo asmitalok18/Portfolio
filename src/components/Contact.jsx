@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Form, Button, Card, Alert } from 'react-bootstrap';
 import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaLinkedin, FaGithub, FaWhatsapp, FaTelegram } from 'react-icons/fa';
 import { motion } from 'framer-motion';
+import { usePortfolioData } from '../contexts/PortfolioDataContext';
 
 const Contact = () => {
+    const { contact: contactDataContext, socialLinks: socialLinksContext } = usePortfolioData();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -14,6 +16,30 @@ const Contact = () => {
     const [alertMessage, setAlertMessage] = useState('');
     const [alertVariant, setAlertVariant] = useState('success');
     const [isLoading, setIsLoading] = useState(false);
+
+    // Dynamic contact information state matching database structure
+    const [contactData, setContactData] = useState({
+        email: "alokasmit@gmail.com",
+        phone: "+91 8210632703",
+        location: "Gurugram, India",
+        social_links: {
+            linkedin: "https://www.linkedin.com/in/asmitalok",
+            github: "https://github.com/asmitalok18",
+            whatsapp: "https://wa.link/60n6aa",
+            telegram: "https://t.me/Vrm01234"
+        }
+    });
+
+    useEffect(() => {
+        if (contactDataContext) {
+            setContactData({
+                email: contactDataContext.email || "alokasmit@gmail.com",
+                phone: contactDataContext.phone || "+91 8210632703",
+                location: contactDataContext.location || "Gurugram, India",
+                social_links: socialLinksContext || {}
+            });
+        }
+    }, [contactDataContext, socialLinksContext]);
 
     const handleChange = (e) => {
         setFormData({
@@ -34,7 +60,8 @@ const Contact = () => {
             formDataToSend.append('subject', formData.subject);
             formDataToSend.append('message', formData.message);
 
-            const response = await fetch('https://formspree.io/f/mzzgalny', {
+            const BASE_URL = process.env.REACT_APP_API_URL || process.env.REACT_APP_BASE_URL || 'http://localhost:8000';
+            const response = await fetch(`${BASE_URL}/api/contact/`, {
                 method: 'POST',
                 body: formDataToSend,
                 headers: {
@@ -47,8 +74,13 @@ const Contact = () => {
                 setAlertVariant('success');
                 setShowAlert(true);
                 setFormData({ name: '', email: '', subject: '', message: '' });
+            } else if (response.status === 429) {
+                const retryAfter = response.headers.get('Retry-After') || 60;
+                setAlertMessage(`You have made too many requests. Please try again in ${retryAfter} seconds.`);
+                setAlertVariant('warning');
+                setShowAlert(true);
             } else {
-                const data = await response.json();
+                const data = await response.json().catch(() => ({}));
                 if (data.errors) {
                     setAlertMessage(data.errors.map(error => error.message).join(', '));
                 } else {
@@ -72,49 +104,58 @@ const Contact = () => {
         {
             icon: <FaEnvelope />,
             title: "Email",
-            value: "alokasmit@gmail.com",
-            link: "mailto:alokasmit@gmail.com"
+            value: contactData.email,
+            link: `mailto:${contactData.email}`
         },
         {
             icon: <FaPhone />,
             title: "Phone",
-            value: "+91 8210632703",
-            link: "tel:+918210632703"
+            value: contactData.phone,
+            link: `tel:${contactData.phone.replace(/\s+/g, '')}`
         },
         {
             icon: <FaMapMarkerAlt />,
             title: "Location",
-            value: "Gurugram, India",
+            value: contactData.location,
             link: "#"
         }
     ];
 
-    const socialLinks = [
-        {
-            icon: <FaLinkedin />,
-            name: "LinkedIn",
-            url: "https://www.linkedin.com/in/asmitalok",
-            color: "#0077b5"
-        },
-        {
-            icon: <FaGithub />,
-            name: "GitHub",
-            url: "https://github.com/asmitalok18",
-            color: "#333"
-        },
-        {
-            icon: <FaWhatsapp />,
-            name: "WhatsApp",
-            url: "https://wa.link/60n6aa",
-            color: "#25d366"
-        },
-        {
-            icon: <FaTelegram />,
-            name: "Telegram",
-            url: "https://t.me/Vrm01234",
-            color: "#0088cc"
+    const socialLinks = [];
+    if (contactData.social_links) {
+        if (contactData.social_links.linkedin) {
+            socialLinks.push({
+                icon: <FaLinkedin />,
+                name: "LinkedIn",
+                url: contactData.social_links.linkedin,
+                color: "#0077b5"
+            });
         }
-    ];
+        if (contactData.social_links.github) {
+            socialLinks.push({
+                icon: <FaGithub />,
+                name: "GitHub",
+                url: contactData.social_links.github,
+                color: "#333"
+            });
+        }
+        if (contactData.social_links.whatsapp) {
+            socialLinks.push({
+                icon: <FaWhatsapp />,
+                name: "WhatsApp",
+                url: contactData.social_links.whatsapp,
+                color: "#25d366"
+            });
+        }
+        if (contactData.social_links.telegram) {
+            socialLinks.push({
+                icon: <FaTelegram />,
+                name: "Telegram",
+                url: contactData.social_links.telegram,
+                color: "#0088cc"
+            });
+        }
+    }
 
     // Animation variants
     const containerVariants = {

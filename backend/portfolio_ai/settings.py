@@ -21,7 +21,7 @@ INSTALLED_APPS = [
     'cloudinary',
     'rest_framework',
     'corsheaders',
-    'ai_assistant',
+    'ai_assistant.apps.AiAssistantConfig',
 ]
 
 MIDDLEWARE = [
@@ -35,6 +35,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'portfolio_ai.rate_limiter.RateLimitMiddleware',
 ]
 
 ROOT_URLCONF = 'portfolio_ai.urls'
@@ -91,6 +92,8 @@ elif not os.environ.get('DATABASE_URL') and not os.getenv('DATABASE_HOST'):
         }
     }
 
+
+
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
@@ -98,11 +101,11 @@ REST_FRAMEWORK = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    # "http://localhost:3000",
-    # "http://127.0.0.1:3000",
-    # "https://portfolio-chi-one-53.vercel.app",
-    # "https://asmitportfolio-five.vercel.app",
-    # "https://asmitportfolio-5yf60qhal-alokasmitgmailcoms-projects.vercel.app",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://portfolio-chi-one-53.vercel.app",
+    "https://asmitportfolio-five.vercel.app",
+    "https://asmitportfolio-5yf60qhal-alokasmitgmailcoms-projects.vercel.app",
     
     "https://www.asmitalok.in",
     "https://asmitalok.in",
@@ -149,17 +152,44 @@ PINECONE_API_KEY = os.getenv('PINECONE_API_KEY')
 PINECONE_ENVIRONMENT = os.getenv('PINECONE_ENVIRONMENT', 'us-east-1-aws')
 PINECONE_INDEX_NAME = os.getenv('PINECONE_INDEX_NAME', 'asmit-portfolio-rag')
 
-# Caching Configuration for RAG
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake',
-        'TIMEOUT': 86400,  # 24 hours
-        'OPTIONS': {
-            'MAX_ENTRIES': 1000,
+# Caching Configuration for RAG and Rate Limiting
+from django.core.exceptions import ImproperlyConfigured
+
+RATE_LIMIT_ENABLED = os.environ.get('RATE_LIMIT_ENABLED', 'true').lower() == 'true'
+RATE_LIMIT_STORE = os.environ.get('RATE_LIMIT_STORE', 'redis')
+
+if os.getenv('REDIS_URL') or RATE_LIMIT_STORE == 'redis':
+    redis_url = os.getenv('REDIS_URL')
+    if os.environ.get('DJANGO_ENV') == 'production' and RATE_LIMIT_ENABLED and RATE_LIMIT_STORE == 'redis':
+        if not redis_url or not redis_url.startswith('redis'):
+            raise ImproperlyConfigured("REDIS_URL environment variable is required and must be valid when RATE_LIMIT_STORE=redis in production.")
+            
+    if not redis_url:
+        redis_url = 'redis://127.0.0.1:6379/1'
+        
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': redis_url,
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+                'IGNORE_EXCEPTIONS': os.getenv('RATE_LIMIT_FAIL_OPEN', 'true').lower() == 'true',
+            }
         }
     }
-}
+else:
+    import warnings
+    warnings.warn("Using LocMemCache. This is not recommended for production distributed rate limiting.", RuntimeWarning)
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'unique-snowflake',
+            'TIMEOUT': 86400,  # 24 hours
+            'OPTIONS': {
+                'MAX_ENTRIES': 1000,
+            }
+        }
+    }
 
 # Logging Configuration
 LOGGING = {

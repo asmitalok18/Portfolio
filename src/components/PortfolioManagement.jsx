@@ -50,8 +50,11 @@ const PortfolioManagement = () => {
       });
       
       const data = await response.json();
-      if (data.success) {
+      if (response.ok && data.success) {
         setIsAuthenticated(true);
+      } else if (response.status === 429 || data?.error?.code === 'RATE_LIMIT_EXCEEDED') {
+        const retryAfter = data?.error?.retryAfter || response.headers.get('Retry-After') || 60;
+        toast.error(data?.error?.message || `You have made too many requests. Please try again in ${retryAfter} seconds.`);
       } else {
         toast.error(data.message || 'Invalid credentials');
       }
@@ -1756,7 +1759,7 @@ const ProjectsTab = () => {
           <div key={project.id} className="project-card compact-card">
             <div className="project-card-image">
               {project.image_url ? (
-                <img src={project.image_url.startsWith('http') ? project.image_url : `${BASE_URL}${project.image_url}`} alt={project.name} />
+                <img src={project.image_url.startsWith('http') ? project.image_url : `${BASE_URL}${project.image_url}`} alt={project.name} draggable="false" onDragStart={(e) => e.preventDefault()} style={{ userSelect: 'none' }} />
               ) : (
                 <div className="placeholder-image"><FaProjectDiagram /></div>
               )}

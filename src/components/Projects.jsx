@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Badge, Modal } from 'react-bootstrap';
 import { FaGithub, FaExternalLinkAlt, FaChevronLeft, FaChevronRight, FaInfoCircle, FaTimes } from 'react-icons/fa';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { usePortfolioData } from '../contexts/PortfolioDataContext';
 import '../styles/custom.css'
 
 // Base URL for backend API and media. Prefer REACT_APP_BASE_URL, then BASE_URL, then localhost default.
@@ -101,6 +102,8 @@ const ProjectImageShowcase = ({ project }) => {
             return apiImg || '/blog_app_image.png';
           })()}
           alt={project.name || project.title}
+          draggable="false"
+          onDragStart={(e) => e.preventDefault()}
           style={{ 
             width: '100%',
             height: '100%',
@@ -138,11 +141,62 @@ const ProjectImageShowcase = ({ project }) => {
   );
 };
 
+const projectDetailCache = {};
+
 const Projects = () => {
+  const { projects: contextProjects, loading: contextLoading } = usePortfolioData();
   const [isHovered, setIsHovered] = useState(false);
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [selectedProject, setSelectedProject] = useState(null);
+  const [projectDetail, setProjectDetail] = useState(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+
+  const fallbackProjects = [
+    {
+      name: "Blog Project",
+      description: "Built a full-stack blog app with Django REST and React, featuring JWT auth, role-based access, and scalable CRUD APIs. Integrated paginated blog cards, dynamic routing, voice-to-text blog creation, and a user-specific comment system.",
+      image_url: "/blog_app_image.png",
+      technologies: "React, Python, Django, MySQL, JWT, Tailwind css",
+      github_url: "https://github.com/yourusername/ecommerce",
+      live_url: "https://your-ecommerce-demo.vercel.app",
+    },
+    {
+      name: "Portfolio Website",
+      description: "Developed a fully responsive portfolio website using React and Bootstrap, showcasing smooth scroll animations, modern UI design, and optimized performance across devices to highlight personal projects and skills.",
+      image_url: "/portfolio.png",
+      technologies: "React, Bootstrap, AOS, CSS3, Javascript, Framer Motion",
+      github_url: "https://github.com/asmitalok18/Portfolio",
+      live_url: "https://portfolio-chi-one-53.vercel.app/",
+    }
+  ];
+
+  const projects = contextProjects && contextProjects.length > 0 ? contextProjects : fallbackProjects;
+  const loading = contextLoading;
+
+  const handleOpenProject = async (project) => {
+    setSelectedProject(project);
+
+    if (projectDetailCache[project.id]) {
+      setProjectDetail(projectDetailCache[project.id]);
+      return;
+    }
+
+    setProjectDetail(project); // Optimistically set summary data
+    setDetailLoading(true);
+    try {
+        const response = await fetch(`${BASE_URL}/api/projects/${project.id}/`);
+        if(response.ok) {
+            const data = await response.json();
+            projectDetailCache[project.id] = data;
+            
+            // Only update if still open
+            setProjectDetail((currentDetail) => currentDetail && currentDetail.id === project.id ? data : currentDetail);
+        }
+    } catch(err) {
+        console.error("Failed to fetch project details", err);
+    } finally {
+        setDetailLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (selectedProject) {
@@ -183,42 +237,7 @@ const Projects = () => {
     setCurrentIndex((prev) => (prev >= maxIndex ? prev : prev + 1));
   };
 
-  // Fetch projects from API
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const response = await fetch(`${BASE_URL}/api/projects/`);
-        const data = await response.json();
-        console.log('API Response:', data); // Debug log
-        setProjects(data);
-      } catch (error) {
-        console.error('Failed to fetch projects:', error);
-        // Fallback to static data if API fails
-        setProjects([
-          {
-            name: "Blog Project",
-            description: "Built a full-stack blog app with Django REST and React, featuring JWT auth, role-based access, and scalable CRUD APIs. Integrated paginated blog cards, dynamic routing, voice-to-text blog creation, and a user-specific comment system.",
-            image_url: "/blog_app_image.png",
-            technologies: "React, Python, Django, MySQL, JWT, Tailwind css",
-            github_url: "https://github.com/yourusername/ecommerce",
-            live_url: "https://your-ecommerce-demo.vercel.app",
-          },
-          {
-            name: "Portfolio Website",
-            description: "Developed a fully responsive portfolio website using React and Bootstrap, showcasing smooth scroll animations, modern UI design, and optimized performance across devices to highlight personal projects and skills.",
-            image_url: "/portfolio.png",
-            technologies: "React, Bootstrap, AOS, CSS3, Javascript, Framer Motion",
-            github_url: "https://github.com/asmitalok18/Portfolio",
-            live_url: "https://portfolio-chi-one-53.vercel.app/",
-          }
-        ]);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchProjects();
-  }, []);
 
 
 
@@ -378,7 +397,6 @@ const Projects = () => {
             }}
           >
             {projects.map((project, index) => {
-              console.log('Rendering project:', project.name, project); // Debug log
               return (
                 <div 
                   key={index} 
@@ -513,7 +531,7 @@ const Projects = () => {
                         >
                           <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap" className={(project.live_url || project.live) ? "w-50 h-100" : "w-100 h-100"}>
                             <Button
-                              onClick={() => setSelectedProject(project)}
+                              onClick={() => handleOpenProject(project)}
                               className="w-100 h-100 d-flex align-items-center justify-content-center border-0 project-action-btn project-action-details"
                             >
                               <FaInfoCircle className="me-2" /> Details
@@ -566,14 +584,14 @@ const Projects = () => {
       {/* Premium Project Details Modal */}
       <Modal 
         show={!!selectedProject} 
-        onHide={() => setSelectedProject(null)} 
+        onHide={() => { setSelectedProject(null); setProjectDetail(null); }} 
         size="lg" 
         className="premium-modal"
         dialogClassName="premium-modal-dialog"
         contentClassName="premium-modal-content-wrapper"
         backdropClassName="premium-modal-backdrop"
       >
-        {selectedProject && (
+        {projectDetail && (
           <div style={{
             background: 'linear-gradient(145deg, #09090b, #18181b)',
             borderRadius: '24px',
@@ -586,28 +604,37 @@ const Projects = () => {
             flexDirection: 'column'
           }}>
             <div style={{ position: 'relative', height: '280px', flexShrink: 0, width: '100%', overflow: 'hidden', background: '#000' }}>
+               {detailLoading && (
+                 <div style={{ position: 'absolute', inset: 0, zIndex: 10, background: 'rgba(9, 9, 11, 0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(2px)' }}>
+                   <div className="spinner-border text-light" role="status" style={{ width: '2rem', height: '2rem' }}>
+                     <span className="visually-hidden">Loading...</span>
+                   </div>
+                 </div>
+               )}
                <img 
                  src={(() => {
-                   const apiImg = selectedProject.image_url || selectedProject.image;
+                   const apiImg = projectDetail.image_url || projectDetail.image;
                    if (apiImg && apiImg.startsWith('http')) return apiImg;
                    if (apiImg && apiImg.startsWith('/')) return `${BASE_URL}${apiImg}`;
-                   if (selectedProject.name?.toLowerCase().includes('trident') || selectedProject.title?.toLowerCase().includes('trident')) return '/Trident_image.png';
-                   if (selectedProject.name?.toLowerCase().includes('portfolio') || selectedProject.title?.toLowerCase().includes('portfolio')) return '/portfolio.png';
+                   if (projectDetail.name?.toLowerCase().includes('trident') || projectDetail.title?.toLowerCase().includes('trident')) return '/Trident_image.png';
+                   if (projectDetail.name?.toLowerCase().includes('portfolio') || projectDetail.title?.toLowerCase().includes('portfolio')) return '/portfolio.png';
                    return apiImg || '/blog_app_image.png';
                  })()} 
-                 alt={selectedProject.name} 
-                 style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6 }}
+                 alt={projectDetail.name} 
+                 draggable="false"
+                 onDragStart={(e) => e.preventDefault()}
+                 style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6, userSelect: 'none' }}
                />
                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '40px 30px 20px', background: 'linear-gradient(to top, #09090b 10%, transparent)' }}>
                  <Badge bg="transparent" style={{ border: '1px solid rgba(255,255,255,0.2)', color: '#aebdcc', marginBottom: '12px' }}>
-                   {selectedProject.category || 'Web Application'}
+                   {projectDetail.category || 'Web Application'}
                  </Badge>
                  <h2 style={{ fontSize: '2.4rem', fontFamily: 'Georgia, serif', fontWeight: 500, margin: 0, color: '#fff', letterSpacing: '-0.02em' }}>
-                   {selectedProject.name || selectedProject.title}
+                   {projectDetail.name || projectDetail.title}
                  </h2>
                </div>
                <button 
-                 onClick={() => setSelectedProject(null)} 
+                 onClick={() => { setSelectedProject(null); setProjectDetail(null); }} 
                  style={{ position: 'absolute', top: '24px', right: '24px', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.3s' }} 
                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
                  onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.4)'}
@@ -618,13 +645,13 @@ const Projects = () => {
             
             <div className="custom-scrollbar" style={{ padding: '32px', overflowY: 'auto' }}>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '32px' }}>
-                 {(selectedProject.live_url || selectedProject.live) && (
-                   <Button href={selectedProject.live_url || selectedProject.live} target="_blank" className="d-flex align-items-center" style={{ background: '#e2e8f0', color: '#09090b', border: 'none', borderRadius: '10px', padding: '10px 24px', fontWeight: 600, fontSize: '0.9rem' }}>
+                 {(projectDetail.live_url || projectDetail.live) && (
+                   <Button href={projectDetail.live_url || projectDetail.live} target="_blank" className="d-flex align-items-center" style={{ background: '#e2e8f0', color: '#09090b', border: 'none', borderRadius: '10px', padding: '10px 24px', fontWeight: 600, fontSize: '0.9rem' }}>
                      <FaExternalLinkAlt className="me-2" /> Live Demo
                    </Button>
                  )}
-                 {selectedProject.github_url && (
-                   <Button href={selectedProject.github_url} target="_blank" className="d-flex align-items-center" style={{ background: 'rgba(255,255,255,0.05)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', padding: '10px 24px', fontWeight: 600, fontSize: '0.9rem' }}>
+                 {projectDetail.github_url && (
+                   <Button href={projectDetail.github_url} target="_blank" className="d-flex align-items-center" style={{ background: 'rgba(255,255,255,0.05)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', padding: '10px 24px', fontWeight: 600, fontSize: '0.9rem' }}>
                      <FaGithub className="me-2" /> Source Code
                    </Button>
                  )}
@@ -632,20 +659,20 @@ const Projects = () => {
 
               <h4 style={{ fontSize: '1.1rem', color: '#aebdcc', marginBottom: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>Project Overview</h4>
               <p style={{ lineHeight: '1.8', color: 'rgba(235, 240, 246, 0.8)', marginBottom: '32px', fontSize: '0.95rem' }}>
-                {selectedProject.description}
+                {projectDetail.description}
               </p>
 
-              {selectedProject.features_list && (
+              {projectDetail.features_list && (
                 <div style={{ marginBottom: '32px' }}>
                   <h4 style={{ fontSize: '1.1rem', color: '#aebdcc', marginBottom: '16px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>Key Highlights</h4>
                   <ul style={{ listStyle: 'none', padding: 0, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '12px' }}>
                     {(() => {
                       let features = [];
                       try {
-                        features = JSON.parse(selectedProject.features_list);
-                        if (!Array.isArray(features)) features = [selectedProject.features_list];
+                        features = Array.isArray(projectDetail.features_list) ? projectDetail.features_list : JSON.parse(projectDetail.features_list);
+                        if (!Array.isArray(features)) features = [projectDetail.features_list];
                       } catch {
-                        features = (selectedProject.features_list || '').split('\n').filter(Boolean);
+                        features = (projectDetail.features_list || '').split('\n').filter(Boolean);
                       }
                       return features.map((f, i) => (
                         <li key={i} style={{ color: 'rgba(235, 240, 246, 0.8)', fontSize: '0.9rem', display: 'flex', alignItems: 'flex-start', gap: '12px', background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.03)' }}>
@@ -660,7 +687,11 @@ const Projects = () => {
 
               <h4 style={{ fontSize: '1.1rem', color: '#aebdcc', marginBottom: '16px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>Technologies</h4>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                {(selectedProject.technologies || '').split(',').map((tech, i) => (
+                {Array.isArray(projectDetail.technologies) ? projectDetail.technologies.map((tech, i) => (
+                   <span key={i} style={{ background: 'rgba(220, 232, 245, 0.05)', border: '1px solid rgba(220, 232, 245, 0.1)', padding: '6px 14px', borderRadius: '20px', fontSize: '0.8rem', color: '#e2e8f0', fontWeight: 500 }}>
+                     {tech.trim()}
+                   </span>
+                )) : (projectDetail.technologies || '').split(',').map((tech, i) => (
                    <span key={i} style={{ background: 'rgba(220, 232, 245, 0.05)', border: '1px solid rgba(220, 232, 245, 0.1)', padding: '6px 14px', borderRadius: '20px', fontSize: '0.8rem', color: '#e2e8f0', fontWeight: 500 }}>
                      {tech.trim()}
                    </span>

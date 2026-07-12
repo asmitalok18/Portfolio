@@ -26,10 +26,10 @@ def setup_asmit_data():
     personal_data = [
         {'key': 'name', 'value': 'Asmit Alok', 'category': 'basic'},
         {'key': 'title', 'value': 'Full Stack Developer', 'category': 'basic'},
-        {'key': 'location', 'value': 'India', 'category': 'basic'},
-        {'key': 'email', 'value': 'contact@asmitalok.com', 'category': 'contact'},
-        {'key': 'linkedin', 'value': 'https://linkedin.com/in/asmit-alok', 'category': 'contact'},
-        {'key': 'github', 'value': 'https://github.com/asmitalok', 'category': 'contact'},
+        {'key': 'location', 'value': 'Gurugram, India', 'category': 'basic'},
+        {'key': 'email', 'value': 'alokasmit@gmail.com', 'category': 'contact'},
+        {'key': 'linkedin', 'value': 'https://www.linkedin.com/in/asmitalok', 'category': 'contact'},
+        {'key': 'github', 'value': 'https://github.com/asmitalok18', 'category': 'contact'},
         {'key': 'experience_years', 'value': '5+ years', 'category': 'experience'},
         {'key': 'specialization', 'value': 'Angular, ReactJS, Python, Django, AI Integration', 'category': 'skills'},
         {'key': 'bio', 'value': 'Passionate full-stack developer specializing in Angular, ReactJS, Python and Django. I craft scalable web applications with a user-centric approach and have expertise in AI integration for modern web solutions.', 'category': 'about'},
@@ -146,7 +146,7 @@ def setup_asmit_data():
         {
             'category': 'contact',
             'question': 'How can someone contact Asmit or hire him?',
-            'answer': 'You can contact Asmit through email at contact@asmitalok.com, connect with him on LinkedIn, or check out his work on GitHub. He is available for freelance projects, full-time opportunities, and collaborations. Feel free to reach out to discuss your project requirements.',
+            'answer': 'You can contact Asmit through email at alokasmit@gmail.com, connect with him on LinkedIn, or check out his work on GitHub. He is available for freelance projects, full-time opportunities, and collaborations. Feel free to reach out to discuss your project requirements.',
             'keywords': 'contact, hire, email, linkedin, github, freelance, full-time, collaboration, opportunities'
         },
         {

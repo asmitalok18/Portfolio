@@ -1,5 +1,6 @@
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { PortfolioDataProvider } from './contexts/PortfolioDataContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
@@ -47,7 +48,11 @@ function App() {
     <Router>
       <div className="App">
         <Routes>
-          <Route path="/" element={<Portfolio />} />
+          <Route path="/" element={
+            <PortfolioDataProvider>
+              <Portfolio />
+            </PortfolioDataProvider>
+          } />
           <Route path="/admin-portfolio-management-secure" element={<PortfolioManagement />} />
         </Routes>
       </div>

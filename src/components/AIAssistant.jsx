@@ -28,6 +28,15 @@ const AIAssistant = () => {
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const launcherRef = useRef(null);
+  const rateLimitTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (rateLimitTimeoutRef.current) {
+        clearTimeout(rateLimitTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // ── Bootstrap sessions on mount ─────────────────────────────────────────
   useEffect(() => {
@@ -86,8 +95,11 @@ const AIAssistant = () => {
   // ── Persist messages whenever they change ────────────────────────────────
   useEffect(() => {
     if (!activeSessionId || messages.length === 0) return;
-    saveSession(activeSessionId, messages, backendSessionId);
-    setSessions(loadSessions());
+    const saveableMessages = messages.filter(m => m.type !== 'system');
+    if (saveableMessages.length > 0) {
+      saveSession(activeSessionId, saveableMessages, backendSessionId);
+      setSessions(loadSessions());
+    }
   }, [messages, backendSessionId, activeSessionId]);
 
   // ── Send message ─────────────────────────────────────────────────────────
@@ -100,24 +112,45 @@ const AIAssistant = () => {
     const userMsg = { type: 'user', content: text, timestamp: new Date() };
     setMessages(prev => [...prev, userMsg]);
 
+    let rateLimited = false;
+
     try {
       const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
       const res = await fetch(`${BASE_URL}/api/chat/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ message: text, session_id: backendSessionId }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
         setMessages(prev => [...prev, { type: 'ai', content: data.response, timestamp: new Date(), isTyping: true }]);
         setBackendSessionId(data.session_id);
+      } else if (res.status === 429 || data?.error?.code === 'RATE_LIMIT_EXCEEDED') {
+        rateLimited = true;
+        const retryAfter = data?.error?.retryAfter || parseInt(res.headers.get('Retry-After') || '60', 10);
+        setMessages(prev => {
+          // Remove the user message that didn't go through
+          const withoutLastUser = prev.slice(0, -1);
+          return [...withoutLastUser, { type: 'system', content: `⏱️ ${data?.error?.message || `You have made too many requests. Please try again in ${retryAfter} seconds.`}`, timestamp: new Date(), isTyping: false }];
+        });
+        setInputMessage(text);
+        if (rateLimitTimeoutRef.current) {
+          clearTimeout(rateLimitTimeoutRef.current);
+        }
+        rateLimitTimeoutRef.current = setTimeout(() => {
+          setIsLoading(false);
+          setMessages(prev => prev.filter(m => m.type !== 'system'));
+        }, retryAfter * 1000);
       } else {
         setMessages(prev => [...prev, { type: 'ai', content: '🔧 I hit a snag. Please try again.', timestamp: new Date(), isTyping: true }]);
       }
     } catch {
       setMessages(prev => [...prev, { type: 'ai', content: "🌐 Can't connect right now. Feel free to browse Asmit's projects below!", timestamp: new Date(), isTyping: true }]);
     } finally {
-      setIsLoading(false);
+      if (!rateLimited) {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -304,6 +337,10 @@ const AIAssistant = () => {
                         </div>
                       )}
                     </div>
+                  </div>
+                ) : message.type === 'system' ? (
+                  <div style={{ color: '#ffb74d', fontStyle: 'italic', fontSize: '0.9em', textAlign: 'center', padding: '8px', background: 'rgba(255, 152, 0, 0.1)', borderRadius: '8px' }}>
+                    {message.content}
                   </div>
                 ) : (
                   <span>{message.content}</span>

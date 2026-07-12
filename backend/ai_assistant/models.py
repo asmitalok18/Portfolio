@@ -109,9 +109,9 @@ class HeroSection(models.Model):
 
 class PersonalProfile(models.Model):
     full_name = models.CharField(max_length=200, default="Asmit Alok")
-    email = models.EmailField(default="contact@asmitalok.com")
-    phone = models.CharField(max_length=50, default="+91 1234567890")
-    location = models.CharField(max_length=200, default="India")
+    email = models.EmailField(default="alokasmit@gmail.com")
+    phone = models.CharField(max_length=50, default="+91 8210632703")
+    location = models.CharField(max_length=200, default="Gurugram, India")
     short_bio = models.TextField(default="Passionate Full Stack Developer specializing in Angular, ReactJS, Python and Django.")
     long_bio = models.TextField(default="I'm a passionate technology enthusiast dedicated to staying at the forefront of emerging industry trends and advancements. My commitment to continuous learning drives me to actively seek opportunities where I can contribute meaningfully to the ever-evolving world of technology.")
     current_role = models.CharField(max_length=200, default="Full Stack Developer")
@@ -122,9 +122,9 @@ class PersonalProfile(models.Model):
         return f"Personal Profile: {self.full_name}"
 
 class ContactSection(models.Model):
-    email = models.EmailField(default="contact@asmitalok.com")
-    phone = models.CharField(max_length=50, default="+91 1234567890")
-    location = models.CharField(max_length=200, default="India")
+    email = models.EmailField(default="alokasmit@gmail.com")
+    phone = models.CharField(max_length=50, default="+91 8210632703")
+    location = models.CharField(max_length=200, default="Gurugram, India")
     cta_heading = models.CharField(max_length=200, default="Let's Connect")
     cta_subtitle = models.CharField(max_length=300, default="Have a project in mind or want to discuss opportunities?")
     social_links = models.JSONField(default=dict, blank=True)

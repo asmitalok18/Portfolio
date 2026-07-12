@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import ChatView, RAGManagementView, ProjectsView, PersonalInfoView, PortfolioDataView
+from .views import ChatView, RAGManagementView, ProjectsView, ProjectDetailView, PersonalInfoView, PortfolioDataView, ContactView
 from .management_views import (
     LoginView, LogoutView, CheckAuthView,
     ProjectManagementView, PersonalInfoManagementView, ResumeManagementView,
@@ -12,8 +12,9 @@ urlpatterns = [
     # Public APIs
     path('chat/', ChatView.as_view(), name='chat'),
     path('projects/', ProjectsView.as_view(), name='projects_list'),
-    path('personal-info/', PersonalInfoView.as_view(), name='personal_info_list'),
+    path('projects/<int:pk>/', ProjectDetailView.as_view(), name='project_detail'),
     path('portfolio-data/', PortfolioDataView.as_view(), name='portfolio_data'),
+    path('contact/', ContactView.as_view(), name='contact_submit'),
     path('resume/download/', ResumeDownloadView.as_view(), name='resume_download'),
     
     # RAG Index Management

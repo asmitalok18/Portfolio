@@ -44,9 +44,9 @@ def populate():
         id=1,
         defaults={
             'full_name': 'Asmit Alok',
-            'email': 'contact@asmitalok.com',
-            'phone': '+91 1234567890',
-            'location': 'India',
+            'email': 'alokasmit@gmail.com',
+            'phone': '+91 8210632703',
+            'location': 'Gurugram, India',
             'short_bio': 'Passionate Full Stack Developer specializing in Angular, ReactJS, Python and Django.',
             'long_bio': "I'm a passionate technology enthusiast dedicated to staying at the forefront of emerging industry trends and advancements. My commitment to continuous learning drives me to actively seek opportunities where I can contribute meaningfully to the ever-evolving world of technology.",
             'current_role': 'Full Stack Developer',
@@ -68,9 +68,9 @@ def populate():
     contact, created = ContactSection.objects.get_or_create(
         id=1,
         defaults={
-            'email': 'contact@asmitalok.com',
-            'phone': '+91 1234567890',
-            'location': 'India',
+            'email': 'alokasmit@gmail.com',
+            'phone': '+91 8210632703',
+            'location': 'Gurugram, India',
             'cta_heading': "Let's Connect",
             'cta_subtitle': 'Have a project in mind or want to discuss opportunities?',
             'social_links': {

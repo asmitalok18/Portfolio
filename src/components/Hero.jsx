@@ -1,20 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { FaLinkedin, FaGithub, FaWhatsapp, FaTelegram, FaCode, FaServer, FaCogs } from 'react-icons/fa';
+import { usePortfolioData } from '../contexts/PortfolioDataContext';
 import '../styles/custom.css';
 
 const BASE_URL = process.env.REACT_APP_API_URL || process.env.REACT_APP_BASE_URL || 'http://localhost:8000';
 
 const Hero = () => {
-  const [heroData, setHeroData] = useState(null);
-
-  useEffect(() => {
-    fetch(`${BASE_URL}/api/portfolio-data/`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.hero) setHeroData(data.hero);
-      })
-      .catch(err => console.error("Failed to fetch hero data:", err));
-  }, []);
+  const { hero: heroData } = usePortfolioData();
 
   const getHeroImage = () => {
     const apiImg = heroData?.profile_image;
@@ -81,7 +73,7 @@ const Hero = () => {
           </div>
 
           <div className="hero-portrait-wrap">
-            <img src={imageUrl} alt="Asmit Alok" />
+            <img src={imageUrl} alt="Asmit Alok" draggable="false" onDragStart={(e) => e.preventDefault()} style={{ userSelect: 'none' }} />
           </div>
         </div>
       </div>

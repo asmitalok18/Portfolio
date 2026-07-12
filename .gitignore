@@ -48,3 +48,5 @@ backend/db.sqlite3
 node_modules/
 build/
 .vercel
+*.log
+vercel_logs.txt

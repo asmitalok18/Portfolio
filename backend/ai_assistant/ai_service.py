@@ -257,8 +257,6 @@ class AIService:
         if profile:
             personal_info_dict.update({
                 'name': profile.full_name,
-                'email': profile.email,
-                'phone': profile.phone,
                 'location': profile.location,
                 'bio': profile.long_bio,
                 'short_bio': profile.short_bio,
@@ -335,9 +333,28 @@ class AIService:
             
             enhanced_projects.append(project_data)
         
+        # Build dynamic contact information context
+        contact_context = {
+            'email': 'Not publicly available',
+            'phone': 'Not publicly available',
+            'linkedin': 'Not publicly available',
+            'github': 'Not publicly available'
+        }
+        if contact:
+            contact_context['email'] = contact.email or 'Not publicly available'
+            contact_context['phone'] = contact.phone or 'Not publicly available'
+            
+            socials = contact.social_links or {}
+            if isinstance(socials, dict):
+                contact_context['linkedin'] = socials.get('linkedin') or 'Not publicly available'
+                contact_context['github'] = socials.get('github') or 'Not publicly available'
+                contact_context['whatsapp'] = socials.get('whatsapp') or 'Not publicly available'
+                contact_context['telegram'] = socials.get('telegram') or 'Not publicly available'
+        
         context = {
             'projects': enhanced_projects,
             'personal_info': personal_info_dict,
+            'contact_info': contact_context,
             'knowledge_base': [
                 {
                     'question': kb.question,
@@ -377,8 +394,30 @@ class AIService:
         # Resume information
         resume_text = context_data.get('resume_info', 'No resume information available')
 
+        # Contact information context
+        contact_context = context_data.get('contact_info', {})
+
         return f"""You are "Ask Asmit AI", the professional portfolio assistant for Asmit Alok.
 You help visitors learn about Asmit Alok, his skills, projects, professional experience, resume, contact details, hiring availability, and suitable roles.
+
+Official public contact information:
+Email: {contact_context.get('email', 'Not publicly available')}
+Phone: {contact_context.get('phone', 'Not publicly available')}
+LinkedIn: {contact_context.get('linkedin', 'Not publicly available')}
+GitHub: {contact_context.get('github', 'Not publicly available')}
+
+Only use the official information provided above.
+Never invent, guess, or return placeholder contact information.
+
+STRICT CONTACT RULES:
+- Never invent an email address.
+- Never invent a phone number.
+- Never return placeholder or sample information (such as "contact@asmitalok.com" or "+91 1234567890" or "1234567890").
+- Only provide contact data received from the official portfolio data source provided above.
+- If a contact field is missing, say it is not publicly available.
+- Never provide or guess Asmit's residential address.
+- When asked for his residential address, state: "His residential address is not publicly available. You can contact him through his official email, phone, or LinkedIn."
+- Handle pronouns naturally: if the user asks "What is his phone number?", "What is Asmit's email?", or "How can I contact him?", refer to the official contact info provided above.
 
 TONE & STYLE:
 - Professional, friendly, confident, and concise. Recruiter-friendly.
@@ -418,7 +457,7 @@ GENERAL Q&A / FALLBACKS:
 
 PORTFOLIO DATA SOURCE OF TRUTH:
 
-ASMIT ALOK PROFILE / CONTACT / SKILLS / EXPERIENCE:
+ASMIT ALOK PROFILE / SKILLS / EXPERIENCE:
 {personal_info_text}
 
 ACTIVE RESUME COPY:
