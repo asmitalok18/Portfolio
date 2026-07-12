@@ -223,7 +223,7 @@ const AIAssistant = () => {
           {/* Sessions toggle */}
           <button className="ai-panel__sessions-btn" onClick={() => setShowSidebar(p => !p)} aria-label="Manage sessions" title="Chat Sessions">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+              <rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" />
             </svg>
           </button>
           <div className="ai-panel__avatar" aria-hidden="true">
@@ -247,7 +247,7 @@ const AIAssistant = () => {
             <div className="ai-sidebar__header">
               <span className="ai-sidebar__title">Chat Sessions</span>
               <button className="ai-sidebar__new" onClick={handleNewSession} aria-label="New chat session">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
                 New Chat
               </button>
             </div>
@@ -271,7 +271,7 @@ const AIAssistant = () => {
                   ) : (
                     <button className="ai-sidebar__delete" onClick={() => setConfirmDelete(session.id)} aria-label="Delete session">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="13" height="13">
-                        <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+                        <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" /><path d="M10 11v6" /><path d="M14 11v6" /><path d="M9 6V4h6v2" />
                       </svg>
                     </button>
                   )}
@@ -291,8 +291,8 @@ const AIAssistant = () => {
                   <div style={{ display: 'flex', alignItems: 'flex-start' }}>
                     {index === 0 && (
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ai-primary)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px', marginRight: '10px' }}>
-                        <polyline points="15 18 21 12 15 6"/><polyline points="9 6 3 12 9 18"/>
-                        <circle cx="12" cy="12" r="2.5"/><line x1="12" y1="3" x2="12" y2="9.5"/><line x1="12" y1="14.5" x2="12" y2="21"/>
+                        <polyline points="15 18 21 12 15 6" /><polyline points="9 6 3 12 9 18" />
+                        <circle cx="12" cy="12" r="2.5" /><line x1="12" y1="3" x2="12" y2="9.5" /><line x1="12" y1="14.5" x2="12" y2="21" />
                       </svg>
                     )}
                     <div style={{ flex: 1, minWidth: 0 }}>
