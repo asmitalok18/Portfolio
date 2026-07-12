@@ -1260,78 +1260,163 @@ button,
 
 .hero-feature-card {
   position: absolute;
-  width: 112px;
-  padding: 22px 15px;
-  border-radius: 18px;
-  border: 1px solid rgba(220, 232, 245, 0.12) !important;
+  width: 100px;
+  height: 270px;
+  min-height: 320px;
+  max-height: 270px;
+  padding: 20px 16px;
+  border-radius: 20px;
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  border: none !important;
+
+  /* More transparent glass with a very light slate tint */
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.018)),
-    rgba(9, 12, 16, 0.72);
+    linear-gradient(
+      180deg,
+      rgba(185, 199, 214, 0.045) 0%,
+      rgba(150, 168, 187, 0.022) 42%,
+      rgba(125, 143, 162, 0.009) 72%,
+      rgba(95, 112, 130, 0.002) 100%
+    );
+
+  background-color: transparent;
+
   box-shadow:
-    0 30px 90px rgba(0, 0, 0, 0.52),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  transition: all 0.3s ease;
+    0 18px 44px rgba(0, 0, 0, 0.13),
+    0 0 20px rgba(130, 150, 172, 0.045),
+    inset 0 1px 0 rgba(210, 224, 238, 0.085);
+
+  backdrop-filter: blur(5px) saturate(108%);
+  -webkit-backdrop-filter: blur(5px) saturate(108%);
+
+  transition:
+    transform 0.3s ease,
+    background 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.hero-feature-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+
+  /* Thin slate border with a soft light glow */
+  border: 1px solid rgba(170, 188, 207, 0.30);
+  border-bottom-color: transparent;
+
+  box-shadow:
+    inset 0 1px 0 rgba(225, 235, 245, 0.08),
+    0 0 8px rgba(135, 157, 179, 0.12);
+
+  pointer-events: none;
+  z-index: 1;
+
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 58%,
+    rgba(0, 0, 0, 0.70) 70%,
+    rgba(0, 0, 0, 0.24) 84%,
+    transparent 100%
+  );
+
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 58%,
+    rgba(0, 0, 0, 0.70) 70%,
+    rgba(0, 0, 0, 0.24) 84%,
+    transparent 100%
+  );
 }
 
 .hero-feature-card:hover {
-  border: 1px solid rgba(220, 232, 245, 0.12) !important;
+  transform: translateY(-6px);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(196, 210, 224, 0.065) 0%,
+      rgba(158, 177, 196, 0.032) 44%,
+      rgba(128, 148, 168, 0.014) 74%,
+      rgba(100, 118, 136, 0.004) 100%
+    );
+
+  background-color: transparent;
+
   box-shadow:
-    0 32px 90px rgba(0, 0, 0, 0.52),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  transform: translateY(-4px);
+    0 22px 54px rgba(0, 0, 0, 0.16),
+    0 0 26px rgba(137, 159, 181, 0.075),
+    inset 0 1px 0 rgba(220, 232, 244, 0.11);
+}
+
+.hero-feature-card:hover::before {
+  border-color: rgba(184, 203, 222, 0.40);
+  border-bottom-color: transparent;
+
+  box-shadow:
+    inset 0 1px 0 rgba(235, 243, 250, 0.10),
+    0 0 12px rgba(145, 169, 192, 0.18);
 }
 
 .hero-feature-icon {
   width: 40px;
   height: 40px;
+  flex-shrink: 0;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(220, 232, 245, 0.10) !important;
+  background: rgba(255, 255, 255, 0.065);
+  border: 1px solid rgba(220, 232, 245, 0.11) !important;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 20px;
+  margin: 0 auto 22px;
   color: #f5f7fa;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 8px 20px rgba(0, 0, 0, 0.22);
 }
 
 .hero-feature-card h4 {
-  margin: 0 0 11px;
-  color: #fffaf3;
-  font-size: 14.5px;
-  line-height: 1.2;
+  width: 100%;
+  margin: 0 0 12px;
+  color: #f7f7f5;
+  font-size: 14px;
+  line-height: 1.25;
+  font-weight: 500;
 }
 
 .hero-feature-card p {
+  width: 100%;
   margin: 0;
-  color: rgba(255, 250, 243, 0.68);
-  font-size: 12px;
-  line-height: 1.38;
+  color: rgba(235, 240, 246, 0.58);
+  font-size: 11.5px;
+  line-height: 1.45;
+  font-weight: 400;
 }
 
 .card-code {
-  left: 22px;
-  top: 208px;
-  min-height: 275px;
-  max-height: 275px;
+  left: 18px;
+  top: 215px;
   z-index: 4;
 }
 
 .card-user {
   left: 165px;
-  top: 86px;
-  min-height: 255px;
-  max-height: 255px;
-  z-index: 3;
+  top: 95px;
+  z-index: 4;
 }
 
 .card-rocket {
-  right: -18px;
-  top: 222px;
-  min-height: 235px;
-  max-height: 235px;
-  z-index: 3;
+  right: 0;
+  top: 215px;
+  z-index: 4;
 }
 
 @media (max-width: 1280px) {
@@ -1355,24 +1440,26 @@ button,
   }
 
   .hero-feature-card {
-    width: 140px;
+    width: 126px;
+    height: 260px;
     min-height: 260px;
+    max-height: 260px;
+    padding: 18px 14px;
   }
 
   .card-code {
-    left: 55px;
-    top: 220px;
+    left: 30px;
+    top: 215px;
   }
 
   .card-user {
-    left: 225px;
+    left: 170px;
     top: 105px;
-    min-height: 300px;
   }
 
   .card-rocket {
-    right: -5px;
-    top: 240px;
+    right: -4px;
+    top: 215px;
   }
 
   .hero-arc-lines {
