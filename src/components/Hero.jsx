@@ -9,7 +9,13 @@ const Hero = () => {
   const { hero: heroData } = usePortfolioData();
 
   const getHeroImage = () => {
-    const apiImg = heroData?.profile_image;
+    let apiImg = heroData?.profile_image;
+    
+    // Fix Cloudinary double URL bug from backend
+    if (apiImg && apiImg.includes('https://res.cloudinary.com') && apiImg.lastIndexOf('https://res.cloudinary.com') > 0) {
+      apiImg = apiImg.substring(apiImg.lastIndexOf('https://res.cloudinary.com'));
+    }
+
     if (apiImg && apiImg.startsWith('http')) return apiImg;
     if (apiImg && apiImg !== '/image.jpg' && apiImg !== '') {
       return apiImg.startsWith('/') ? `${BASE_URL}${apiImg}` : apiImg;
