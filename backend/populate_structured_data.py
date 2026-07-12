@@ -47,7 +47,7 @@ def populate():
             'email': 'alokasmit@gmail.com',
             'phone': '+91 8210632703',
             'location': 'Gurugram, India',
-            'short_bio': 'Passionate Full Stack Developer specializing in Angular, ReactJS, Python and Django.',
+            'short_bio': 'Passionate Full Stack Developer specializing in Angular, ReactJS, Python and Django with expertise in GenAI and AI integration.',
             'long_bio': "I'm a passionate technology enthusiast dedicated to staying at the forefront of emerging industry trends and advancements. My commitment to continuous learning drives me to actively seek opportunities where I can contribute meaningfully to the ever-evolving world of technology.",
             'current_role': 'Full Stack Developer',
             'current_status': 'Available for work',

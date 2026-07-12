@@ -112,7 +112,7 @@ class PersonalProfile(models.Model):
     email = models.EmailField(default="alokasmit@gmail.com")
     phone = models.CharField(max_length=50, default="+91 8210632703")
     location = models.CharField(max_length=200, default="Gurugram, India")
-    short_bio = models.TextField(default="Passionate Full Stack Developer specializing in Angular, ReactJS, Python and Django.")
+    short_bio = models.TextField(default="Passionate Full Stack Developer specializing in Angular, ReactJS, Python and Django with expertise in GenAI and AI integration.")
     long_bio = models.TextField(default="I'm a passionate technology enthusiast dedicated to staying at the forefront of emerging industry trends and advancements. My commitment to continuous learning drives me to actively seek opportunities where I can contribute meaningfully to the ever-evolving world of technology.")
     current_role = models.CharField(max_length=200, default="Full Stack Developer")
     current_status = models.CharField(max_length=200, default="Active")

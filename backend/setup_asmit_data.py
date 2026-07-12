@@ -175,7 +175,7 @@ def setup_asmit_data():
         {'key': 'site_description', 'value': 'Portfolio of Asmit Alok, a passionate full-stack developer specializing in Angular, ReactJS, Python and Django with expertise in AI integration.', 'description': 'Site meta description'},
         {'key': 'hero_title', 'value': 'Hello, I\'m Asmit Alok', 'description': 'Hero section title'},
         {'key': 'hero_subtitle', 'value': 'Full Stack Developer', 'description': 'Hero section subtitle'},
-        {'key': 'hero_description', 'value': 'Specializing in Angular, ReactJS, Python and Django | Crafting Scalable Web Apps with a User-Centric Approach', 'description': 'Hero section description'},
+        {'key': 'hero_description', 'value': 'Specializing in Angular, ReactJS, Python and Django | Architecting Intelligent, Scalable Web Apps with GenAI & AI Integration', 'description': 'Hero section description'},
         {'key': 'about_summary', 'value': 'I create innovative web solutions that combine modern technologies with intelligent features, focusing on scalability and user experience.', 'description': 'About section summary'},
     ]
     

@@ -27,7 +27,7 @@ const Hero = () => {
           </h1>
 
           <p>
-            Full Stack Developer specializing in Angular, ReactJS, Python and Django. I build scalable, reliable web applications with a user-centric approach.
+            Full Stack Developer specializing in Angular, ReactJS, Python and Django, with expertise in GenAI and AI integration. I architect intelligent, scalable web applications that blend modern technology with a user-centric approach.
           </p>
 
           <div className="hero-actions">
