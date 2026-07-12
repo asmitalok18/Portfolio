@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+
+    <!-- Background: deep slate-black radial -->
+    <radialGradient id="bg" cx="50%" cy="38%" r="60%">
+      <stop offset="0%"   stop-color="#111820"/>
+      <stop offset="100%" stop-color="#030406"/>
+    </radialGradient>
+
+    <!-- Letter gradient: top bright silver → bottom muted slate-blue -->
+    <linearGradient id="letter" x1="30%" y1="0%" x2="70%" y2="100%">
+      <stop offset="0%"   stop-color="#eaf1f8"/>
+      <stop offset="50%"  stop-color="#c8d8e8"/>
+      <stop offset="100%" stop-color="#8aa0b4"/>
+    </linearGradient>
+
+    <!-- Dot accent gradient -->
+    <linearGradient id="dot" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#d9e4ef"/>
+      <stop offset="100%" stop-color="#6f7d8c"/>
+    </linearGradient>
+
+    <!-- Glow filter for the letter -->
+    <filter id="glow" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Subtle inner shadow on letter -->
+    <filter id="letterShadow" x="-5%" y="-5%" width="110%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000" flood-opacity="0.6"/>
+    </filter>
+
+    <!-- Border gradient (top-left bright, bottom-right dim) -->
+    <linearGradient id="border" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#d9e4ef" stop-opacity="0.35"/>
+      <stop offset="45%"  stop-color="#aebdcc" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#6f7d8c" stop-opacity="0.20"/>
+    </linearGradient>
+
+    <!-- Glass shimmer (top highlight) -->
+    <linearGradient id="glass" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#ffffff" stop-opacity="0.07"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.00"/>
+    </linearGradient>
+
+    <clipPath id="clip">
+      <rect width="512" height="512" rx="115" ry="115"/>
+    </clipPath>
+
+  </defs>
+
+  <!-- ── 1. Background ── -->
+  <rect width="512" height="512" rx="115" ry="115" fill="url(#bg)"/>
+
+  <!-- ── 2. Ambient centre glow (behind letter) ── -->
+  <ellipse cx="256" cy="260" rx="160" ry="140" fill="#bdd2e8" opacity="0.07" clip-path="url(#clip)"/>
+
+  <!-- ── 3. The "A" letterform — drawn as geometric paths for crisp scaling ── -->
+  <!--
+    Custom geometric "A":
+    - Bold triangular outer shell
+    - Precise crossbar cutout for hollow inside
+    - Built to look CLEAN at 16px and gorgeous at 512px
+    Bounding box: x=96..416, y=80..430
+    All measurements on 512x512 grid
+  -->
+  <g filter="url(#glow)" opacity="0.30" clip-path="url(#clip)">
+    <!-- Glow halo -->
+    <polygon points="256,80  96,430  160,430  256,210  352,430  416,430" fill="#c8d8e8"/>
+    <polygon points="176,310  336,310  316,360  196,360" fill="#c8d8e8"/>
+  </g>
+
+  <g filter="url(#letterShadow)" clip-path="url(#clip)">
+    <!-- Outer A shell -->
+    <polygon
+      points="256,80  96,430  160,430  256,210  352,430  416,430"
+      fill="url(#letter)"
+    />
+    <!-- Inner triangle cutout (punched in bg color so A has hollow centre) -->
+    <polygon
+      points="256,185  178,400  334,400"
+      fill="#0a0f16"
+    />
+    <!-- Crossbar — the defining horizontal bar of the A -->
+    <polygon
+      points="185,306  327,306  311,355  201,355"
+      fill="url(#letter)"
+    />
+  </g>
+
+  <!-- ── 4. Specular rim light on left slope (top-left catch light) ── -->
+  <polygon
+    points="256,80  210,80  164,200  188,200"
+    fill="white"
+    opacity="0.18"
+    clip-path="url(#clip)"
+  />
+
+  <!-- ── 5. Glass top panel shimmer ── -->
+  <rect x="20" y="20" width="472" height="180" rx="95"
+        fill="url(#glass)" clip-path="url(#clip)"/>
+
+  <!-- ── 6. Accent dot — bottom centre branding mark ── -->
+  <circle cx="256" cy="454" r="12" fill="url(#dot)" opacity="0.7" clip-path="url(#clip)"/>
+
+  <!-- ── 7. Chrome border ring ── -->
+  <rect x="1.5" y="1.5" width="509" height="509" rx="114" ry="114"
+        fill="none" stroke="url(#border)" stroke-width="3"/>
+
+</svg>
