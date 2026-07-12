@@ -103,6 +103,7 @@ CORS_ALLOWED_ORIGINS = [
     # "https://portfolio-chi-one-53.vercel.app",
     # "https://asmitportfolio-five.vercel.app",
     # "https://asmitportfolio-5yf60qhal-alokasmitgmailcoms-projects.vercel.app",
+    
     "https://www.asmitalok.in",
     "https://asmitalok.in",
     "https://www.alokasmit.in",
