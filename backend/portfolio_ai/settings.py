@@ -105,6 +105,8 @@ CORS_ALLOWED_ORIGINS = [
     # "https://asmitportfolio-5yf60qhal-alokasmitgmailcoms-projects.vercel.app",
     "https://www.asmitalok.in",
     "https://asmitalok.in",
+    "https://www.alokasmit.in",
+    "https://alokasmit.in",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -117,6 +119,10 @@ CSRF_TRUSTED_ORIGINS = [
     "https://asmitportfolio-five.vercel.app",
     "https://asmitportfolio-5yf60qhal-alokasmitgmailcoms-projects.vercel.app",
     "https://*.onrender.com",
+    "https://www.alokasmit.in",
+    "https://alokasmit.in",
+    "https://www.asmitalok.in",
+    "https://asmitalok.in",
 ]
 
 # Cookie settings for cross-site authentication
