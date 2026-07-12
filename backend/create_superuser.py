@@ -9,16 +9,28 @@ django.setup()
 
 User = get_user_model()
 
-# Create superuser if it doesn't exist
-if not User.objects.filter(username='admin').exists():
+# Create or update superuser
+username = os.environ.get('DJANGO_SUPERUSER_USERNAME', 'admin')
+email = os.environ.get('DJANGO_SUPERUSER_EMAIL', 'admin@example.com')
+password = os.environ.get('DJANGO_SUPERUSER_PASSWORD')
+
+if not password:
+    print("Error: DJANGO_SUPERUSER_PASSWORD is not set in your .env file!")
+    print("Please set it to secure your admin account.")
+    exit(1)
+
+try:
+    user = User.objects.get(username=username)
+    user.set_password(password)
+    user.email = email
+    user.save()
+    print(f"Superuser '{username}' updated successfully!")
+    print("Password updated from environment variables.")
+except User.DoesNotExist:
     User.objects.create_superuser(
-        username='admin',
-        email='admin@example.com',
-        password='admin123'
+        username=username,
+        email=email,
+        password=password
     )
-    print("Superuser created successfully!")
-    print("Username: admin")
-    print("Password: admin123")
-    print("Email: admin@example.com")
-else:
-    print("Superuser already exists!")
+    print(f"Superuser '{username}' created successfully!")
+    print("Password set from environment variables.")

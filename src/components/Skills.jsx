@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, ProgressBar } from 'react-bootstrap';
 import { 
-  FaReact, FaNodeJs, FaDatabase, FaCode, FaGitAlt, FaDocker, FaTools 
+  FaReact, FaNodeJs, FaDatabase, FaCode, FaGitAlt, FaDocker, FaTools, FaAws,
+  FaChevronLeft, FaChevronRight
 } from 'react-icons/fa';
 import { 
   SiJavascript, SiTypescript, SiPython, SiMongodb, SiPostgresql, SiMysql,
-  SiTailwindcss, SiBootstrap, SiGithub, SiVercel, SiPostman
+  SiTailwindcss, SiGithub, SiVercel, SiPostman, SiAngular
 } from 'react-icons/si';
 import { motion } from 'framer-motion';
 
@@ -17,8 +18,9 @@ const getIcon = (name) => {
     FaCode: <FaCode />, FaGitAlt: <FaGitAlt />, FaDocker: <FaDocker />,
     FaTools: <FaTools />, SiJavascript: <SiJavascript />, SiTypescript: <SiTypescript />,
     SiPython: <SiPython />, SiMongodb: <SiMongodb />, SiPostgresql: <SiPostgresql />,
-    SiMysql: <SiMysql />, SiTailwindcss: <SiTailwindcss />, SiBootstrap: <SiBootstrap />,
-    SiGithub: <SiGithub />, SiVercel: <SiVercel />, SiPostman: <SiPostman />
+    SiMysql: <SiMysql />, SiTailwindcss: <SiTailwindcss />, SiAngular: <SiAngular />,
+    SiGithub: <SiGithub />, SiVercel: <SiVercel />, SiPostman: <SiPostman />,
+    FaAws: <FaAws />
   };
   return icons[name] || <FaCode />;
 };
@@ -27,17 +29,47 @@ const Skills = () => {
   const [skillCategories, setSkillCategories] = useState([]);
   const [tools, setTools] = useState([]);
 
+  // Carousel States
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [itemsPerView, setItemsPerView] = useState(3);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) setItemsPerView(1);
+      else if (window.innerWidth < 1200) setItemsPerView(2);
+      else setItemsPerView(3);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const maxIndex = Math.max(0, skillCategories.length - itemsPerView);
+
+  const nextSlide = () => {
+    setCurrentIndex((prev) => (prev >= maxIndex ? prev : prev + 1));
+  };
+
+  const prevSlide = () => {
+    setCurrentIndex((prev) => (prev <= 0 ? 0 : prev - 1));
+  };
+
+
+
+  const activeDotIndex = currentIndex;
+  const extendedCategories = skillCategories;
+
   const fallbackCategories = [
     {
       title: "Frontend Development",
       description: "Building responsive, performant UIs",
       skills: [
-        { name: "React.js", level: 80, icon: <FaReact /> },
-        { name: "JavaScript", level: 80, icon: <SiJavascript /> },
+        { name: "React.js", level: 90, icon: <FaReact /> },
+        { name: "JavaScript", level: 90, icon: <SiJavascript /> },
         { name: "TypeScript", level: 75, icon: <SiTypescript /> },
-        { name: "HTML/CSS", level: 90, icon: <FaCode /> },
-        { name: "Tailwind CSS", level: 80, icon: <SiTailwindcss /> },
-        { name: "Bootstrap", level: 75, icon: <SiBootstrap /> }
+        { name: "HTML/CSS", level: 95, icon: <FaCode /> },
+        { name: "Tailwind CSS", level: 85, icon: <SiTailwindcss /> },
+        { name: "Angular", level: 60, icon: <SiAngular /> }
       ]
     },
     {
@@ -58,7 +90,20 @@ const Skills = () => {
         { name: "MongoDB", level: 70, icon: <SiMongodb /> },
         { name: "PostgreSQL", level: 75, icon: <SiPostgresql /> },
         { name: "MySQL", level: 85, icon: <SiMysql /> },
-        { name: "Docker", level: 50, icon: <FaDocker /> }
+        { name: "Docker", level: 50, icon: <FaDocker /> },
+        { name: "AWS", level: 60, icon: <FaAws /> },
+        { name: "CI/CD", level: 70, icon: <FaTools /> },
+        { name: "Chroma DB", level: 60, icon: <FaDatabase /> }
+      ]
+    },
+    {
+      title: "AI",
+      description: "Artificial Intelligence & LLMs",
+      skills: [
+        { name: "Vector Database", level: 55, icon: <FaDatabase /> },
+        { name: "RAG", level: 60, icon: <FaCode /> },
+        { name: "GENAI", level: 50, icon: <FaCode /> },
+        { name: "Open AI", level: 60, icon: <FaCode /> }
       ]
     }
   ];
@@ -85,13 +130,40 @@ const Skills = () => {
           const categoriesMap = {
             'Frontend Development': { title: "Frontend Development", description: "Building responsive, performant UIs", skills: [] },
             'Backend Development': { title: "Backend Development", description: "Server-side logic & API design", skills: [] },
-            'Database & DevOps': { title: "Database & DevOps", description: "Data storage & deployment", skills: [] }
+            'Database & DevOps': { title: "Database & DevOps", description: "Data storage & deployment", skills: [] },
+            'AI': { title: "AI", description: "Artificial Intelligence & LLMs", skills: [] }
           };
+          
           data.skills.forEach(s => {
+            if (s.name.toLowerCase() === 'bootstrap') return; // Strip Bootstrap
             if (s.category !== 'Tools' && categoriesMap[s.category]) {
               categoriesMap[s.category].skills.push({ name: s.name, level: s.level, icon: getIcon(s.icon) });
             }
           });
+
+          // Inject mandatory overrides
+          const injectSkill = (cat, name, level, iconNode) => {
+              const catObj = categoriesMap[cat];
+              if (!catObj) return;
+              const existing = catObj.skills.find(s => s.name.toLowerCase() === name.toLowerCase());
+              if (existing) {
+                  existing.level = level;
+                  existing.icon = iconNode;
+              } else {
+                  catObj.skills.push({ name, level, icon: iconNode });
+              }
+          };
+
+          injectSkill('Frontend Development', 'Angular', 60, getIcon('SiAngular'));
+          injectSkill('Database & DevOps', 'AWS', 60, getIcon('FaAws'));
+          injectSkill('Database & DevOps', 'CI/CD', 70, getIcon('FaTools'));
+          injectSkill('Database & DevOps', 'Chroma DB', 60, getIcon('FaDatabase'));
+          
+          injectSkill('AI', 'Vector Database', 55, getIcon('FaDatabase'));
+          injectSkill('AI', 'RAG', 60, getIcon('FaCode'));
+          injectSkill('AI', 'GENAI', 50, getIcon('FaCode'));
+          injectSkill('AI', 'Open AI', 60, getIcon('FaCode'));
+
           const finalCategories = Object.values(categoriesMap).filter(cat => cat.skills.length > 0);
           setSkillCategories(finalCategories.length > 0 ? finalCategories : fallbackCategories);
           setTools(fetchedTools.length > 0 ? fetchedTools : fallbackTools);
@@ -132,41 +204,72 @@ const Skills = () => {
           </Col>
         </Row>
 
-        {/* Category Cards */}
-        <Row className="g-4 mb-5">
-          {skillCategories.map((category, ci) => (
-            <Col lg={4} md={6} key={ci}>
-              <motion.div className="skill-category-card"
-                initial="hidden" whileInView="visible" viewport={{ once: true }}
-                variants={{ ...fadeUp, visible: { ...fadeUp.visible, transition: { ...fadeUp.visible.transition, delay: ci * 0.1 } } }}
+        {/* Category Carousel */}
+        <div className="skills-carousel-wrapper" style={{ overflow: 'hidden', width: '100%', marginBottom: '48px', padding: '10px 0' }}>
+          <div 
+            className="skills-carousel-track"
+            style={{ 
+              display: 'flex', 
+              gap: '24px',
+              transition: 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
+              transform: `translateX(calc(-${currentIndex * (100 / itemsPerView)}% - ${currentIndex * (24 / itemsPerView)}px))`
+            }}
+          >
+            {skillCategories.map((category, ci) => (
+              <div 
+                key={ci} 
+                style={{ flex: `0 0 calc(${100 / itemsPerView}% - ${24 * (itemsPerView - 1) / itemsPerView}px)` }}
               >
-                <div className="skill-cat-header">
-                  <h4 className="skill-cat-title">{category.title}</h4>
-                  {category.description && (
-                    <p className="skill-cat-desc">{category.description}</p>
-                  )}
-                </div>
+                <div className="skill-category-card">
+                  <div className="skill-cat-header">
+                    <h4 className="skill-cat-title">{category.title}</h4>
+                    {category.description && (
+                      <p className="skill-cat-desc">{category.description}</p>
+                    )}
+                  </div>
 
-                <div className="skill-cat-list">
-                  {category.skills.map((skill, si) => (
-                    <div key={si} className="skill-row">
-                      <div className="skill-row-top">
-                        <div className="skill-name-group">
-                          <span className="skill-icon-sm">{skill.icon}</span>
-                          <span className="skill-name">{skill.name}</span>
+                  <div className="skill-cat-list">
+                    {category.skills.map((skill, si) => (
+                      <div key={si} className="skill-row">
+                        <div className="skill-row-top">
+                          <div className="skill-name-group">
+                            <span className="skill-icon-sm">{skill.icon}</span>
+                            <span className="skill-name">{skill.name}</span>
+                          </div>
+                          <span className="skill-level">{skill.level}%</span>
                         </div>
-                        <span className="skill-level">{skill.level}%</span>
+                        <div className="skill-bar-track">
+                          <div className="skill-bar-fill" style={{ width: `${skill.level}%` }} />
+                        </div>
                       </div>
-                      <div className="skill-bar-track">
-                        <div className="skill-bar-fill" style={{ width: `${skill.level}%` }} />
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </motion.div>
-            </Col>
-          ))}
-        </Row>
+              </div>
+            ))}
+          </div>
+
+          {/* Carousel Controls */}
+          {skillCategories.length > itemsPerView && (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '32px', gap: '24px' }}>
+              <button 
+                onClick={prevSlide} 
+                className={`carousel-arrow ${currentIndex === 0 ? 'disabled' : ''}`}
+                disabled={currentIndex === 0}
+              >
+                <FaChevronLeft />
+              </button>
+
+              <button 
+                onClick={nextSlide} 
+                className={`carousel-arrow ${currentIndex >= maxIndex ? 'disabled' : ''}`}
+                disabled={currentIndex >= maxIndex}
+              >
+                <FaChevronRight />
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* Core Stack Cloud */}
         <Row>
@@ -296,6 +399,33 @@ const Skills = () => {
           display: flex;
           color: #aebdcc;
         }
+
+        /* Carousel Controls */
+        .carousel-arrow {
+          background: rgba(220, 232, 245, 0.05);
+          border: 1px solid rgba(220, 232, 245, 0.1);
+          color: #aebdcc;
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          padding: 0;
+        }
+        .carousel-arrow:hover:not(.disabled) {
+          background: rgba(220, 232, 245, 0.15);
+          color: #ffffff;
+          transform: scale(1.1);
+        }
+        .carousel-arrow.disabled {
+          opacity: 0.3;
+          cursor: not-allowed;
+          background: rgba(220, 232, 245, 0.02);
+        }
+
       `}</style>
     </section>
   );

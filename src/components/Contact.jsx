@@ -260,7 +260,7 @@ const Contact = () => {
                                                         onChange={handleChange}
                                                         required
                                                         className="contact-input"
-                                                        placeholder="John Doe"
+                                                        placeholder="Enter your name here"
                                                     />
                                                 </Form.Group>
                                             </Col>
@@ -274,7 +274,7 @@ const Contact = () => {
                                                         onChange={handleChange}
                                                         required
                                                         className="contact-input"
-                                                        placeholder="john@example.com"
+                                                        placeholder="user@gmail.com"
                                                     />
                                                 </Form.Group>
                                             </Col>

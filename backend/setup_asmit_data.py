@@ -10,10 +10,17 @@ from django.contrib.auth.models import User
 def setup_asmit_data():
     """Setup complete data for Asmit Alok's AI assistant and portfolio"""
     
-    # Create superuser if it doesn't exist
-    if not User.objects.filter(username='admin').exists():
-        User.objects.create_superuser('admin', 'admin@asmitalok.com', 'admin123')
-        print("Created superuser: admin / admin123")
+    # Create superuser using environment variables if it doesn't exist
+    admin_username = os.environ.get('DJANGO_SUPERUSER_USERNAME', 'admin')
+    admin_email = os.environ.get('DJANGO_SUPERUSER_EMAIL', 'admin@asmitalok.com')
+    admin_password = os.environ.get('DJANGO_SUPERUSER_PASSWORD')
+    
+    if admin_password:
+        if not User.objects.filter(username=admin_username).exists():
+            User.objects.create_superuser(admin_username, admin_email, admin_password)
+            print(f"Created superuser: {admin_username} using credentials from .env")
+    else:
+        print("Warning: DJANGO_SUPERUSER_PASSWORD not set in .env. Superuser creation skipped.")
     
     # Personal Information for Asmit Alok
     personal_data = [
@@ -191,7 +198,8 @@ def setup_asmit_data():
     print("4. Test the AI assistant to ensure accurate responses")
     print("5. Configure Groq API key in .env file")
     print("\n🔗 Access the management interface at: http://localhost:8000/admin/")
-    print("Default login: admin / admin123")
+    admin_username = os.environ.get('DJANGO_SUPERUSER_USERNAME', 'admin')
+    print(f"Login with username '{admin_username}' and your configured .env password.")
 
 if __name__ == '__main__':
     setup_asmit_data()

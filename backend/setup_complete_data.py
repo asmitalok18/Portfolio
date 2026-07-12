@@ -10,10 +10,17 @@ from django.contrib.auth.models import User
 def setup_complete_data():
     """Setup complete data for the AI assistant and portfolio management"""
     
-    # Create superuser if it doesn't exist
-    if not User.objects.filter(username='admin').exists():
-        User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
-        print("Created superuser: admin / admin123")
+    # Create superuser using environment variables if it doesn't exist
+    admin_username = os.environ.get('DJANGO_SUPERUSER_USERNAME', 'admin')
+    admin_email = os.environ.get('DJANGO_SUPERUSER_EMAIL', 'admin@example.com')
+    admin_password = os.environ.get('DJANGO_SUPERUSER_PASSWORD')
+    
+    if admin_password:
+        if not User.objects.filter(username=admin_username).exists():
+            User.objects.create_superuser(admin_username, admin_email, admin_password)
+            print(f"Created superuser: {admin_username} using credentials from .env")
+    else:
+        print("Warning: DJANGO_SUPERUSER_PASSWORD not set in .env. Superuser creation skipped.")
     
     # Personal Information
     personal_data = [
@@ -170,7 +177,8 @@ def setup_complete_data():
     print("4. Customize the AI knowledge base with specific information about your work")
     print("5. Test the AI assistant to ensure it provides accurate responses")
     print("\nAccess the management interface at: http://localhost:3000/admin-portfolio-management-secure")
-    print("Default login: admin / admin123")
+    admin_username = os.environ.get('DJANGO_SUPERUSER_USERNAME', 'admin')
+    print(f"Login with username '{admin_username}' and your configured .env password.")
 
 if __name__ == '__main__':
     setup_complete_data()

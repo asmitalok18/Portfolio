@@ -1,23 +1,41 @@
-import React from 'react';
-import { FaLinkedin, FaGithub, FaWhatsapp, FaTelegram, FaCode, FaRegUser, FaRocket } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { FaLinkedin, FaGithub, FaWhatsapp, FaTelegram, FaCode, FaServer, FaCogs } from 'react-icons/fa';
 import '../styles/custom.css';
 
 const BASE_URL = process.env.REACT_APP_API_URL || process.env.REACT_APP_BASE_URL || 'http://localhost:8000';
 
 const Hero = () => {
+  const [heroData, setHeroData] = useState(null);
+
+  useEffect(() => {
+    fetch(`${BASE_URL}/api/portfolio-data/`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.hero) setHeroData(data.hero);
+      })
+      .catch(err => console.error("Failed to fetch hero data:", err));
+  }, []);
+
+  const getHeroImage = () => {
+    const apiImg = heroData?.profile_image;
+    if (apiImg && apiImg.startsWith('http')) return apiImg;
+    if (apiImg && apiImg !== '/image.jpg' && apiImg !== '') {
+      return apiImg.startsWith('/') ? `${BASE_URL}${apiImg}` : apiImg;
+    }
+    return '/portfolio_image.png';
+  };
+  const imageUrl = getHeroImage();
+
   return (
     <section id="home" className="hero-premium">
       <div className="hero-container">
         <div className="hero-left">
           <h1>
-            Consistency<br />
-            and Engineering<span>.</span>
+            Consistency and Engineering<span>.</span>
           </h1>
 
           <p>
-            Full Stack Developer specializing in Angular, ReactJS,<br />
-            Python and Django. I build scalable, reliable<br />
-            web applications with a user-centric approach.
+            Full Stack Developer specializing in Angular, ReactJS, Python and Django. I build scalable, reliable web applications with a user-centric approach.
           </p>
 
           <div className="hero-actions">
@@ -45,25 +63,25 @@ const Hero = () => {
           <div className="hero-light-streaks"></div>
 
           <div className="hero-feature-card card-code">
-            <div className="hero-feature-icon"><FaCode /></div>
-            <h4>Clean Code</h4>
-            <p>Maintainable.<br />Scalable.<br />Future-ready.</p>
+            <div className="hero-feature-icon"><FaServer /></div>
+            <h4>Backend Scaling</h4>
+            <p>Query optimization, Redis caching, robust APIs.</p>
           </div>
 
           <div className="hero-feature-card card-user">
-            <div className="hero-feature-icon"><FaRegUser /></div>
-            <h4>User First</h4>
-            <p>Intent-driven<br />design with<br />seamless<br />experiences.</p>
+            <div className="hero-feature-icon"><FaCode /></div>
+            <h4>UI Optimization</h4>
+            <p>State management, lazy loading, seamless CSR.</p>
           </div>
 
           <div className="hero-feature-card card-rocket">
-            <div className="hero-feature-icon"><FaRocket /></div>
-            <h4>Ship Faster</h4>
-            <p>Agile mindset,<br />rapid iteration,<br />real impact.</p>
+            <div className="hero-feature-icon"><FaCogs /></div>
+            <h4>DevOps & CI/CD</h4>
+            <p>Dockerized apps, AWS hosting, automated pipelines.</p>
           </div>
 
           <div className="hero-portrait-wrap">
-            <img src="/portfolio_image.png" alt="Asmit Alok" />
+            <img src={imageUrl} alt="Asmit Alok" />
           </div>
         </div>
       </div>

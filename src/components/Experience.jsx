@@ -4,9 +4,39 @@ import '../styles/Experience.css';
 
 const BASE_URL = process.env.REACT_APP_API_URL || process.env.REACT_APP_BASE_URL || 'http://localhost:8000';
 
+const AnimatedCounter = ({ value, isFloat = false }) => {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (value === 0) {
+      setCount(0);
+      return;
+    }
+    const duration = 2000; 
+    const stepTime = 50;
+    const totalSteps = duration / stepTime;
+    const increment = value / totalSteps;
+    let current = 0;
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= value) {
+        setCount(value);
+        clearInterval(timer);
+      } else {
+        setCount(current);
+      }
+    }, stepTime);
+    return () => clearInterval(timer);
+  }, [value]);
+  
+  const displayValue = isFloat ? count.toFixed(1).replace('.0', '') : Math.ceil(count);
+  return <>{displayValue}</>;
+};
+
 const Experience = () => {
-  const [monthsExperience, setMonthsExperience] = useState(0);
+  const [yearsExperience, setYearsExperience] = useState(0);
   const [experiences, setExperiences] = useState([]);
+  const [totalProjects, setTotalProjects] = useState(7);
+  const [totalTech, setTotalTech] = useState(15);
 
   const fallbackExperiences = [
     {
@@ -50,7 +80,8 @@ const Experience = () => {
       const yearDiff = currentDate.getFullYear() - startDate.getFullYear();
       const monthDiff = currentDate.getMonth() - startDate.getMonth();
       const totalMonths = yearDiff * 12 + monthDiff;
-      setMonthsExperience(Math.max(1, totalMonths));
+      const years = Math.floor(totalMonths / 6) * 0.5;
+      setYearsExperience(Math.max(1, years));
     };
     calculateExperience();
   }, []);
@@ -61,6 +92,14 @@ const Experience = () => {
         const response = await fetch(`${BASE_URL}/api/portfolio-data/`);
         if (!response.ok) throw new Error('Network error');
         const data = await response.json();
+        
+        if (data.projects && Array.isArray(data.projects)) {
+          setTotalProjects(data.projects.length > 0 ? data.projects.length : 7);
+        }
+        if (data.skills && Array.isArray(data.skills)) {
+          setTotalTech(data.skills.length > 0 ? data.skills.length : 15);
+        }
+
         if (data.experiences && data.experiences.length > 0) {
           const processed = data.experiences.map((exp, index) => {
             let respArray = [];
@@ -114,20 +153,16 @@ const Experience = () => {
 
           <div className="experience-stats-panel">
             <div>
-              <strong>{monthsExperience}+</strong>
-              <span>Months Experience</span>
+              <strong><AnimatedCounter value={yearsExperience} isFloat={true} />+</strong>
+              <span>Years Experience</span>
             </div>
             <div>
-              <strong>15+</strong>
+              <strong><AnimatedCounter value={totalTech} />+</strong>
               <span>Technologies</span>
             </div>
             <div>
-              <strong>7+</strong>
+              <strong><AnimatedCounter value={totalProjects} />+</strong>
               <span>Projects Built</span>
-            </div>
-            <div>
-              <strong>Open</strong>
-              <span>Availability</span>
             </div>
           </div>
         </div>

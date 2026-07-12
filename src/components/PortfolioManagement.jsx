@@ -4,9 +4,11 @@ import {
   FaFileAlt, FaEnvelope, FaPlus, FaEdit, 
   FaTrash, FaCloudUploadAlt, FaSignOutAlt, FaLink,
   FaMapMarkerAlt, FaPhoneAlt, FaCheckCircle, FaProjectDiagram,
-  FaSpinner
+  FaSpinner, FaEye, FaEyeSlash, FaBars, FaTimes
 } from 'react-icons/fa';
 import '../styles/PortfolioManagement.css';
+import PremiumLoader, { PremiumLoaderButton } from './PremiumLoader';
+import toast, { Toaster } from 'react-hot-toast';
 
 const BASE_URL = process.env.REACT_APP_API_URL || process.env.REACT_APP_BASE_URL || 'http://localhost:8000';
 
@@ -15,18 +17,11 @@ const PortfolioManagement = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [loginData, setLoginData] = useState({ username: '', password: '' });
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   
-  // Data States
-  const [dashboardStats, setDashboardStats] = useState({});
-  const [heroData, setHeroData] = useState({});
-  const [profileData, setProfileData] = useState({});
-  const [skills, setSkills] = useState([]);
-  const [experiences, setExperiences] = useState([]);
-  const [projects, setProjects] = useState([]);
-  const [resumes, setResumes] = useState([]);
-  const [contactData, setContactData] = useState({});
-
-  // Check auth on mount
   useEffect(() => {
     checkAuth();
   }, []);
@@ -36,9 +31,6 @@ const PortfolioManagement = () => {
       const response = await fetch(`${BASE_URL}/api/auth/check/`, { credentials: 'include' });
       const data = await response.json();
       setIsAuthenticated(data.authenticated);
-      if (data.authenticated) {
-        loadAllData();
-      }
     } catch (error) {
       console.error('Auth check failed:', error);
     } finally {
@@ -48,6 +40,7 @@ const PortfolioManagement = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setIsLoggingIn(true);
     try {
       const response = await fetch(`${BASE_URL}/api/auth/login/`, {
         method: 'POST',
@@ -59,81 +52,58 @@ const PortfolioManagement = () => {
       const data = await response.json();
       if (data.success) {
         setIsAuthenticated(true);
-        loadAllData();
       } else {
-        alert(data.message || 'Invalid credentials');
+        toast.error(data.message || 'Invalid credentials');
       }
     } catch (error) {
-      console.error('Login failed:', error);
-      alert('Login failed');
+      toast.error('Login failed');
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
   const handleLogout = async () => {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
     try {
       await fetch(`${BASE_URL}/api/auth/logout/`, {
         method: 'POST',
         credentials: 'include'
       });
       setIsAuthenticated(false);
+      setLoginData({ username: '', password: '' });
+      window.history.replaceState(null, '', window.location.pathname);
     } catch (error) {
       console.error('Logout failed:', error);
+    } finally {
+      setIsLoggingOut(false);
     }
-  };
-
-  const loadAllData = async () => {
-    try {
-      // 1. Dashboard Stats
-      const statsRes = await fetch(`${BASE_URL}/api/manage/dashboard/`, { credentials: 'include' });
-      if (statsRes.ok) setDashboardStats(await statsRes.json());
-
-      // 2. Hero Section
-      const heroRes = await fetch(`${BASE_URL}/api/manage/hero/`, { credentials: 'include' });
-      if (heroRes.ok) setHeroData(await heroRes.json());
-
-      // 3. Profile Info
-      const profileRes = await fetch(`${BASE_URL}/api/manage/profile/`, { credentials: 'include' });
-      if (profileRes.ok) setProfileData(await profileRes.json());
-
-      // 4. Skills
-      const skillsRes = await fetch(`${BASE_URL}/api/manage/skills/`, { credentials: 'include' });
-      if (skillsRes.ok) setSkills(await skillsRes.json());
-
-      // 5. Experience
-      const expRes = await fetch(`${BASE_URL}/api/manage/experiences/`, { credentials: 'include' });
-      if (expRes.ok) setExperiences(await expRes.json());
-
-      // 6. Projects
-      const projectsRes = await fetch(`${BASE_URL}/api/manage/projects/`, { credentials: 'include' });
-      if (projectsRes.ok) setProjects(await projectsRes.json());
-
-      // 7. Resumes
-      const resumesRes = await fetch(`${BASE_URL}/api/manage/resume/`, { credentials: 'include' });
-      if (resumesRes.ok) setResumes(await resumesRes.json());
-
-      // 8. Contact Info
-      const contactRes = await fetch(`${BASE_URL}/api/manage/contact/`, { credentials: 'include' });
-      if (contactRes.ok) setContactData(await contactRes.json());
-
-    } catch (error) {
-      console.error('Failed to load portfolio data:', error);
-    }
-  };
-
-  const refreshStats = async () => {
-    const statsRes = await fetch(`${BASE_URL}/api/manage/dashboard/`, { credentials: 'include' });
-    if (statsRes.ok) setDashboardStats(await statsRes.json());
   };
 
   if (loading) {
-    return <div className="management-loading">Initializing Admin System...</div>;
+    return (
+      <div style={{ background: 'var(--dark-bg)', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <PremiumLoader text="INITIALIZING ADMIN SYSTEM" />
+      </div>
+    );
+  }
+
+  if (isLoggingOut) {
+    return (
+      <div style={{ background: 'var(--dark-bg)', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <PremiumLoader text="SIGNING OUT SECURELY..." />
+      </div>
+    );
   }
 
   if (!isAuthenticated) {
     return (
       <div className="management-login">
+        <Toaster position="bottom-right" toastOptions={{
+          style: { background: '#1a1a24', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }
+        }} />
         <div className="login-container">
-          <h2>Resumify Admin</h2>
+          <h2>Asmit's Admin Panel</h2>
           <form onSubmit={handleLogin}>
             <div className="form-group">
               <input
@@ -144,16 +114,26 @@ const PortfolioManagement = () => {
                 required
               />
             </div>
-            <div className="form-group">
+            <div className="form-group" style={{ position: 'relative' }}>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Password"
                 value={loginData.password}
                 onChange={(e) => setLoginData({...loginData, password: e.target.value})}
                 required
+                style={{ paddingRight: '40px' }}
               />
+              <button 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)}
+                style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#aebdcc', cursor: 'pointer', padding: '5px' }}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
             </div>
-            <button type="submit">Access Console</button>
+            <button type="submit" disabled={isLoggingIn}>
+              {isLoggingIn ? <PremiumLoaderButton size={24} /> : "Access Console"}
+            </button>
           </form>
         </div>
       </div>
@@ -162,59 +142,44 @@ const PortfolioManagement = () => {
 
   return (
     <div className="portfolio-management">
-      {/* Sidebar Navigation */}
-      <div className="management-sidebar">
+      <Toaster position="bottom-right" toastOptions={{
+        style: { background: '#1a1a24', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' },
+        success: { iconTheme: { primary: '#60a5fa', secondary: '#fff' } }
+      }} />
+      
+      {isSidebarOpen && <div className="sidebar-overlay" onClick={() => setIsSidebarOpen(false)}></div>}
+      
+      <div className={`management-sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-brand">
-          <h2>Resumify</h2>
+          <h2>Asmit</h2>
           <span>Admin Console</span>
+          <button className="mobile-close-btn" onClick={() => setIsSidebarOpen(false)}>
+            <FaTimes />
+          </button>
         </div>
         <div className="sidebar-nav">
-          <button 
-            className={`sidebar-nav-btn ${activeTab === 'dashboard' ? 'active' : ''}`}
-            onClick={() => setActiveTab('dashboard')}
-          >
+          <button className={`sidebar-nav-btn ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => {setActiveTab('dashboard'); setIsSidebarOpen(false);}}>
             <FaTachometerAlt /> Dashboard
           </button>
-          <button 
-            className={`sidebar-nav-btn ${activeTab === 'hero' ? 'active' : ''}`}
-            onClick={() => setActiveTab('hero')}
-          >
+          <button className={`sidebar-nav-btn ${activeTab === 'hero' ? 'active' : ''}`} onClick={() => {setActiveTab('hero'); setIsSidebarOpen(false);}}>
             <FaUser /> Hero Section
           </button>
-          <button 
-            className={`sidebar-nav-btn ${activeTab === 'profile' ? 'active' : ''}`}
-            onClick={() => setActiveTab('profile')}
-          >
+          <button className={`sidebar-nav-btn ${activeTab === 'profile' ? 'active' : ''}`} onClick={() => {setActiveTab('profile'); setIsSidebarOpen(false);}}>
             <FaUser /> Personal Profile
           </button>
-          <button 
-            className={`sidebar-nav-btn ${activeTab === 'skills' ? 'active' : ''}`}
-            onClick={() => setActiveTab('skills')}
-          >
+          <button className={`sidebar-nav-btn ${activeTab === 'skills' ? 'active' : ''}`} onClick={() => {setActiveTab('skills'); setIsSidebarOpen(false);}}>
             <FaCode /> Skills Matrix
           </button>
-          <button 
-            className={`sidebar-nav-btn ${activeTab === 'experience' ? 'active' : ''}`}
-            onClick={() => setActiveTab('experience')}
-          >
+          <button className={`sidebar-nav-btn ${activeTab === 'experience' ? 'active' : ''}`} onClick={() => {setActiveTab('experience'); setIsSidebarOpen(false);}}>
             <FaBriefcase /> Work Experience
           </button>
-          <button 
-            className={`sidebar-nav-btn ${activeTab === 'projects' ? 'active' : ''}`}
-            onClick={() => setActiveTab('projects')}
-          >
+          <button className={`sidebar-nav-btn ${activeTab === 'projects' ? 'active' : ''}`} onClick={() => {setActiveTab('projects'); setIsSidebarOpen(false);}}>
             <FaProjectDiagram /> Projects CRUD
           </button>
-          <button 
-            className={`sidebar-nav-btn ${activeTab === 'resume' ? 'active' : ''}`}
-            onClick={() => setActiveTab('resume')}
-          >
+          <button className={`sidebar-nav-btn ${activeTab === 'resume' ? 'active' : ''}`} onClick={() => {setActiveTab('resume'); setIsSidebarOpen(false);}}>
             <FaFileAlt /> Resume Manager
           </button>
-          <button 
-            className={`sidebar-nav-btn ${activeTab === 'contact' ? 'active' : ''}`}
-            onClick={() => setActiveTab('contact')}
-          >
+          <button className={`sidebar-nav-btn ${activeTab === 'contact' ? 'active' : ''}`} onClick={() => {setActiveTab('contact'); setIsSidebarOpen(false);}}>
             <FaEnvelope /> Contact Details
           </button>
         </div>
@@ -225,9 +190,11 @@ const PortfolioManagement = () => {
         </div>
       </div>
 
-      {/* Main Panel */}
       <div className="management-main">
         <div className="management-topbar">
+          <button className="mobile-menu-btn" onClick={() => setIsSidebarOpen(true)}>
+            <FaBars />
+          </button>
           <div className="topbar-title">
             <h1>
               {activeTab === 'dashboard' && 'Dashboard Overview'}
@@ -243,94 +210,477 @@ const PortfolioManagement = () => {
           <div className="topbar-actions">
             <div className="topbar-user">
               <div className="user-avatar">A</div>
-              <span>Administrator</span>
+              <span className="user-name-text">Administrator</span>
             </div>
           </div>
         </div>
 
         <div className="management-content-container">
-          {activeTab === 'dashboard' && <DashboardTab stats={dashboardStats} />}
-          {activeTab === 'hero' && <HeroTab data={heroData} setData={setHeroData} />}
-          {activeTab === 'profile' && <ProfileTab data={profileData} setData={setProfileData} />}
-          {activeTab === 'skills' && <SkillsTab skills={skills} setSkills={setSkills} refreshStats={refreshStats} />}
-          {activeTab === 'experience' && <ExperienceTab experiences={experiences} setExperiences={setExperiences} refreshStats={refreshStats} />}
-          {activeTab === 'projects' && <ProjectsTab projects={projects} setProjects={setProjects} refreshStats={refreshStats} />}
-          {activeTab === 'resume' && <ResumeTab resumes={resumes} setResumes={setResumes} refreshStats={refreshStats} />}
-          {activeTab === 'contact' && <ContactTab data={contactData} setData={setContactData} />}
+          {activeTab === 'dashboard' && <DashboardTab />}
+          {activeTab === 'hero' && <HeroTab />}
+          {activeTab === 'profile' && <ProfileTab />}
+          {activeTab === 'skills' && <SkillsTab />}
+          {activeTab === 'experience' && <ExperienceTab />}
+          {activeTab === 'projects' && <ProjectsTab />}
+          {activeTab === 'resume' && <ResumeTab />}
+          {activeTab === 'contact' && <ContactTab />}
         </div>
       </div>
     </div>
   );
 };
 
-// 1. Dashboard Tab Component
-const DashboardTab = ({ stats }) => (
-  <div className="dashboard-overview">
-    <div className="dashboard-stats-grid">
-      <div className="dashboard-stat-card">
-        <div className="stat-card-icon"><FaProjectDiagram /></div>
-        <div className="stat-card-info">
-          <span className="stat-card-label">Projects</span>
-          <span className="stat-card-value">{stats.total_projects || 0}</span>
-        </div>
-      </div>
-      <div className="dashboard-stat-card">
-        <div className="stat-card-icon"><FaCode /></div>
-        <div className="stat-card-info">
-          <span className="stat-card-label">Skills Listed</span>
-          <span className="stat-card-value">{stats.total_skills || 0}</span>
-        </div>
-      </div>
-      <div className="dashboard-stat-card">
-        <div className="stat-card-icon"><FaBriefcase /></div>
-        <div className="stat-card-info">
-          <span className="stat-card-label">Experiences</span>
-          <span className="stat-card-value">{stats.total_experiences || 0}</span>
-        </div>
-      </div>
-      <div className="dashboard-stat-card">
-        <div className="stat-card-icon"><FaFileAlt /></div>
-        <div className="stat-card-info">
-          <span className="stat-card-label">Active Resume</span>
-          <span className="stat-card-value" style={{ color: stats.active_resume ? 'var(--accent-main)' : '#ff6b6b', fontSize: '18px', fontWeight: 'bold' }}>
-            {stats.active_resume ? 'ACTIVE' : 'INACTIVE'}
-          </span>
-        </div>
-      </div>
-    </div>
+const DashboardTab = () => {
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState(null);
+  const [chats, setChats] = useState([]);
+  const [chatsLoading, setChatsLoading] = useState(true);
+  const [chatsPage, setChatsPage] = useState(1);
+  const [chatsTotalPages, setChatsTotalPages] = useState(1);
+  const [chatsHasNext, setChatsHasNext] = useState(false);
+  const [chatsHasPrev, setChatsHasPrev] = useState(false);
+  const [totalChats, setTotalChats] = useState(0);
+  const [selectedChats, setSelectedChats] = useState([]);
+  const [expandedChats, setExpandedChats] = useState([]);
 
-    <div className="recent-chats-panel">
-      <h3>Recent AI Assistant Queries ({stats.total_chats || 0} total sessions)</h3>
-      <div className="recent-chats-list">
-        {stats.recent_messages && stats.recent_messages.length > 0 ? (
-          stats.recent_messages.map((msg, index) => (
-            <div key={index} className="recent-chat-item">
-              <div className="chat-item-content">
-                <p className="chat-item-text">"{msg.user_message}"</p>
-                <div className="chat-item-meta">
-                  <span>Session Conversation</span>
-                  <span className="chat-time-badge">{new Date(msg.timestamp).toLocaleString()}</span>
-                </div>
-              </div>
-              <div className="stat-card-icon" style={{ width: '36px', height: '36px', fontSize: '14px' }}><FaEnvelope /></div>
-            </div>
-          ))
+  const refreshStats = async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/api/manage/dashboard/`, { credentials: 'include' });
+      if (res.ok) {
+        setStats(await res.json());
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const fetchChats = async (page = 1) => {
+    setChatsLoading(true);
+    try {
+      const res = await fetch(`${BASE_URL}/api/manage/chats/?page=${page}`, { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        setChats(data.results || []);
+        setTotalChats(data.count || 0);
+        setChatsTotalPages(Math.ceil((data.count || 0) / 10) || 1);
+        setChatsHasNext(!!data.next);
+        setChatsHasPrev(!!data.previous);
+      }
+    } catch (e) {
+      toast.error('Failed to load chat history');
+    } finally {
+      setChatsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const init = async () => {
+      await refreshStats();
+      await fetchChats(1);
+      setLoading(false);
+    };
+    init();
+  }, []);
+
+  useEffect(() => {
+    if (!loading) {
+      fetchChats(chatsPage);
+    }
+  }, [chatsPage]);
+
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, type: null, id: null, isDeleting: false });
+
+  const handleDeleteChat = (id, e) => {
+    e.stopPropagation();
+    setDeleteModal({ isOpen: true, type: 'single', id });
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedChats.length === 0) return;
+    setDeleteModal({ isOpen: true, type: 'bulk', id: null });
+  };
+
+  const confirmDelete = async () => {
+    setDeleteModal(prev => ({ ...prev, isDeleting: true }));
+    if (deleteModal.type === 'single') {
+      try {
+        const res = await fetch(`${BASE_URL}/api/manage/chats/${deleteModal.id}/`, {
+          method: 'DELETE',
+          credentials: 'include'
+        });
+        if (res.ok) {
+          toast.success('Query deleted successfully');
+          let newPage = chatsPage;
+          if (chats.length === 1 && chatsPage > 1) {
+            newPage = chatsPage - 1;
+            setChatsPage(newPage);
+          } else {
+            fetchChats(chatsPage);
+          }
+          refreshStats();
+        } else {
+          toast.error('Failed to delete query');
+        }
+      } catch (error) {
+        toast.error('Error deleting query');
+      }
+    } else if (deleteModal.type === 'bulk') {
+      try {
+        const res = await fetch(`${BASE_URL}/api/manage/chats/bulk-delete/`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ ids: selectedChats })
+        });
+        if (res.ok) {
+          toast.success('Selected logs deleted successfully');
+          setSelectedChats([]);
+          let newPage = chatsPage;
+          const remainingInTotal = totalChats - selectedChats.length;
+          const maxPages = Math.ceil(remainingInTotal / 10) || 1;
+          if (chatsPage > maxPages) {
+            newPage = maxPages;
+            setChatsPage(newPage);
+          } else {
+            fetchChats(chatsPage);
+          }
+          refreshStats();
+        } else {
+          toast.error('Failed to delete selected logs');
+        }
+      } catch (error) {
+        toast.error('Error deleting selected logs');
+      }
+    }
+    setDeleteModal({ isOpen: false, type: null, id: null, isDeleting: false });
+  };
+
+  const toggleSelectChat = (id, e) => {
+    e.stopPropagation();
+    if (selectedChats.includes(id)) {
+      setSelectedChats(selectedChats.filter(x => x !== id));
+    } else {
+      setSelectedChats([...selectedChats, id]);
+    }
+  };
+
+  const toggleSelectAll = () => {
+    const currentPageIds = chats.map(c => c.id);
+    const allSelected = currentPageIds.every(id => selectedChats.includes(id));
+    if (allSelected) {
+      setSelectedChats(selectedChats.filter(id => !currentPageIds.includes(id)));
+    } else {
+      const newSelection = [...selectedChats];
+      currentPageIds.forEach(id => {
+        if (!newSelection.includes(id)) {
+          newSelection.push(id);
+        }
+      });
+      setSelectedChats(newSelection);
+    }
+  };
+
+  const toggleExpandChat = (id) => {
+    if (expandedChats.includes(id)) {
+      setExpandedChats(expandedChats.filter(x => x !== id));
+    } else {
+      setExpandedChats([...expandedChats, id]);
+    }
+  };
+
+  const isAllSelected = chats.length > 0 && chats.map(c => c.id).every(id => selectedChats.includes(id));
+
+  if (loading) return <div style={{padding: '50px', display: 'flex', justifyContent: 'center'}}><PremiumLoader text="LOADING DASHBOARD..." /></div>;
+
+  return (
+    <div className="dashboard-overview">
+      <div className="dashboard-stats-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
+        <div className="dashboard-stat-card">
+          <div className="stat-card-icon"><FaProjectDiagram /></div>
+          <div className="stat-card-info">
+            <span className="stat-card-label">Projects</span>
+            <span className="stat-card-value">{stats?.total_projects || 0}</span>
+          </div>
+        </div>
+        <div className="dashboard-stat-card">
+          <div className="stat-card-icon"><FaCode /></div>
+          <div className="stat-card-info">
+            <span className="stat-card-label">Skills Listed</span>
+            <span className="stat-card-value">{stats?.total_skills || 0}</span>
+          </div>
+        </div>
+        <div className="dashboard-stat-card">
+          <div className="stat-card-icon"><FaBriefcase /></div>
+          <div className="stat-card-info">
+            <span className="stat-card-label">Experiences</span>
+            <span className="stat-card-value">{stats?.total_experiences || 0}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="recent-chats-panel">
+        <div className="chats-panel-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
+          <h3 style={{ margin: 0 }}>
+            Recent AI Assistant Queries ({totalChats} total queries)
+          </h3>
+          <div className="chats-actions" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            {chats.length > 0 && (
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px', color: 'var(--text-muted)' }}>
+                <input 
+                  type="checkbox" 
+                  checked={isAllSelected} 
+                  onChange={toggleSelectAll}
+                  style={{ cursor: 'pointer' }}
+                />
+                Select All on Page
+              </label>
+            )}
+            <button 
+              onClick={handleBulkDelete}
+              disabled={selectedChats.length === 0}
+              className="btn-premium-cancel"
+              style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '8px', 
+                padding: '8px 16px', 
+                fontSize: '14px', 
+                background: selectedChats.length > 0 ? 'var(--accent-main)' : 'rgba(255, 255, 255, 0.05)', 
+                color: selectedChats.length > 0 ? '#0f172a' : 'rgba(255, 255, 255, 0.3)',
+                cursor: selectedChats.length > 0 ? 'pointer' : 'not-allowed',
+                border: 'none',
+                borderRadius: '8px',
+                transition: 'all 0.3s ease',
+                fontWeight: selectedChats.length > 0 ? '600' : 'normal'
+              }}
+            >
+              <FaTrash /> Delete Selected ({selectedChats.length})
+            </button>
+          </div>
+        </div>
+
+        {chatsLoading ? (
+          <div style={{ padding: '30px', display: 'flex', justifyContent: 'center' }}><PremiumLoader text="FETCHING CONVERSATIONS..." /></div>
         ) : (
-          <p style={{ color: 'var(--text-muted)', margin: 0 }}>No recent AI assistant logs available.</p>
+          <>
+            <div className="recent-chats-list">
+              {chats.length > 0 ? (
+                chats.map((msg) => {
+                  const isExpanded = expandedChats.includes(msg.id);
+                  const isSelected = selectedChats.includes(msg.id);
+                  return (
+                    <div 
+                      key={msg.id} 
+                      className={`recent-chat-item ${isExpanded ? 'expanded' : ''}`}
+                      onClick={() => toggleExpandChat(msg.id)}
+                      style={{ 
+                        cursor: 'pointer', 
+                        flexDirection: 'column', 
+                        alignItems: 'stretch',
+                        border: isSelected ? '1px solid var(--accent-main)' : '1px solid rgba(255, 255, 255, 0.03)',
+                        background: isSelected ? 'rgba(255, 255, 255, 0.04)' : 'rgba(255, 255, 255, 0.02)'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '15px', width: '100%' }}>
+                        <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center' }}>
+                          <input 
+                            type="checkbox" 
+                            checked={isSelected}
+                            onChange={(e) => toggleSelectChat(msg.id, e)}
+                            style={{ cursor: 'pointer' }}
+                          />
+                        </div>
+                        <div className="chat-item-content" style={{ flex: 1 }}>
+                          <p className="chat-item-text" style={{ whiteSpace: isExpanded ? 'normal' : 'nowrap', wordBreak: 'break-word' }}>
+                            "{msg.user_message}"
+                          </p>
+                          <div className="chat-item-meta">
+                            <span>Session: {msg.session_id.substring(0, 8)}...</span>
+                            <span className="chat-time-badge">{new Date(msg.timestamp).toLocaleString()}</span>
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <button 
+                            onClick={(e) => handleDeleteChat(msg.id, e)}
+                            className="btn-icon delete"
+                            title="Delete query log"
+                            style={{ 
+                              background: 'none', 
+                              border: 'none', 
+                              color: 'var(--text-muted)', 
+                              cursor: 'pointer',
+                              padding: '5px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '14px',
+                              transition: 'all 0.2s'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-main)'}
+                            onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
+                      </div>
+
+                      {isExpanded && (
+                        <div 
+                          className="chat-details-expanded" 
+                          style={{ 
+                            marginTop: '15px', 
+                            paddingTop: '15px', 
+                            borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '12px'
+                          }}
+                        >
+                          <div>
+                            <strong style={{ color: 'var(--accent-main)', fontSize: '13px', display: 'block', marginBottom: '4px' }}>User Query:</strong>
+                            <p style={{ margin: 0, fontSize: '14px', color: '#e2e8f0', lineHeight: 1.5 }}>{msg.user_message}</p>
+                          </div>
+                          <div>
+                            <strong style={{ color: '#10b981', fontSize: '13px', display: 'block', marginBottom: '4px' }}>AI Response:</strong>
+                            <div 
+                              style={{ 
+                                margin: 0, 
+                                fontSize: '14px', 
+                                color: '#cbd5e1', 
+                                lineHeight: 1.6, 
+                                background: 'rgba(0, 0, 0, 0.2)', 
+                                padding: '12px', 
+                                borderRadius: '8px',
+                                border: '1px solid rgba(255, 255, 255, 0.03)',
+                                whiteSpace: 'pre-wrap',
+                                wordBreak: 'break-word'
+                              }}
+                            >
+                              {msg.ai_response || 'No response recorded.'}
+                            </div>
+                          </div>
+                          <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                            <strong>Full Session ID:</strong> {msg.session_id}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              ) : (
+                <p style={{ color: 'var(--text-muted)', margin: 0 }}>No AI assistant queries available.</p>
+              )}
+            </div>
+
+            {chatsTotalPages > 1 && (
+              <div className="pagination-controls" style={{ marginTop: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '15px' }}>
+                <button 
+                  disabled={!chatsHasPrev} 
+                  onClick={() => setChatsPage(chatsPage - 1)}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    background: chatsHasPrev ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.01)',
+                    color: chatsHasPrev ? '#fff' : 'rgba(255, 255, 255, 0.3)',
+                    cursor: chatsHasPrev ? 'pointer' : 'not-allowed',
+                    transition: 'all 0.3s ease'
+                  }}
+                >
+                  Previous
+                </button>
+                <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
+                  Page {chatsPage} of {chatsTotalPages}
+                </span>
+                <button 
+                  disabled={!chatsHasNext} 
+                  onClick={() => setChatsPage(chatsPage + 1)}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    background: chatsHasNext ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.01)',
+                    color: chatsHasNext ? '#fff' : 'rgba(255, 255, 255, 0.3)',
+                    cursor: chatsHasNext ? 'pointer' : 'not-allowed',
+                    transition: 'all 0.3s ease'
+                  }}
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
+      
+      {/* Delete Confirmation Modal */}
+      {deleteModal.isOpen && (
+        <div className="modal-overlay" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div className="premium-form-card" style={{ width: '100%', maxWidth: '400px', padding: '30px', margin: '20px', background: 'var(--card-bg)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '12px' }}>
+            <h3 style={{ marginTop: 0, marginBottom: '15px', color: 'var(--text-light)', fontSize: '18px', fontWeight: '600' }}>Confirm Deletion</h3>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '25px', lineHeight: '1.5', fontSize: '15px' }}>
+              {deleteModal.type === 'bulk' 
+                ? `Are you sure you want to delete ${selectedChats.length} selected session logs?` 
+                : 'Are you sure you want to delete this session log?'}
+              <br/><br/>This action cannot be undone.
+            </p>
+            <div style={{ display: 'flex', gap: '15px', justifyContent: 'flex-end' }}>
+              <button 
+                className="btn-premium-cancel" 
+                onClick={() => setDeleteModal({ isOpen: false, type: null, id: null })}
+                style={{ padding: '8px 20px', borderRadius: '8px', cursor: 'pointer', background: 'rgba(255, 255, 255, 0.05)', color: 'var(--text-light)', border: '1px solid rgba(255, 255, 255, 0.1)' }}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn-premium-submit" 
+                onClick={confirmDelete}
+                disabled={deleteModal.isDeleting}
+                style={{ 
+                  padding: '8px 20px', 
+                  borderRadius: '8px', 
+                  background: deleteModal.isDeleting ? 'rgba(255,255,255,0.1)' : 'var(--accent-main)', 
+                  color: deleteModal.isDeleting ? 'rgba(255,255,255,0.5)' : '#0f172a',
+                  border: 'none',
+                  fontWeight: '600',
+                  cursor: deleteModal.isDeleting ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {deleteModal.isDeleting ? <PremiumLoaderButton size={20} /> : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-  </div>
-);
+  );
+};
 
-// 2. Hero Tab Component
-const HeroTab = ({ data, setData }) => {
+const HeroTab = () => {
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState(null);
   const [formData, setFormData] = useState({
     name: '', role: '', main_headline: '', subtitle: '',
     availability_badge: '', cta_labels: '', cta_links: '',
     profile_image: '', resume_link: '', tech_badges: '',
     linkedin: '', github: '', whatsapp: '', telegram: ''
   });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/api/manage/hero/`, { credentials: 'include' });
+        if (res.ok) {
+          setData(await res.json());
+        }
+      } catch (e) {
+        toast.error('Failed to load hero');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   useEffect(() => {
     if (data) {
@@ -353,6 +703,8 @@ const HeroTab = ({ data, setData }) => {
       });
     }
   }, [data]);
+
+  if (loading) return <div style={{padding: '50px', display: 'flex', justifyContent: 'center'}}><PremiumLoader text="LOADING HERO DATA..." /></div>;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -379,7 +731,7 @@ const HeroTab = ({ data, setData }) => {
       });
       if (response.ok) {
         setData(await response.json());
-        alert('Hero settings saved successfully!');
+        toast.success('Hero settings saved successfully!');
       }
     } catch (error) {
       console.error('Failed to update Hero:', error);
@@ -469,13 +821,31 @@ const HeroTab = ({ data, setData }) => {
   );
 };
 
-// 3. Profile Tab Component
-const ProfileTab = ({ data, setData }) => {
+
+const ProfileTab = () => {
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState(null);
   const [formData, setFormData] = useState({
     full_name: '', email: '', phone: '', location: '',
     short_bio: '', long_bio: '', current_role: '', current_status: '',
     linkedin: '', github: '', whatsapp: '', telegram: ''
   });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/api/manage/profile/`, { credentials: 'include' });
+        if (res.ok) {
+          setData(await res.json());
+        }
+      } catch (e) {
+        toast.error('Failed to load profile');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   useEffect(() => {
     if (data) {
@@ -496,6 +866,8 @@ const ProfileTab = ({ data, setData }) => {
       });
     }
   }, [data]);
+
+  if (loading) return <div style={{padding: '50px', display: 'flex', justifyContent: 'center'}}><PremiumLoader text="LOADING PROFILE..." /></div>;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -522,7 +894,7 @@ const ProfileTab = ({ data, setData }) => {
       });
       if (response.ok) {
         setData(await response.json());
-        alert('Personal Profile saved successfully!');
+        toast.success('Personal Profile saved successfully!');
       }
     } catch (error) {
       console.error('Failed to update Profile:', error);
@@ -602,13 +974,33 @@ const ProfileTab = ({ data, setData }) => {
   );
 };
 
-// 4. Skills Tab Component
-const SkillsTab = ({ skills, setSkills, refreshStats }) => {
+
+const SkillsTab = () => {
+  const [loading, setLoading] = useState(true);
+  const [skills, setSkills] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingSkill, setEditingSkill] = useState(null);
   const [formData, setFormData] = useState({
     name: '', category: 'Frontend Development', level: 80, icon: '', display_order: 0, is_featured: true
   });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/api/manage/skills/`, { credentials: 'include' });
+        if (res.ok) {
+          setSkills(await res.json());
+        }
+      } catch (e) {
+        toast.error('Failed to load skills');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  if (loading) return <div style={{padding: '50px', display: 'flex', justifyContent: 'center'}}><PremiumLoader text="LOADING SKILLS..." /></div>;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -633,7 +1025,6 @@ const SkillsTab = ({ skills, setSkills, refreshStats }) => {
           setSkills([...skills, updated].sort((a,b) => a.display_order - b.display_order));
         }
         resetForm();
-        refreshStats();
       }
     } catch (error) {
       console.error('Failed to save skill:', error);
@@ -668,7 +1059,6 @@ const SkillsTab = ({ skills, setSkills, refreshStats }) => {
         });
         if (response.ok) {
           setSkills(skills.filter(s => s.id !== id));
-          refreshStats();
         }
       } catch (error) {
         console.error('Failed to delete skill:', error);
@@ -766,13 +1156,33 @@ const SkillsTab = ({ skills, setSkills, refreshStats }) => {
   );
 };
 
-// 5. Experience Tab Component
-const ExperienceTab = ({ experiences, setExperiences, refreshStats }) => {
+
+const ExperienceTab = () => {
+  const [loading, setLoading] = useState(true);
+  const [experiences, setExperiences] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingExp, setEditingExp] = useState(null);
   const [formData, setFormData] = useState({
     role: '', company: '', location: '', duration: '', type: 'Full-time', responsibilities: '', technologies: '', display_order: 0
   });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/api/manage/experiences/`, { credentials: 'include' });
+        if (res.ok) {
+          setExperiences(await res.json());
+        }
+      } catch (e) {
+        toast.error('Failed to load experiences');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  if (loading) return <div style={{padding: '50px', display: 'flex', justifyContent: 'center'}}><PremiumLoader text="LOADING EXPERIENCES..." /></div>;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -815,7 +1225,6 @@ const ExperienceTab = ({ experiences, setExperiences, refreshStats }) => {
           setExperiences([...experiences, updated].sort((a,b) => a.display_order - b.display_order));
         }
         resetForm();
-        refreshStats();
       }
     } catch (error) {
       console.error('Failed to save experience:', error);
@@ -861,7 +1270,6 @@ const ExperienceTab = ({ experiences, setExperiences, refreshStats }) => {
         });
         if (response.ok) {
           setExperiences(experiences.filter(e => e.id !== id));
-          refreshStats();
         }
       } catch (error) {
         console.error('Failed to delete experience:', error);
@@ -983,29 +1391,61 @@ const ExperienceTab = ({ experiences, setExperiences, refreshStats }) => {
   );
 };
 
-// 6. Projects Tab Component
-const ProjectsTab = ({ projects, setProjects, refreshStats }) => {
+
+
+const ProjectsTab = () => {
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [pageData, setPageData] = useState({ page: 1, total_pages: 1, has_next: false, has_previous: false });
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, id: null, isDeleting: false });
   const [formData, setFormData] = useState({
     name: '', slug: '', description: '', short_description: '', technologies: '', features_list: '', github_url: '', live_url: '', status: 'Completed', is_featured: true, display_order: 0, image: null, category: 'Web Application'
   });
+
+  const fetchProjects = async (page = 1) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${BASE_URL}/api/manage/projects/?page=${page}&page_size=6`, { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.results) {
+          setProjects(data.results);
+          setPageData({
+            page: data.current_page || page,
+            total_pages: data.total_pages || Math.ceil(data.count / 6),
+            has_next: data.next !== null,
+            has_previous: data.previous !== null
+          });
+          window.history.replaceState(null, '', `?page=${page}`);
+        } else {
+          setProjects(data); // fallback if not paginated
+        }
+      }
+    } catch (e) {
+      toast.error('Failed to load projects');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const p = parseInt(params.get('page')) || 1;
+    fetchProjects(p);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     const form = new FormData();
     
-    // Convert features list newline to JSON
     let finalFeatures = formData.features_list;
     try {
       const parsed = JSON.parse(formData.features_list);
-      if (Array.isArray(parsed)) {
-        finalFeatures = JSON.stringify(parsed);
-      } else {
-        finalFeatures = JSON.stringify([formData.features_list]);
-      }
+      finalFeatures = Array.isArray(parsed) ? JSON.stringify(parsed) : JSON.stringify([formData.features_list]);
     } catch {
       const arr = formData.features_list.split('\n').map(l => l.trim()).filter(l => l.length > 0);
       finalFeatures = JSON.stringify(arr);
@@ -1014,10 +1454,15 @@ const ProjectsTab = ({ projects, setProjects, refreshStats }) => {
     const payload = { ...formData, features_list: finalFeatures };
 
     Object.keys(payload).forEach(key => {
+      if (key === 'image' || key === 'image_url') return;
       if (payload[key] !== null && payload[key] !== '') {
         form.append(key, payload[key]);
       }
     });
+
+    if (formData.image instanceof File) {
+      form.append('image_url', formData.image);
+    }
 
     try {
       const url = editingProject 
@@ -1032,21 +1477,15 @@ const ProjectsTab = ({ projects, setProjects, refreshStats }) => {
       });
 
       if (response.ok) {
-        const updated = await response.json();
-        if (editingProject) {
-          setProjects(projects.map(p => p.id === editingProject.id ? updated : p));
-        } else {
-          setProjects([updated, ...projects]);
-        }
+        toast.success(`Project ${editingProject ? 'updated' : 'added'} successfully!`);
         resetForm();
-        refreshStats();
+        fetchProjects(pageData.page);
       } else {
         const errData = await response.json();
-        alert('Failed to save project: ' + JSON.stringify(errData));
+        toast.error('Failed to save project: ' + JSON.stringify(errData));
       }
     } catch (error) {
-      console.error('Failed to save project:', error);
-      alert('Error saving project: ' + error.message);
+      toast.error('Error saving project: ' + error.message);
     } finally {
       setSaving(false);
     }
@@ -1063,9 +1502,7 @@ const ProjectsTab = ({ projects, setProjects, refreshStats }) => {
     let featText = project.features_list;
     try {
       const parsed = JSON.parse(project.features_list);
-      if (Array.isArray(parsed)) {
-        featText = parsed.join('\n');
-      }
+      if (Array.isArray(parsed)) featText = parsed.join('\n');
     } catch {}
 
     setFormData({
@@ -1086,22 +1523,33 @@ const ProjectsTab = ({ projects, setProjects, refreshStats }) => {
     setShowForm(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Delete this project forever?')) {
-      try {
-        const response = await fetch(`${BASE_URL}/api/manage/projects/${id}/`, {
-          method: 'DELETE',
-          credentials: 'include'
-        });
-        if (response.ok) {
-          setProjects(projects.filter(p => p.id !== id));
-          refreshStats();
-        }
-      } catch (error) {
-        console.error('Failed to delete project:', error);
+  const handleDelete = (id) => {
+    setDeleteModal({ isOpen: true, id, isDeleting: false });
+  };
+
+  const confirmDelete = async () => {
+    setDeleteModal(prev => ({ ...prev, isDeleting: true }));
+    try {
+      const response = await fetch(`${BASE_URL}/api/manage/projects/${deleteModal.id}/`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      if (response.ok) {
+        toast.success('Project deleted');
+        let newPage = pageData.page;
+        if (projects.length === 1 && newPage > 1) newPage -= 1;
+        fetchProjects(newPage);
       }
+    } catch (error) {
+      toast.error('Failed to delete project');
+    } finally {
+      setDeleteModal({ isOpen: false, id: null, isDeleting: false });
     }
   };
+
+  if (loading && projects.length === 0) {
+     return <div style={{padding: '50px', display: 'flex', justifyContent: 'center'}}><PremiumLoader text="LOADING PROJECTS..." /></div>;
+  }
 
   return (
     <div className="crud-tab-container">
@@ -1115,163 +1563,243 @@ const ProjectsTab = ({ projects, setProjects, refreshStats }) => {
         </button>
       </div>
 
-      {showForm && (
-        <div className="premium-form-card">
-          <h3>{editingProject ? 'Modify Showcase Project' : 'Add Showcase Project'}</h3>
-          <form onSubmit={handleSubmit}>
-            <div className="form-grid-2">
-              <div className="form-group-premium">
-                <label>Project Title / Display Title</label>
-                <input type="text" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} required disabled={saving} />
+      <div className="projects-grid">
+        {projects.length > 0 ? projects.map(project => (
+          <div key={project.id} className="project-card compact-card">
+            <div className="project-card-image">
+              {project.image_url ? (
+                <img src={project.image_url.startsWith('http') ? project.image_url : `${BASE_URL}${project.image_url}`} alt={project.name} />
+              ) : (
+                <div className="placeholder-image"><FaProjectDiagram /></div>
+              )}
+              <div className="project-category-badge">{project.category || 'Project'}</div>
+            </div>
+            <div className="project-card-content">
+              <div className="project-card-header">
+                <h3>{project.name}</h3>
+                <span className={`status-badge ${project.status === 'Completed' ? 'completed' : 'progress'}`}>
+                  {project.status}
+                </span>
               </div>
-              <div className="form-group-premium">
-                <label>Slug URL string (e.g. ecommerce-react)</label>
-                <input type="text" value={formData.slug} onChange={(e) => setFormData({...formData, slug: e.target.value})} disabled={saving} />
+              <p className="project-card-desc">{project.short_description || project.description.substring(0, 100) + '...'}</p>
+              <div className="project-tech-tags">
+                {project.technologies.split(',').slice(0, 3).map((tech, i) => (
+                  <span key={i} className="tech-tag">{tech.trim()}</span>
+                ))}
+                {project.technologies.split(',').length > 3 && <span className="tech-tag">+{project.technologies.split(',').length - 3} more</span>}
               </div>
             </div>
-            <div className="form-grid-3">
-              <div className="form-group-premium">
-                <label>Short Description (simple summary card)</label>
-                <input type="text" value={formData.short_description} onChange={(e) => setFormData({...formData, short_description: e.target.value})} disabled={saving} />
-              </div>
-              <div className="form-group-premium">
-                <label>Tech Stack / Badges (comma separated)</label>
-                <input type="text" placeholder="React, Express, Node.js" value={formData.technologies} onChange={(e) => setFormData({...formData, technologies: e.target.value})} required disabled={saving} />
-              </div>
-              <div className="form-group-premium">
-                <label>Project Category</label>
-                <select value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})} disabled={saving}>
-                  <option value="Web Application">Web Application</option>
-                  <option value="SaaS">SaaS</option>
-                  <option value="Mobile Application">Mobile Application</option>
-                  <option value="AI / Machine Learning">AI / Machine Learning</option>
-                  <option value="Content Management">Content Management</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-            </div>
-            <div className="form-group-premium">
-              <label>Detailed Description</label>
-              <textarea value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} required disabled={saving} />
-            </div>
-            <div className="form-group-premium">
-              <label>Key Features & Highlights (one per line)</label>
-              <textarea placeholder="Payment gateway integration&#10;Real-time dashboard analytics..." value={formData.features_list} onChange={(e) => setFormData({...formData, features_list: e.target.value})} disabled={saving} />
-            </div>
-            <div className="form-grid-3">
-              <div className="form-group-premium">
-                <label>GitHub Repository URL</label>
-                <input type="url" value={formData.github_url} onChange={(e) => setFormData({...formData, github_url: e.target.value})} disabled={saving} />
-              </div>
-              <div className="form-group-premium">
-                <label>Live Demo URL</label>
-                <input type="url" value={formData.live_url} onChange={(e) => setFormData({...formData, live_url: e.target.value})} disabled={saving} />
-              </div>
-              <div className="form-group-premium">
-                <label>Project Status</label>
-                <select value={formData.status} onChange={(e) => setFormData({...formData, status: e.target.value})} disabled={saving}>
-                  <option value="Completed">Completed</option>
-                  <option value="In Progress">In Progress</option>
-                  <option value="Archived">Archived</option>
-                </select>
-              </div>
-            </div>
-            <div className="form-grid-2">
-              <div className="form-group-premium">
-                <label>Project Card Image File (overrides URL)</label>
-                <input type="file" accept="image/*" onChange={(e) => setFormData({...formData, image: e.target.files[0]})} disabled={saving} />
-              </div>
-              <div className="form-group-premium">
-                <label>Display Order Priority</label>
-                <input type="number" value={formData.display_order} onChange={(e) => setFormData({...formData, display_order: parseInt(e.target.value)})} disabled={saving} />
-              </div>
-            </div>
-            <div className="form-group-premium form-group-checkbox">
-              <input type="checkbox" checked={formData.is_featured} onChange={(e) => setFormData({...formData, is_featured: e.target.checked})} id="is_featured_project" disabled={saving} />
-              <label htmlFor="is_featured_project">Featured Showcase Item</label>
-            </div>
-            <div className="form-actions-premium">
-              <button type="submit" className="btn-premium-save" disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                {saving ? (
-                  <>
-                    <FaSpinner className="spinner-icon" /> Saving...
-                  </>
-                ) : (
-                  editingProject ? 'Save Showcase' : 'Launch Project'
-                )}
+            <div className="project-card-actions" style={{ display: 'flex', gap: '10px', padding: '15px', borderTop: '1px solid rgba(255, 255, 255, 0.05)', background: 'rgba(0, 0, 0, 0.2)' }}>
+              <button 
+                onClick={() => handleEdit(project)} 
+                title="Edit"
+                style={{ 
+                  flex: 1, 
+                  background: 'rgba(255,255,255,0.05)', 
+                  border: '1px solid rgba(255,255,255,0.1)', 
+                  color: 'var(--text-light)', 
+                  padding: '8px', 
+                  borderRadius: '6px', 
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  transition: 'all 0.2s',
+                  fontSize: '13px'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--accent-main)'; e.currentTarget.style.color = '#0f172a'; e.currentTarget.style.borderColor = 'var(--accent-main)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'var(--text-light)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
+              >
+                <FaEdit /> Edit
               </button>
-              <button type="button" className="btn-premium-cancel" onClick={resetForm} disabled={saving}>Cancel</button>
+              <button 
+                onClick={() => handleDelete(project.id)} 
+                title="Delete"
+                style={{ 
+                  flex: 1, 
+                  background: 'rgba(255,255,255,0.05)', 
+                  border: '1px solid rgba(255,255,255,0.1)', 
+                  color: 'var(--text-muted)', 
+                  padding: '8px', 
+                  borderRadius: '6px', 
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  transition: 'all 0.2s',
+                  fontSize: '13px'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--accent-main)'; e.currentTarget.style.color = '#0f172a'; e.currentTarget.style.borderColor = 'var(--accent-main)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
+              >
+                <FaTrash /> Delete
+              </button>
             </div>
-          </form>
+          </div>
+        )) : (
+          <div className="empty-state">No projects found. Add one!</div>
+        )}
+      </div>
+
+      {pageData.total_pages > 1 && (
+        <div className="pagination-controls">
+          <button disabled={!pageData.has_previous} onClick={() => fetchProjects(pageData.page - 1)}>Previous</button>
+          <span>Page {pageData.page} of {pageData.total_pages}</span>
+          <button disabled={!pageData.has_next} onClick={() => fetchProjects(pageData.page + 1)}>Next</button>
         </div>
       )}
 
-      <div className="premium-cards-grid">
-        {projects.map(proj => (
-          <div key={proj.id} className="premium-item-card">
-            {proj.image_url && (
-              <div 
-                className="overflow-hidden" 
-                style={{ 
-                  margin: '-25px -25px 20px -25px', 
-                  width: 'calc(100% + 50px)', 
-                  aspectRatio: '16/9',
-                  background: 'linear-gradient(135deg, #09090b, #18181b)',
-                  borderBottom: '1px solid rgba(190, 210, 230, 0.1)',
-                  borderRadius: '16px 16px 0 0'
-                }}
-              >
-                <img 
-                  src={`${BASE_URL}${proj.image_url}`} 
-                  alt={proj.name} 
-                  className="project-image" 
-                  style={{ 
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'contain',
-                    objectPosition: 'center',
-                    padding: '8px'
-                  }} 
-                />
-              </div>
-            )}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div>
-                <h4>{proj.name}</h4>
-                <p className="premium-card-meta">{proj.status}</p>
-              </div>
-              <div className="premium-card-tag">{proj.category || 'Web Application'}</div>
+      {showForm && (
+        <div className="modal-overlay">
+          <div className="modal-content project-modal">
+            <div className="modal-header">
+              <h3>{editingProject ? 'Modify Showcase Project' : 'Add Showcase Project'}</h3>
+              <button className="modal-close" onClick={resetForm}><FaTimes /></button>
             </div>
-            <p className="premium-card-desc">{proj.short_description || proj.description.substring(0, 100) + '...'}</p>
-            <div className="premium-card-footer">
-              <div className="premium-card-tags">
-                {proj.technologies.split(',').slice(0, 3).map((t, i) => (
-                  <span key={i} className="premium-card-tag">{t.trim()}</span>
-                ))}
-              </div>
-              <div className="premium-card-actions">
-                <button className="btn-card-edit" onClick={() => handleEdit(proj)}><FaEdit /></button>
-                <button className="btn-card-delete" onClick={() => handleDelete(proj.id)}><FaTrash /></button>
-              </div>
+            <div className="modal-body">
+              <form onSubmit={handleSubmit}>
+                <div className="form-grid-2">
+                  <div className="form-group-premium">
+                    <label>Project Title / Display Title</label>
+                    <input type="text" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} required disabled={saving} />
+                  </div>
+                  <div className="form-group-premium">
+                    <label>Slug URL string (e.g. ecommerce-react)</label>
+                    <input type="text" value={formData.slug} onChange={(e) => setFormData({...formData, slug: e.target.value})} disabled={saving} />
+                  </div>
+                </div>
+                <div className="form-group-premium">
+                  <label>Short Description (simple summary card)</label>
+                  <input type="text" value={formData.short_description} onChange={(e) => setFormData({...formData, short_description: e.target.value})} disabled={saving} />
+                </div>
+                <div className="form-group-premium">
+                  <label>Full Deep-Dive Description (supports markdown/HTML)</label>
+                  <textarea value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} required disabled={saving} rows="4" />
+                </div>
+                <div className="form-grid-2">
+                  <div className="form-group-premium">
+                    <label>Technologies Used (comma separated)</label>
+                    <input type="text" value={formData.technologies} onChange={(e) => setFormData({...formData, technologies: e.target.value})} required disabled={saving} />
+                  </div>
+                  <div className="form-group-premium">
+                    <label>Category (e.g. Web Application, Mobile App)</label>
+                    <input type="text" value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})} disabled={saving} />
+                  </div>
+                </div>
+                <div className="form-group-premium">
+                  <label>Key Features (One per line)</label>
+                  <textarea value={formData.features_list} onChange={(e) => setFormData({...formData, features_list: e.target.value})} required disabled={saving} rows="4" placeholder="User Authentication\nReal-time Chat\nPayment Integration" />
+                </div>
+                <div className="form-grid-2">
+                  <div className="form-group-premium">
+                    <label>GitHub Source URL</label>
+                    <input type="text" value={formData.github_url} onChange={(e) => setFormData({...formData, github_url: e.target.value})} disabled={saving} />
+                  </div>
+                  <div className="form-group-premium">
+                    <label>Live Demo URL</label>
+                    <input type="text" value={formData.live_url} onChange={(e) => setFormData({...formData, live_url: e.target.value})} disabled={saving} />
+                  </div>
+                </div>
+                <div className="form-grid-2">
+                  <div className="form-group-premium">
+                    <label>Development Status</label>
+                    <select value={formData.status} onChange={(e) => setFormData({...formData, status: e.target.value})} disabled={saving}>
+                      <option value="Completed">Completed</option>
+                      <option value="In Progress">In Progress</option>
+                      <option value="Planning">Planning</option>
+                    </select>
+                  </div>
+                  <div className="form-group-premium">
+                    <label>Project Cover Image</label>
+                    <input type="file" accept="image/*" onChange={(e) => setFormData({...formData, image: e.target.files[0]})} disabled={saving} />
+                    {editingProject && editingProject.image_url && <small style={{display: 'block', marginTop: '5px', color: 'var(--accent-main)'}}>Current: {editingProject.image_url.split('/').pop()}</small>}
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn-cancel" onClick={resetForm} disabled={saving}>Cancel</button>
+                  <button type="submit" className="btn-premium-save" disabled={saving}>
+                    {saving ? <PremiumLoaderButton size={20} /> : (editingProject ? 'Update Project' : 'Publish Project')}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal for Projects */}
+      {deleteModal.isOpen && (
+        <div className="modal-overlay" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div className="premium-form-card" style={{ width: '100%', maxWidth: '400px', padding: '30px', margin: '20px', background: 'var(--card-bg)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '12px' }}>
+            <h3 style={{ marginTop: 0, marginBottom: '15px', color: 'var(--text-light)', fontSize: '18px', fontWeight: '600' }}>Confirm Deletion</h3>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '25px', lineHeight: '1.5', fontSize: '15px' }}>
+              Are you sure you want to delete this project?
+              <br/><br/>This action cannot be undone.
+            </p>
+            <div style={{ display: 'flex', gap: '15px', justifyContent: 'flex-end' }}>
+              <button 
+                className="btn-premium-cancel" 
+                onClick={() => setDeleteModal({ isOpen: false, id: null, isDeleting: false })}
+                style={{ padding: '8px 20px', borderRadius: '8px', cursor: 'pointer', background: 'rgba(255, 255, 255, 0.05)', color: 'var(--text-light)', border: '1px solid rgba(255, 255, 255, 0.1)' }}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn-premium-submit" 
+                onClick={confirmDelete}
+                disabled={deleteModal.isDeleting}
+                style={{ 
+                  padding: '8px 20px', 
+                  borderRadius: '8px', 
+                  background: deleteModal.isDeleting ? 'rgba(255,255,255,0.1)' : 'var(--accent-main)', 
+                  color: deleteModal.isDeleting ? 'rgba(255,255,255,0.5)' : '#0f172a',
+                  border: 'none',
+                  fontWeight: '600',
+                  cursor: deleteModal.isDeleting ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {deleteModal.isDeleting ? <PremiumLoaderButton size={20} /> : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-// 7. Resume Tab Component
-const ResumeTab = ({ resumes, setResumes, refreshStats }) => {
+const ResumeTab = () => {
+  const [loading, setLoading] = useState(true);
+  const [resumes, setResumes] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({ title: '', version_name: 'v1.0', is_active: true });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/api/manage/resume/`, { credentials: 'include' });
+        if (res.ok) {
+          setResumes(await res.json());
+        }
+      } catch (e) {
+        toast.error('Failed to load resume');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  if (loading) return <div style={{padding: '50px', display: 'flex', justifyContent: 'center'}}><PremiumLoader text="LOADING RESUMES..." /></div>;
 
   const handleUpload = async (e) => {
     e.preventDefault();
     const fileInput = document.getElementById('resume-file');
     const file = fileInput.files[0];
     if (!file) {
-      alert('Please select a PDF file first.');
+      toast.success('Please select a PDF file first.');
       return;
     }
 
@@ -1292,10 +1820,9 @@ const ResumeTab = ({ resumes, setResumes, refreshStats }) => {
       if (response.ok) {
         const newResume = await response.json();
         setResumes([newResume, ...(resumes || []).map(r => ({...r, is_active: formData.is_active ? false : r.is_active}))]);
-        alert('Resume version uploaded successfully!');
+        toast.success('Resume version uploaded successfully!');
         setFormData({ title: '', version_name: 'v1.0', is_active: true });
         fileInput.value = '';
-        refreshStats();
       }
     } catch (error) {
       console.error('Failed to upload resume:', error);
@@ -1313,7 +1840,6 @@ const ResumeTab = ({ resumes, setResumes, refreshStats }) => {
         });
         if (response.ok) {
           setResumes(resumes.filter(r => r.id !== id));
-          refreshStats();
         }
       } catch (error) {
         console.error('Failed to delete resume:', error);
@@ -1381,12 +1907,30 @@ const ResumeTab = ({ resumes, setResumes, refreshStats }) => {
   );
 };
 
-// 8. Contact Tab Component
-const ContactTab = ({ data, setData }) => {
+
+const ContactTab = () => {
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState(null);
   const [formData, setFormData] = useState({
     email: '', phone: '', location: '', cta_heading: '', cta_subtitle: '', meeting_link: '',
     linkedin: '', github: '', whatsapp: '', telegram: ''
   });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/api/manage/contact/`, { credentials: 'include' });
+        if (res.ok) {
+          setData(await res.json());
+        }
+      } catch (e) {
+        toast.error('Failed to load contact');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   useEffect(() => {
     if (data) {
@@ -1405,6 +1949,8 @@ const ContactTab = ({ data, setData }) => {
       });
     }
   }, [data]);
+
+  if (loading) return <div style={{padding: '50px', display: 'flex', justifyContent: 'center'}}><PremiumLoader text="LOADING CONTACT INFO..." /></div>;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -1431,7 +1977,7 @@ const ContactTab = ({ data, setData }) => {
       });
       if (response.ok) {
         setData(await response.json());
-        alert('Contact details updated successfully!');
+        toast.success('Contact details updated successfully!');
       }
     } catch (error) {
       console.error('Failed to update Contact:', error);
@@ -1500,5 +2046,7 @@ const ContactTab = ({ data, setData }) => {
     </div>
   );
 };
+
+
 
 export default PortfolioManagement;

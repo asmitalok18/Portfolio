@@ -9,6 +9,14 @@ const About = () => {
     visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
   };
 
+  const getYearsExperience = () => {
+    const startDate = new Date('2024-06-01');
+    const currentDate = new Date();
+    const months = (currentDate.getFullYear() - startDate.getFullYear()) * 12 + (currentDate.getMonth() - startDate.getMonth());
+    const halfYears = Math.floor(months / 6) * 0.5;
+    return halfYears >= 1 ? `${halfYears}+` : '1+';
+  };
+
   return (
     <section className="about-blueprint" id="about">
       <div className="about-blueprint-glow"></div>
@@ -26,10 +34,8 @@ const About = () => {
         >
           <motion.span variants={fadeUp} className="about-kicker">ABOUT ME</motion.span>
 
-          <motion.h2 variants={fadeUp}>
-            My work runs on<br />
-            consistency, clarity,<br />
-            and clean engineering.
+          <motion.h2 variants={fadeUp} className="about-title">
+            My work runs on consistency, clarity, and precision.
           </motion.h2>
 
           <motion.p variants={fadeUp}>
@@ -44,7 +50,7 @@ const About = () => {
           </motion.p>
 
           <motion.div variants={fadeUp} className="about-proof-chips">
-            <span><i></i>1.5+ Years Experience</span>
+            <span><i></i>{getYearsExperience()} Years Experience</span>
             <span><i></i>Full Stack Development</span>
             <span><i></i>User-Centric Products</span>
           </motion.div>
@@ -62,7 +68,7 @@ const About = () => {
               <span></span><span></span><span></span>
             </div>
             <strong>asmit.workflow.ts</strong>
-            <em>active</em>
+            
           </div>
 
           <div className="blueprint-steps">

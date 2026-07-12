@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.pagination import PageNumberPagination
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import get_object_or_404
 from django.http import FileResponse
@@ -38,14 +39,26 @@ class CheckAuthView(APIView):
     def get(self, request):
         return Response({'authenticated': request.user.is_authenticated})
 
+class ProjectPagination(PageNumberPagination):
+    page_size = 6
+    page_size_query_param = 'page_size'
+    max_page_size = 50
+
 class ProjectManagementView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
 
-    def get(self, request):
+    def get(self, request, pk=None):
+        if pk:
+            project = get_object_or_404(ProjectInfo, pk=pk)
+            serializer = ProjectInfoSerializer(project)
+            return Response(serializer.data)
+            
         projects = ProjectInfo.objects.all().order_by('display_order', '-created_at')
-        serializer = ProjectInfoSerializer(projects, many=True)
-        return Response(serializer.data)
+        paginator = ProjectPagination()
+        paginated_projects = paginator.paginate_queryset(projects, request, view=self)
+        serializer = ProjectInfoSerializer(paginated_projects, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
     def post(self, request):
         data = request.data.copy()
@@ -322,11 +335,51 @@ class DashboardStatsView(APIView):
             'active_resume': Resume.objects.filter(is_active=True).exists()
         }
         
-        # Recent chat messages
-        recent_messages = ChatHistory.objects.order_by('-timestamp')[:5]
-        stats['recent_messages'] = [{
-            'user_message': msg.user_message[:50] + '...' if len(msg.user_message) > 50 else msg.user_message,
-            'timestamp': msg.timestamp
-        } for msg in recent_messages]
-        
         return Response(stats)
+
+class ChatHistoryPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
+class ChatHistoryManagementView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        from .models import ChatHistory
+        chats = ChatHistory.objects.all().order_by('-timestamp')
+        paginator = ChatHistoryPagination()
+        paginated_chats = paginator.paginate_queryset(chats, request, view=self)
+        
+        data = [{
+            'id': chat.id,
+            'session_id': chat.session_id,
+            'user_message': chat.user_message,
+            'ai_response': chat.ai_response,
+            'timestamp': chat.timestamp
+        } for chat in paginated_chats]
+        
+        return paginator.get_paginated_response(data)
+
+    def delete(self, request, pk=None):
+        from .models import ChatHistory
+        if pk:
+            chat = get_object_or_404(ChatHistory, pk=pk)
+            chat.delete()
+            return Response({'success': True, 'message': 'Chat query deleted successfully'})
+        
+        # Bulk delete
+        ids = request.data.get('ids', [])
+        if ids:
+            ChatHistory.objects.filter(id__in=ids).delete()
+            return Response({'success': True, 'message': f'{len(ids)} queries deleted successfully'})
+            
+        return Response({'success': False, 'message': 'No IDs provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+    def post(self, request, bulk=False):
+        from .models import ChatHistory
+        ids = request.data.get('ids', [])
+        if ids:
+            ChatHistory.objects.filter(id__in=ids).delete()
+            return Response({'success': True, 'message': f'{len(ids)} queries deleted successfully'})
+        return Response({'success': False, 'message': 'No IDs provided'}, status=status.HTTP_400_BAD_REQUEST)
