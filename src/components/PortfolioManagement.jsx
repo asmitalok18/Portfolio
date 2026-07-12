@@ -661,6 +661,7 @@ const DashboardTab = () => {
 
 const HeroTab = () => {
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [data, setData] = useState(null);
   const [formData, setFormData] = useState({
     name: '', role: '', main_headline: '', subtitle: '',
@@ -711,6 +712,7 @@ const HeroTab = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSaving(true);
     const payload = {
       ...formData,
       social_links: {
@@ -738,6 +740,8 @@ const HeroTab = () => {
       }
     } catch (error) {
       console.error('Failed to update Hero:', error);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -817,7 +821,9 @@ const HeroTab = () => {
         </div>
 
         <div className="form-actions-premium">
-          <button type="submit" className="btn-premium-save">Save Settings</button>
+          <button type="submit" className="btn-premium-save" disabled={saving}>
+            {saving ? <PremiumLoaderButton size={20} /> : 'Save Settings'}
+          </button>
         </div>
       </form>
     </div>
@@ -827,6 +833,7 @@ const HeroTab = () => {
 
 const ProfileTab = () => {
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [data, setData] = useState(null);
   const [formData, setFormData] = useState({
     full_name: '', email: '', phone: '', location: '',
@@ -874,6 +881,7 @@ const ProfileTab = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSaving(true);
     const payload = {
       ...formData,
       social_profiles: {
@@ -901,6 +909,8 @@ const ProfileTab = () => {
       }
     } catch (error) {
       console.error('Failed to update Profile:', error);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -970,7 +980,9 @@ const ProfileTab = () => {
         </div>
 
         <div className="form-actions-premium">
-          <button type="submit" className="btn-premium-save">Save Profile</button>
+          <button type="submit" className="btn-premium-save" disabled={saving}>
+            {saving ? <PremiumLoaderButton size={20} /> : 'Save Profile'}
+          </button>
         </div>
       </form>
     </div>
@@ -982,6 +994,7 @@ const SkillsTab = () => {
   const [loading, setLoading] = useState(true);
   const [skills, setSkills] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [editingSkill, setEditingSkill] = useState(null);
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, id: null, isDeleting: false });
   const [formData, setFormData] = useState({
@@ -1008,6 +1021,7 @@ const SkillsTab = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSaving(true);
     try {
       const url = editingSkill 
         ? `${BASE_URL}/api/manage/skills/${editingSkill.id}/`
@@ -1032,6 +1046,8 @@ const SkillsTab = () => {
       }
     } catch (error) {
       console.error('Failed to save skill:', error);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -1129,7 +1145,9 @@ const SkillsTab = () => {
               <label htmlFor="is_featured">Featured / Featured Skill Chart</label>
             </div>
             <div className="form-actions-premium">
-              <button type="submit" className="btn-premium-save">{editingSkill ? 'Save Changes' : 'Create Skill'}</button>
+              <button type="submit" className="btn-premium-save" disabled={saving}>
+                {saving ? <PremiumLoaderButton size={20} /> : (editingSkill ? 'Save Changes' : 'Create Skill')}
+              </button>
               <button type="button" className="btn-premium-cancel" onClick={resetForm}>Cancel</button>
             </div>
           </form>
@@ -1258,6 +1276,7 @@ const ExperienceTab = () => {
   const [loading, setLoading] = useState(true);
   const [experiences, setExperiences] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [editingExp, setEditingExp] = useState(null);
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, id: null, isDeleting: false });
   const [formData, setFormData] = useState({
@@ -1284,6 +1303,7 @@ const ExperienceTab = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSaving(true);
     // Parse responsibilities as JSON if it is stringified JSON, or else convert it
     let finalResponsibilities = formData.responsibilities;
     try {
@@ -1326,6 +1346,8 @@ const ExperienceTab = () => {
       }
     } catch (error) {
       console.error('Failed to save experience:', error);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -1445,7 +1467,9 @@ const ExperienceTab = () => {
               </div>
             </div>
             <div className="form-actions-premium">
-              <button type="submit" className="btn-premium-save">{editingExp ? 'Update History' : 'Save Experience'}</button>
+              <button type="submit" className="btn-premium-save" disabled={saving}>
+                {saving ? <PremiumLoaderButton size={20} /> : (editingExp ? 'Update History' : 'Save Experience')}
+              </button>
               <button type="button" className="btn-premium-cancel" onClick={resetForm}>Cancel</button>
             </div>
           </form>
@@ -2076,7 +2100,7 @@ const ResumeTab = () => {
           </div>
           <div className="form-actions-premium">
             <button type="submit" className="btn-premium-save" disabled={uploading}>
-              {uploading ? 'Uploading PDF...' : 'Upload PDF Document'}
+              {uploading ? <PremiumLoaderButton size={20} /> : 'Upload PDF Document'}
             </button>
           </div>
         </form>
@@ -2198,6 +2222,7 @@ const ResumeTab = () => {
 
 const ContactTab = () => {
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [data, setData] = useState(null);
   const [formData, setFormData] = useState({
     email: '', phone: '', location: '', cta_heading: '', cta_subtitle: '', meeting_link: '',
@@ -2242,6 +2267,7 @@ const ContactTab = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSaving(true);
     const payload = {
       ...formData,
       social_links: {
@@ -2269,6 +2295,8 @@ const ContactTab = () => {
       }
     } catch (error) {
       console.error('Failed to update Contact:', error);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -2328,7 +2356,9 @@ const ContactTab = () => {
         </div>
 
         <div className="form-actions-premium">
-          <button type="submit" className="btn-premium-save">Save Contact Info</button>
+          <button type="submit" className="btn-premium-save" disabled={saving}>
+            {saving ? <PremiumLoaderButton size={20} /> : 'Save Contact Info'}
+          </button>
         </div>
       </form>
     </div>

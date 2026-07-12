@@ -99,7 +99,7 @@ class HeroSection(models.Model):
     availability_badge = models.CharField(max_length=100, default="Available for work")
     cta_labels = models.CharField(max_length=200, default="Let's Connect, Resume")
     cta_links = models.CharField(max_length=200, default="#contact, /resume.pdf")
-    profile_image = models.ImageField(upload_to='hero/', blank=True, null=True)
+    profile_image = models.CharField(max_length=500, blank=True, null=True)
     resume_link = models.CharField(max_length=500, default="/resume.pdf")
     social_links = models.JSONField(default=dict, blank=True)
     tech_badges = models.CharField(max_length=500, default="Angular, React, Python, Django")

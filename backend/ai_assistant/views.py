@@ -235,7 +235,7 @@ class PortfolioDataView(APIView):
                 'headline': hero.main_headline,
                 'subtitle': hero.subtitle,
                 'availability_badge': hero.availability_badge,
-                'profile_image': hero.profile_image.url if hero.profile_image else None,
+                'profile_image': hero.profile_image if hero.profile_image else None,
                 'resume_link': hero.resume_link,
                 'tech_badges': hero.tech_badges,
             }
