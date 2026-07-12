@@ -980,6 +980,7 @@ const SkillsTab = () => {
   const [skills, setSkills] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingSkill, setEditingSkill] = useState(null);
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, id: null, isDeleting: false });
   const [formData, setFormData] = useState({
     name: '', category: 'Frontend Development', level: 80, icon: '', display_order: 0, is_featured: true
   });
@@ -1050,19 +1051,28 @@ const SkillsTab = () => {
     setShowForm(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Delete this skill from the matrix?')) {
-      try {
-        const response = await fetch(`${BASE_URL}/api/manage/skills/${id}/`, {
-          method: 'DELETE',
-          credentials: 'include'
-        });
-        if (response.ok) {
-          setSkills(skills.filter(s => s.id !== id));
-        }
-      } catch (error) {
-        console.error('Failed to delete skill:', error);
+  const handleDelete = (id) => {
+    setDeleteModal({ isOpen: true, id, isDeleting: false });
+  };
+
+  const confirmDelete = async () => {
+    setDeleteModal(prev => ({ ...prev, isDeleting: true }));
+    try {
+      const response = await fetch(`${BASE_URL}/api/manage/skills/${deleteModal.id}/`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      if (response.ok) {
+        setSkills(skills.filter(s => s.id !== deleteModal.id));
+        toast.success('Skill deleted successfully');
+      } else {
+        toast.error('Failed to delete skill');
       }
+    } catch (error) {
+      console.error('Failed to delete skill:', error);
+      toast.error('Failed to delete skill');
+    } finally {
+      setDeleteModal({ isOpen: false, id: null, isDeleting: false });
     }
   };
 
@@ -1125,33 +1135,117 @@ const SkillsTab = () => {
 
       <div className="premium-cards-grid">
         {skills.map(skill => (
-          <div key={skill.id} className="premium-item-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div>
-                <h4>{skill.name}</h4>
-                <span className="premium-card-tag" style={{ marginTop: '8px', display: 'inline-block' }}>{skill.category}</span>
+          <div key={skill.id} className="premium-item-card" style={{ paddingBottom: '0', overflow: 'hidden' }}>
+            <div style={{ padding: '25px 25px 0 25px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <h4>{skill.name}</h4>
+                  <span className="premium-card-tag" style={{ marginTop: '8px', display: 'inline-block' }}>{skill.category}</span>
+                </div>
+                <div className="stat-card-icon" style={{ width: '40px', height: '40px', fontSize: '16px' }}><FaCode /></div>
               </div>
-              <div className="stat-card-icon" style={{ width: '40px', height: '40px', fontSize: '16px' }}><FaCode /></div>
+              <div className="premium-card-desc" style={{ flex: 1 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
+                  <span>Proficiency Level</span>
+                  <span style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>{skill.level}%</span>
+                </div>
+                <div className="custom-progress" style={{ height: '6px' }}>
+                  <div className="progress-bar" style={{ width: `${skill.level}%`, height: '100%' }}></div>
+                </div>
+              </div>
+              <div className="premium-card-footer" style={{ borderTop: 'none', paddingTop: '0', paddingBottom: '15px' }}>
+                <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Order: {skill.display_order}</span>
+              </div>
             </div>
-            <div className="premium-card-desc">
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
-                <span>Proficiency Level</span>
-                <span style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>{skill.level}%</span>
-              </div>
-              <div className="custom-progress" style={{ height: '6px' }}>
-                <div className="progress-bar" style={{ width: `${skill.level}%`, height: '100%' }}></div>
-              </div>
-            </div>
-            <div className="premium-card-footer">
-              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Order: {skill.display_order}</span>
-              <div className="premium-card-actions">
-                <button className="btn-card-edit" onClick={() => handleEdit(skill)}><FaEdit /></button>
-                <button className="btn-card-delete" onClick={() => handleDelete(skill.id)}><FaTrash /></button>
-              </div>
+            <div className="project-card-actions" style={{ display: 'flex', gap: '10px', padding: '15px', borderTop: '1px solid rgba(255, 255, 255, 0.05)', background: 'rgba(0, 0, 0, 0.2)' }}>
+              <button 
+                onClick={() => handleEdit(skill)} 
+                title="Edit"
+                style={{ 
+                  flex: 1, 
+                  background: 'rgba(255,255,255,0.05)', 
+                  border: '1px solid rgba(255,255,255,0.1)', 
+                  color: 'var(--text-light)', 
+                  padding: '8px', 
+                  borderRadius: '6px', 
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  transition: 'all 0.2s',
+                  fontSize: '13px'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--accent-main)'; e.currentTarget.style.color = '#0f172a'; e.currentTarget.style.borderColor = 'var(--accent-main)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'var(--text-light)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
+              >
+                <FaEdit /> Edit
+              </button>
+              <button 
+                onClick={() => handleDelete(skill.id)} 
+                title="Delete"
+                style={{ 
+                  flex: 1, 
+                  background: 'rgba(255,255,255,0.05)', 
+                  border: '1px solid rgba(255,255,255,0.1)', 
+                  color: 'var(--text-muted)', 
+                  padding: '8px', 
+                  borderRadius: '6px', 
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  transition: 'all 0.2s',
+                  fontSize: '13px'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--accent-main)'; e.currentTarget.style.color = '#0f172a'; e.currentTarget.style.borderColor = 'var(--accent-main)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
+              >
+                <FaTrash /> Delete
+              </button>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal.isOpen && (
+        <div className="modal-overlay" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div className="premium-form-card" style={{ width: '100%', maxWidth: '400px', padding: '30px', margin: '20px', background: 'var(--card-bg)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '12px' }}>
+            <h3 style={{ marginTop: 0, marginBottom: '15px', color: 'var(--text-light)', fontSize: '18px', fontWeight: '600' }}>Confirm Deletion</h3>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '25px', lineHeight: '1.5', fontSize: '15px' }}>
+              Are you sure you want to delete this skill?
+              <br/><br/>This action cannot be undone.
+            </p>
+            <div style={{ display: 'flex', gap: '15px', justifyContent: 'flex-end' }}>
+              <button 
+                className="btn-premium-cancel" 
+                onClick={() => setDeleteModal({ isOpen: false, id: null, isDeleting: false })}
+                style={{ padding: '8px 20px', borderRadius: '8px', cursor: 'pointer', background: 'rgba(255, 255, 255, 0.05)', color: 'var(--text-light)', border: '1px solid rgba(255, 255, 255, 0.1)' }}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn-premium-submit" 
+                onClick={confirmDelete}
+                disabled={deleteModal.isDeleting}
+                style={{ 
+                  padding: '8px 20px', 
+                  borderRadius: '8px', 
+                  background: deleteModal.isDeleting ? 'rgba(255,255,255,0.1)' : 'var(--accent-main)', 
+                  color: deleteModal.isDeleting ? 'rgba(255,255,255,0.5)' : '#0f172a',
+                  border: 'none',
+                  fontWeight: '600',
+                  cursor: deleteModal.isDeleting ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {deleteModal.isDeleting ? <PremiumLoaderButton size={20} /> : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -1162,6 +1256,7 @@ const ExperienceTab = () => {
   const [experiences, setExperiences] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingExp, setEditingExp] = useState(null);
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, id: null, isDeleting: false });
   const [formData, setFormData] = useState({
     role: '', company: '', location: '', duration: '', type: 'Full-time', responsibilities: '', technologies: '', display_order: 0
   });
@@ -1261,19 +1356,28 @@ const ExperienceTab = () => {
     setShowForm(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Delete this experience card?')) {
-      try {
-        const response = await fetch(`${BASE_URL}/api/manage/experiences/${id}/`, {
-          method: 'DELETE',
-          credentials: 'include'
-        });
-        if (response.ok) {
-          setExperiences(experiences.filter(e => e.id !== id));
-        }
-      } catch (error) {
-        console.error('Failed to delete experience:', error);
+  const handleDelete = (id) => {
+    setDeleteModal({ isOpen: true, id, isDeleting: false });
+  };
+
+  const confirmDelete = async () => {
+    setDeleteModal(prev => ({ ...prev, isDeleting: true }));
+    try {
+      const response = await fetch(`${BASE_URL}/api/manage/experiences/${deleteModal.id}/`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      if (response.ok) {
+        setExperiences(experiences.filter(e => e.id !== deleteModal.id));
+        toast.success('Experience deleted successfully');
+      } else {
+        toast.error('Failed to delete experience');
       }
+    } catch (error) {
+      console.error('Failed to delete experience:', error);
+      toast.error('Failed to delete experience');
+    } finally {
+      setDeleteModal({ isOpen: false, id: null, isDeleting: false });
     }
   };
 
@@ -1355,38 +1459,122 @@ const ExperienceTab = () => {
           }
 
           return (
-            <div key={exp.id} className="premium-item-card active-item">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                  <h4>{exp.role}</h4>
-                  <p className="premium-card-meta">{exp.company} &bull; {exp.duration}</p>
+            <div key={exp.id} className="premium-item-card active-item" style={{ paddingBottom: '0', overflow: 'hidden' }}>
+              <div style={{ padding: '25px 25px 0 25px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div>
+                    <h4>{exp.role}</h4>
+                    <p className="premium-card-meta">{exp.company} &bull; {exp.duration}</p>
+                  </div>
+                  <div className="stat-card-icon" style={{ width: '40px', height: '40px', fontSize: '16px' }}><FaBriefcase /></div>
                 </div>
-                <div className="stat-card-icon" style={{ width: '40px', height: '40px', fontSize: '16px' }}><FaBriefcase /></div>
+                <div className="premium-card-desc" style={{ flex: 1 }}>
+                  <ul style={{ paddingLeft: '15px', margin: '0 0 15px 0', fontSize: '13px' }}>
+                    {bullets.slice(0, 2).map((b, i) => (
+                      <li key={i} style={{ marginBottom: '6px' }}>{b}</li>
+                    ))}
+                    {bullets.length > 2 && <li style={{ listStyle: 'none', color: 'var(--text-muted)' }}>+ {bullets.length - 2} more points</li>}
+                  </ul>
+                  <div className="premium-card-tags">
+                    {(exp.technologies || '').split(',').map((t, idx) => (
+                      <span key={idx} className="premium-card-tag">{t.trim()}</span>
+                    ))}
+                  </div>
+                </div>
+                <div className="premium-card-footer" style={{ borderTop: 'none', paddingTop: '0', paddingBottom: '15px' }}>
+                  <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Location: {exp.location}</span>
+                </div>
               </div>
-              <div className="premium-card-desc">
-                <ul style={{ paddingLeft: '15px', margin: '0 0 15px 0', fontSize: '13px' }}>
-                  {bullets.slice(0, 2).map((b, i) => (
-                    <li key={i} style={{ marginBottom: '6px' }}>{b}</li>
-                  ))}
-                  {bullets.length > 2 && <li style={{ listStyle: 'none', color: 'var(--text-muted)' }}>+ {bullets.length - 2} more points</li>}
-                </ul>
-                <div className="premium-card-tags">
-                  {(exp.technologies || '').split(',').map((t, idx) => (
-                    <span key={idx} className="premium-card-tag">{t.trim()}</span>
-                  ))}
-                </div>
-              </div>
-              <div className="premium-card-footer">
-                <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Location: {exp.location}</span>
-                <div className="premium-card-actions">
-                  <button className="btn-card-edit" onClick={() => handleEdit(exp)}><FaEdit /></button>
-                  <button className="btn-card-delete" onClick={() => handleDelete(exp.id)}><FaTrash /></button>
-                </div>
+              <div className="project-card-actions" style={{ display: 'flex', gap: '10px', padding: '15px', borderTop: '1px solid rgba(255, 255, 255, 0.05)', background: 'rgba(0, 0, 0, 0.2)' }}>
+                <button 
+                  onClick={() => handleEdit(exp)} 
+                  title="Edit"
+                  style={{ 
+                    flex: 1, 
+                    background: 'rgba(255,255,255,0.05)', 
+                    border: '1px solid rgba(255,255,255,0.1)', 
+                    color: 'var(--text-light)', 
+                    padding: '8px', 
+                    borderRadius: '6px', 
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    transition: 'all 0.2s',
+                    fontSize: '13px'
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--accent-main)'; e.currentTarget.style.color = '#0f172a'; e.currentTarget.style.borderColor = 'var(--accent-main)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'var(--text-light)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
+                >
+                  <FaEdit /> Edit
+                </button>
+                <button 
+                  onClick={() => handleDelete(exp.id)} 
+                  title="Delete"
+                  style={{ 
+                    flex: 1, 
+                    background: 'rgba(255,255,255,0.05)', 
+                    border: '1px solid rgba(255,255,255,0.1)', 
+                    color: 'var(--text-muted)', 
+                    padding: '8px', 
+                    borderRadius: '6px', 
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    transition: 'all 0.2s',
+                    fontSize: '13px'
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--accent-main)'; e.currentTarget.style.color = '#0f172a'; e.currentTarget.style.borderColor = 'var(--accent-main)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
+                >
+                  <FaTrash /> Delete
+                </button>
               </div>
             </div>
           );
         })}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal.isOpen && (
+        <div className="modal-overlay" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div className="premium-form-card" style={{ width: '100%', maxWidth: '400px', padding: '30px', margin: '20px', background: 'var(--card-bg)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '12px' }}>
+            <h3 style={{ marginTop: 0, marginBottom: '15px', color: 'var(--text-light)', fontSize: '18px', fontWeight: '600' }}>Confirm Deletion</h3>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '25px', lineHeight: '1.5', fontSize: '15px' }}>
+              Are you sure you want to delete this experience card?
+              <br/><br/>This action cannot be undone.
+            </p>
+            <div style={{ display: 'flex', gap: '15px', justifyContent: 'flex-end' }}>
+              <button 
+                className="btn-premium-cancel" 
+                onClick={() => setDeleteModal({ isOpen: false, id: null, isDeleting: false })}
+                style={{ padding: '8px 20px', borderRadius: '8px', cursor: 'pointer', background: 'rgba(255, 255, 255, 0.05)', color: 'var(--text-light)', border: '1px solid rgba(255, 255, 255, 0.1)' }}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn-premium-submit" 
+                onClick={confirmDelete}
+                disabled={deleteModal.isDeleting}
+                style={{ 
+                  padding: '8px 20px', 
+                  borderRadius: '8px', 
+                  background: deleteModal.isDeleting ? 'rgba(255,255,255,0.1)' : 'var(--accent-main)', 
+                  color: deleteModal.isDeleting ? 'rgba(255,255,255,0.5)' : '#0f172a',
+                  border: 'none',
+                  fontWeight: '600',
+                  cursor: deleteModal.isDeleting ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {deleteModal.isDeleting ? <PremiumLoaderButton size={20} /> : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -1774,6 +1962,7 @@ const ResumeTab = () => {
   const [loading, setLoading] = useState(true);
   const [resumes, setResumes] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, id: null, isDeleting: false });
   const [formData, setFormData] = useState({ title: '', version_name: 'v1.0', is_active: true });
 
   useEffect(() => {
@@ -1831,19 +2020,28 @@ const ResumeTab = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Delete this resume version?')) {
-      try {
-        const response = await fetch(`${BASE_URL}/api/manage/resume/${id}/`, {
-          method: 'DELETE',
-          credentials: 'include'
-        });
-        if (response.ok) {
-          setResumes(resumes.filter(r => r.id !== id));
-        }
-      } catch (error) {
-        console.error('Failed to delete resume:', error);
+  const handleDelete = (id) => {
+    setDeleteModal({ isOpen: true, id, isDeleting: false });
+  };
+
+  const confirmDelete = async () => {
+    setDeleteModal(prev => ({ ...prev, isDeleting: true }));
+    try {
+      const response = await fetch(`${BASE_URL}/api/manage/resume/${deleteModal.id}/`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      if (response.ok) {
+        setResumes(resumes.filter(r => r.id !== deleteModal.id));
+        toast.success('Resume version deleted successfully');
+      } else {
+        toast.error('Failed to delete resume version');
       }
+    } catch (error) {
+      console.error('Failed to delete resume:', error);
+      toast.error('Failed to delete resume version');
+    } finally {
+      setDeleteModal({ isOpen: false, id: null, isDeleting: false });
     }
   };
 
@@ -1883,26 +2081,113 @@ const ResumeTab = () => {
 
       <div className="premium-cards-grid">
         {resumes.map(res => (
-          <div key={res.id} className={`premium-item-card ${res.is_active ? 'active-item' : ''}`}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div>
-                <h4>{res.title}</h4>
-                <p className="premium-card-meta">Uploaded: {new Date(res.uploaded_at).toLocaleDateString()}</p>
+          <div key={res.id} className={`premium-item-card ${res.is_active ? 'active-item' : ''}`} style={{ paddingBottom: '0', overflow: 'hidden' }}>
+            <div style={{ padding: '25px 25px 0 25px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <h4>{res.title}</h4>
+                  <p className="premium-card-meta">Uploaded: {new Date(res.uploaded_at).toLocaleDateString()}</p>
+                </div>
+                <div className="stat-card-icon" style={{ width: '40px', height: '40px', fontSize: '16px' }}><FaFileAlt /></div>
               </div>
-              <div className="stat-card-icon" style={{ width: '40px', height: '40px', fontSize: '16px' }}><FaFileAlt /></div>
+              <div className="premium-card-footer" style={{ borderTop: 'none', paddingTop: '15px', paddingBottom: '15px' }}>
+                <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                  {res.is_active ? <span style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>ACTIVE DOWNLOAD</span> : 'Archived'}
+                </span>
+              </div>
             </div>
-            <div className="premium-card-footer">
-              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                {res.is_active ? <span style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>ACTIVE DOWNLOAD</span> : 'Archived'}
-              </span>
-              <div className="premium-card-actions">
-                <a href={`${BASE_URL}/api/resume/download/`} target="_blank" rel="noopener noreferrer" className="btn-card-edit" style={{ display: 'flex', alignItems: 'center' }}><FaLink /> Download</a>
-                <button className="btn-card-delete" onClick={() => handleDelete(res.id)}><FaTrash /></button>
-              </div>
+            <div className="project-card-actions" style={{ display: 'flex', gap: '10px', padding: '15px', borderTop: '1px solid rgba(255, 255, 255, 0.05)', background: 'rgba(0, 0, 0, 0.2)' }}>
+              <a 
+                href={`${BASE_URL}/api/resume/download/`} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                title="Download"
+                style={{ 
+                  flex: 1, 
+                  background: 'rgba(255,255,255,0.05)', 
+                  border: '1px solid rgba(255,255,255,0.1)', 
+                  color: 'var(--text-light)', 
+                  padding: '8px', 
+                  borderRadius: '6px', 
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  transition: 'all 0.2s',
+                  fontSize: '13px',
+                  textDecoration: 'none'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--accent-main)'; e.currentTarget.style.color = '#0f172a'; e.currentTarget.style.borderColor = 'var(--accent-main)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'var(--text-light)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
+              >
+                <FaLink /> Download
+              </a>
+              <button 
+                onClick={() => handleDelete(res.id)} 
+                title="Delete"
+                style={{ 
+                  flex: 1, 
+                  background: 'rgba(255,255,255,0.05)', 
+                  border: '1px solid rgba(255,255,255,0.1)', 
+                  color: 'var(--text-muted)', 
+                  padding: '8px', 
+                  borderRadius: '6px', 
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  transition: 'all 0.2s',
+                  fontSize: '13px'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--accent-main)'; e.currentTarget.style.color = '#0f172a'; e.currentTarget.style.borderColor = 'var(--accent-main)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
+              >
+                <FaTrash /> Delete
+              </button>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal.isOpen && (
+        <div className="modal-overlay" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div className="premium-form-card" style={{ width: '100%', maxWidth: '400px', padding: '30px', margin: '20px', background: 'var(--card-bg)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '12px' }}>
+            <h3 style={{ marginTop: 0, marginBottom: '15px', color: 'var(--text-light)', fontSize: '18px', fontWeight: '600' }}>Confirm Deletion</h3>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '25px', lineHeight: '1.5', fontSize: '15px' }}>
+              Are you sure you want to delete this resume version?
+              <br/><br/>This action cannot be undone.
+            </p>
+            <div style={{ display: 'flex', gap: '15px', justifyContent: 'flex-end' }}>
+              <button 
+                className="btn-premium-cancel" 
+                onClick={() => setDeleteModal({ isOpen: false, id: null, isDeleting: false })}
+                style={{ padding: '8px 20px', borderRadius: '8px', cursor: 'pointer', background: 'rgba(255, 255, 255, 0.05)', color: 'var(--text-light)', border: '1px solid rgba(255, 255, 255, 0.1)' }}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn-premium-submit" 
+                onClick={confirmDelete}
+                disabled={deleteModal.isDeleting}
+                style={{ 
+                  padding: '8px 20px', 
+                  borderRadius: '8px', 
+                  background: deleteModal.isDeleting ? 'rgba(255,255,255,0.1)' : 'var(--accent-main)', 
+                  color: deleteModal.isDeleting ? 'rgba(255,255,255,0.5)' : '#0f172a',
+                  border: 'none',
+                  fontWeight: '600',
+                  cursor: deleteModal.isDeleting ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {deleteModal.isDeleting ? <PremiumLoaderButton size={20} /> : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
