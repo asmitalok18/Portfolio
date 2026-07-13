@@ -109,10 +109,10 @@ class ProjectSummarySerializer(serializers.ModelSerializer):
         try:
             parsed = json.loads(obj.technologies)
             if isinstance(parsed, list):
-                return parsed[:3]
+                return parsed[:6]
         except:
             pass
-        return [t.strip() for t in str(obj.technologies).split(',') if t.strip()][:3]
+        return [t.strip() for t in str(obj.technologies).split(',') if t.strip()][:6]
 
 class PublicResumeSerializer(serializers.ModelSerializer):
     class Meta:
