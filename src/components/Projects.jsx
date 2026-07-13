@@ -450,7 +450,7 @@ const Projects = () => {
                           transition={{ delay: 0.3 }}
                         >
                           <p className="mb-0">
-                            {project.description}
+                            {project.short_description || project.description}
                           </p>
                         </motion.div>
                         
@@ -470,7 +470,9 @@ const Projects = () => {
                           transition={{ delay: 0.4 }}
                         >
                           {(() => {
-                            const techs = (project.technologies || '').split(',').map(t => t.trim()).filter(Boolean);
+                            const techs = Array.isArray(project.technology_preview) 
+                                ? project.technology_preview 
+                                : (project.technologies || '').split(',').map(t => t.trim()).filter(Boolean);
                             const displayTechs = techs.slice(0, 6);
                             const extra = techs.length - 6;
                             
