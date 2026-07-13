@@ -32,11 +32,25 @@ const Contact = () => {
 
     useEffect(() => {
         if (contactDataContext) {
+            const defaultSocials = {
+                linkedin: "https://www.linkedin.com/in/asmitalok",
+                github: "https://github.com/asmitalok18",
+                whatsapp: "https://wa.link/60n6aa",
+                telegram: "https://t.me/Vrm01234"
+            };
+
+            let safeSocials = { ...defaultSocials };
+            if (socialLinksContext && Object.keys(socialLinksContext).length > 0) {
+                Object.entries(socialLinksContext).forEach(([key, value]) => {
+                    if (value) safeSocials[key.toLowerCase()] = value;
+                });
+            }
+
             setContactData({
                 email: contactDataContext.email || "alokasmit@gmail.com",
                 phone: contactDataContext.phone || "+91 8210632703",
                 location: contactDataContext.location || "Gurugram, India",
-                social_links: socialLinksContext || {}
+                social_links: safeSocials
             });
         }
     }, [contactDataContext, socialLinksContext]);
