@@ -2,7 +2,7 @@ import json
 from rest_framework import serializers
 from .models import (
     KnowledgeBase, ChatHistory, ProjectInfo, PersonalInfo, Resume,
-    Skill, Experience, HeroSection, PersonalProfile, ContactSection
+    Skill, Experience, HeroSection, PersonalProfile, ContactSection, Certificate
 )
 
 class ChatRequestSerializer(serializers.Serializer):
@@ -148,3 +148,13 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
         except:
             pass
         return [t.strip() for t in str(obj.technologies).split(',') if t.strip()]
+
+class CertificateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Certificate
+        fields = '__all__'
+
+class PublicCertificateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Certificate
+        fields = ('id', 'title', 'issuer', 'date_issued', 'description', 'image_url', 'credential_url', 'display_order')

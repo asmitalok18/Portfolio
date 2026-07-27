@@ -12,6 +12,7 @@ import Header from './components/Header';
 import Hero from './components/Hero';
 import About from './components/About';
 import Experience from './components/Experience';
+import Certificates from './components/Certificates';
 import Projects from './components/Projects';
 import Skills from './components/Skills';
 import Contact from './components/Contact';
@@ -29,6 +30,7 @@ const Portfolio = () => (
     <Experience />
     <Skills />
     <Projects />
+    <Certificates />
     <Contact />
     <Footer />
     <AIAssistant />

@@ -182,8 +182,11 @@ const PortfolioManagement = () => {
           <button className={`sidebar-nav-btn ${activeTab === 'resume' ? 'active' : ''}`} onClick={() => {setActiveTab('resume'); setIsSidebarOpen(false);}}>
             <FaFileAlt /> Resume Manager
           </button>
+          <button className={`sidebar-nav-btn ${activeTab === 'certificates' ? 'active' : ''}`} onClick={() => {setActiveTab('certificates'); setIsSidebarOpen(false);}}>
+            <FaFileAlt /> Certificates
+          </button>
           <button className={`sidebar-nav-btn ${activeTab === 'contact' ? 'active' : ''}`} onClick={() => {setActiveTab('contact'); setIsSidebarOpen(false);}}>
-            <FaEnvelope /> Contact Details
+            <FaEnvelope /> Contact Settings
           </button>
         </div>
         <div className="sidebar-footer">
@@ -207,6 +210,7 @@ const PortfolioManagement = () => {
               {activeTab === 'experience' && 'Professional Experience CRUD'}
               {activeTab === 'projects' && 'Projects Showcase CRUD'}
               {activeTab === 'resume' && 'Resume Files Manager'}
+              {activeTab === 'certificates' && 'Certificates & Achievements'}
               {activeTab === 'contact' && 'Contact & Social Details'}
             </h1>
           </div>
@@ -226,6 +230,7 @@ const PortfolioManagement = () => {
           {activeTab === 'experience' && <ExperienceTab />}
           {activeTab === 'projects' && <ProjectsTab />}
           {activeTab === 'resume' && <ResumeTab />}
+          {activeTab === 'certificates' && <CertificatesTab />}
           {activeTab === 'contact' && <ContactTab />}
         </div>
       </div>
@@ -662,6 +667,7 @@ const DashboardTab = () => {
 const HeroTab = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [resumeFile, setResumeFile] = useState(null);
   const [data, setData] = useState(null);
   const [formData, setFormData] = useState({
     name: '', role: '', main_headline: '', subtitle: '',
@@ -713,6 +719,30 @@ const HeroTab = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
+    
+    // Upload Resume if a file is selected
+    if (resumeFile) {
+      const rForm = new FormData();
+      rForm.append('file', resumeFile);
+      rForm.append('title', 'Hero Uploaded Resume');
+      rForm.append('version_name', 'v_hero');
+      rForm.append('is_active', 'true');
+      try {
+        await fetch(`${BASE_URL}/api/manage/resume/`, {
+          method: 'POST',
+          credentials: 'include',
+          body: rForm
+        });
+        toast.success('Resume file uploaded successfully!');
+        setResumeFile(null);
+        // Clear the file input visually
+        const fileInput = document.querySelector('input[type="file"][accept=".pdf"]');
+        if (fileInput) fileInput.value = '';
+      } catch (e) {
+        toast.error('Failed to upload resume file.');
+      }
+    }
+
     const payload = {
       ...formData,
       social_links: {
@@ -789,8 +819,9 @@ const HeroTab = () => {
             <input type="text" value={formData.profile_image} onChange={(e) => setFormData({...formData, profile_image: e.target.value})} />
           </div>
           <div className="form-group-premium">
-            <label>Resume Download URL</label>
-            <input type="text" value={formData.resume_link} onChange={(e) => setFormData({...formData, resume_link: e.target.value})} />
+            <label>Resume PDF File (Uploads to Active Resume)</label>
+            <input type="file" accept=".pdf" onChange={(e) => setResumeFile(e.target.files[0])} />
+            <small style={{display: 'block', marginTop: '5px', color: 'var(--text-muted)'}}>Leave blank to keep current active resume. Uploading here updates the Resume Manager.</small>
           </div>
         </div>
         <div className="form-group-premium">
@@ -1854,7 +1885,11 @@ const ProjectsTab = () => {
             </div>
           </div>
         )) : (
-          <div className="empty-state">No projects found. Add one!</div>
+          <div style={{ gridColumn: '1 / -1', padding: '60px 20px', textAlign: 'center', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px dashed rgba(255,255,255,0.1)' }}>
+            <FaProjectDiagram size={48} color="rgba(255,255,255,0.2)" style={{ marginBottom: '15px' }} />
+            <h3 style={{ margin: '0 0 10px 0', color: 'var(--text-light)', fontSize: '18px' }}>No Projects Found</h3>
+            <p style={{ margin: 0, color: 'var(--text-muted)' }}>Click "Add Project" above to start building your portfolio showcase.</p>
+          </div>
         )}
       </div>
 
@@ -2219,6 +2254,302 @@ const ResumeTab = () => {
   );
 };
 
+
+const CertificatesTab = () => {
+  const [loading, setLoading] = useState(true);
+  const [certificates, setCertificates] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [editingCert, setEditingCert] = useState(null);
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, id: null, isDeleting: false });
+  const [formData, setFormData] = useState({
+    title: '', issuer: '', date_issued: '', description: '', credential_url: '', display_order: 0, is_featured: true, image: null
+  });
+
+  useEffect(() => {
+    fetchCertificates();
+  }, []);
+
+  const fetchCertificates = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${BASE_URL}/api/manage/certificates/`, { credentials: 'include' });
+      if (res.ok) {
+        setCertificates(await res.json());
+      }
+    } catch (e) {
+      toast.error('Failed to load certificates');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading && certificates.length === 0) return <div style={{padding: '50px', display: 'flex', justifyContent: 'center'}}><PremiumLoader text="LOADING CERTIFICATES..." /></div>;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    const form = new FormData();
+    
+    Object.keys(formData).forEach(key => {
+      if (key === 'image' || key === 'image_url') return;
+      if (formData[key] !== null && formData[key] !== '') {
+        form.append(key, formData[key]);
+      }
+    });
+
+    if (formData.image instanceof File) {
+      form.append('image_url', formData.image);
+    }
+
+    try {
+      const url = editingCert 
+        ? `${BASE_URL}/api/manage/certificates/${editingCert.id}/`
+        : `${BASE_URL}/api/manage/certificates/`;
+      const method = editingCert ? 'PUT' : 'POST';
+      
+      const response = await fetch(url, {
+        method,
+        credentials: 'include',
+        body: form
+      });
+
+      if (response.ok) {
+        toast.success(`Certificate ${editingCert ? 'updated' : 'added'} successfully!`);
+        resetForm();
+        fetchCertificates();
+      } else {
+        const errData = await response.json();
+        toast.error('Failed to save certificate: ' + JSON.stringify(errData));
+      }
+    } catch (error) {
+      toast.error('Error saving certificate: ' + error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({ title: '', issuer: '', date_issued: '', description: '', credential_url: '', display_order: 0, is_featured: true, image: null });
+    setShowForm(false);
+    setEditingCert(null);
+  };
+
+  const handleEdit = (cert) => {
+    setEditingCert(cert);
+    setFormData({
+      title: cert.title,
+      issuer: cert.issuer,
+      date_issued: cert.date_issued || '',
+      description: cert.description || '',
+      credential_url: cert.credential_url || '',
+      display_order: cert.display_order || 0,
+      is_featured: cert.is_featured,
+      image: null
+    });
+    setShowForm(true);
+  };
+
+  const handleDelete = (id) => {
+    setDeleteModal({ isOpen: true, id, isDeleting: false });
+  };
+
+  const confirmDelete = async () => {
+    setDeleteModal(prev => ({ ...prev, isDeleting: true }));
+    try {
+      const response = await fetch(`${BASE_URL}/api/manage/certificates/${deleteModal.id}/`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      if (response.ok) {
+        toast.success('Certificate deleted');
+        fetchCertificates();
+      }
+    } catch (error) {
+      toast.error('Failed to delete certificate');
+    } finally {
+      setDeleteModal({ isOpen: false, id: null, isDeleting: false });
+    }
+  };
+
+  return (
+    <div className="crud-tab-container">
+      <div className="crud-header">
+        <div className="crud-title">
+          <h2>Certificates & Achievements</h2>
+          <p>Add and manage your certificates, awards, and achievements</p>
+        </div>
+        <button onClick={() => setShowForm(true)} className="btn-premium-save" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <FaPlus /> Add Certificate
+        </button>
+      </div>
+
+      <div className="premium-cards-grid">
+        {certificates.length > 0 ? certificates.map(cert => (
+          <div key={cert.id} className="premium-item-card active-item" style={{ paddingBottom: '0', overflow: 'hidden' }}>
+            <div className="project-card-image" style={{ height: '160px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f172a' }}>
+              {cert.image_url ? (
+                <img src={cert.image_url.startsWith('http') ? cert.image_url : `${BASE_URL}${cert.image_url}`} alt={cert.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <div className="placeholder-image"><FaFileAlt size={40} color="var(--text-muted)" /></div>
+              )}
+            </div>
+            <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <h4>{cert.title}</h4>
+              <p className="premium-card-meta">{cert.issuer} &bull; {cert.date_issued}</p>
+            </div>
+            <div className="project-card-actions" style={{ display: 'flex', gap: '10px', padding: '15px', borderTop: '1px solid rgba(255, 255, 255, 0.05)', background: 'rgba(0, 0, 0, 0.2)' }}>
+              <button 
+                onClick={() => handleEdit(cert)} 
+                title="Edit"
+                style={{ 
+                  flex: 1, 
+                  background: 'rgba(255,255,255,0.05)', 
+                  border: '1px solid rgba(255,255,255,0.1)', 
+                  color: 'var(--text-light)', 
+                  padding: '8px', 
+                  borderRadius: '6px', 
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  transition: 'all 0.2s',
+                  fontSize: '13px'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--accent-main)'; e.currentTarget.style.color = '#0f172a'; e.currentTarget.style.borderColor = 'var(--accent-main)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'var(--text-light)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
+              >
+                <FaEdit /> Edit
+              </button>
+              <button 
+                onClick={() => handleDelete(cert.id)} 
+                title="Delete"
+                style={{ 
+                  flex: 1, 
+                  background: 'rgba(255,255,255,0.05)', 
+                  border: '1px solid rgba(255,255,255,0.1)', 
+                  color: 'var(--text-muted)', 
+                  padding: '8px', 
+                  borderRadius: '6px', 
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  transition: 'all 0.2s',
+                  fontSize: '13px'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--accent-main)'; e.currentTarget.style.color = '#0f172a'; e.currentTarget.style.borderColor = 'var(--accent-main)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
+              >
+                <FaTrash /> Delete
+              </button>
+            </div>
+          </div>
+        )) : (
+          <div style={{ gridColumn: '1 / -1', padding: '60px 20px', textAlign: 'center', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px dashed rgba(255,255,255,0.1)' }}>
+            <FaFileAlt size={48} color="rgba(255,255,255,0.2)" style={{ marginBottom: '15px' }} />
+            <h3 style={{ margin: '0 0 10px 0', color: 'var(--text-light)', fontSize: '18px' }}>No Certificates Found</h3>
+            <p style={{ margin: 0, color: 'var(--text-muted)' }}>Click "Add Certificate" above to showcase your achievements and awards.</p>
+          </div>
+        )}
+      </div>
+
+      {showForm && (
+        <div className="modal-overlay">
+          <div className="modal-content project-modal">
+            <div className="modal-header">
+              <h3>{editingCert ? 'Modify Certificate' : 'Add Certificate'}</h3>
+              <button className="modal-close" onClick={resetForm}><FaTimes /></button>
+            </div>
+            <div className="modal-body">
+              <form onSubmit={handleSubmit}>
+                <div className="form-grid-2">
+                  <div className="form-group-premium">
+                    <label>Certificate Title <span style={{color: 'var(--accent-main)'}}>*</span></label>
+                    <input type="text" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} required disabled={saving} />
+                  </div>
+                  <div className="form-group-premium">
+                    <label>Issuer / Organization <span style={{color: 'var(--accent-main)'}}>*</span></label>
+                    <input type="text" value={formData.issuer} onChange={(e) => setFormData({...formData, issuer: e.target.value})} required disabled={saving} />
+                  </div>
+                </div>
+                <div className="form-group-premium">
+                  <label>Date Issued (e.g. Aug 2025) <span style={{color: 'var(--accent-main)'}}>*</span></label>
+                  <input type="text" value={formData.date_issued} onChange={(e) => setFormData({...formData, date_issued: e.target.value})} required disabled={saving} />
+                </div>
+                <div className="form-group-premium">
+                  <label>Description (Optional)</label>
+                  <textarea value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} disabled={saving} rows="3" />
+                </div>
+                <div className="form-grid-2">
+                  <div className="form-group-premium">
+                    <label>Display Order</label>
+                    <input type="number" value={formData.display_order} onChange={(e) => setFormData({...formData, display_order: parseInt(e.target.value)})} disabled={saving} />
+                  </div>
+                  <div className="form-group-premium">
+                    <label>Certificate Image</label>
+                    <input type="file" accept="image/*" onChange={(e) => setFormData({...formData, image: e.target.files[0]})} disabled={saving} />
+                    {editingCert && editingCert.image_url && <small style={{display: 'block', marginTop: '5px', color: 'var(--accent-main)'}}>Current: {editingCert.image_url.split('/').pop()}</small>}
+                  </div>
+                </div>
+                <div className="form-group-premium form-group-checkbox">
+                  <input type="checkbox" checked={formData.is_featured} onChange={(e) => setFormData({...formData, is_featured: e.target.checked})} id="is_featured_cert" />
+                  <label htmlFor="is_featured_cert">Featured</label>
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn-cancel" onClick={resetForm} disabled={saving}>Cancel</button>
+                  <button type="submit" className="btn-premium-save" disabled={saving}>
+                    {saving ? <PremiumLoaderButton size={20} /> : (editingCert ? 'Update' : 'Publish')}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal.isOpen && (
+        <div className="modal-overlay" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div className="premium-form-card" style={{ width: '100%', maxWidth: '400px', padding: '30px', margin: '20px', background: 'var(--card-bg)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '12px' }}>
+            <h3 style={{ marginTop: 0, marginBottom: '15px', color: 'var(--text-light)', fontSize: '18px', fontWeight: '600' }}>Confirm Deletion</h3>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '25px', lineHeight: '1.5', fontSize: '15px' }}>
+              Are you sure you want to delete this certificate?
+              <br/><br/>This action cannot be undone.
+            </p>
+            <div style={{ display: 'flex', gap: '15px', justifyContent: 'flex-end' }}>
+              <button 
+                className="btn-premium-cancel" 
+                onClick={() => setDeleteModal({ isOpen: false, id: null, isDeleting: false })}
+                style={{ padding: '8px 20px', borderRadius: '8px', cursor: 'pointer', background: 'rgba(255, 255, 255, 0.05)', color: 'var(--text-light)', border: '1px solid rgba(255, 255, 255, 0.1)' }}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn-premium-submit" 
+                onClick={confirmDelete}
+                disabled={deleteModal.isDeleting}
+                style={{ 
+                  padding: '8px 20px', 
+                  borderRadius: '8px', 
+                  background: deleteModal.isDeleting ? 'rgba(255,255,255,0.1)' : 'var(--accent-main)', 
+                  color: deleteModal.isDeleting ? 'rgba(255,255,255,0.5)' : '#0f172a',
+                  border: 'none',
+                  fontWeight: '600',
+                  cursor: deleteModal.isDeleting ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {deleteModal.isDeleting ? <PremiumLoaderButton size={20} /> : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const ContactTab = () => {
   const [loading, setLoading] = useState(true);

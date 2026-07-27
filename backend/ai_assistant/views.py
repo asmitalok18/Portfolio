@@ -6,14 +6,14 @@ from .ai_service import AIService
 from .rag_service import RAGService
 from .models import (
     ProjectInfo, PersonalInfo, Resume,
-    Skill, Experience, HeroSection, PersonalProfile, ContactSection
+    Skill, Experience, HeroSection, PersonalProfile, ContactSection, Certificate
 )
 from .serializers import (
     ProjectInfoSerializer, PersonalInfoSerializer, ResumeSerializer,
     SkillSerializer, ExperienceSerializer, HeroSectionSerializer,
     PersonalProfileSerializer, ContactSectionSerializer,
     PublicSkillSerializer, PublicExperienceSerializer, ProjectSummarySerializer,
-    PublicResumeSerializer, ProjectDetailSerializer
+    PublicResumeSerializer, ProjectDetailSerializer, PublicCertificateSerializer
 )
 from django.conf import settings
 from django.core.cache import cache
@@ -218,6 +218,7 @@ class PortfolioDataView(APIView):
         experiences = Experience.objects.only('id', 'role', 'company', 'location', 'duration', 'type', 'responsibilities', 'technologies', 'display_order').order_by('display_order')
         projects = ProjectInfo.objects.filter(is_featured=True, status="Completed").only('id', 'name', 'slug', 'short_description', 'technologies', 'image_url', 'category', 'live_url', 'github_url', 'is_featured').order_by('display_order', '-created_at')
         resume = Resume.objects.filter(is_active=True).only('title', 'file', 'version_name', 'last_updated_date').first()
+        certificates = Certificate.objects.filter(is_featured=True).order_by('display_order', '-created_at')
 
         social_links = {}
         if hero and hero.social_links:
@@ -264,6 +265,7 @@ class PortfolioDataView(APIView):
             'experiences': PublicExperienceSerializer(experiences, many=True).data,
             'projects': ProjectSummarySerializer(projects, many=True).data,
             'resume': PublicResumeSerializer(resume).data if resume else None,
+            'certificates': PublicCertificateSerializer(certificates, many=True).data,
         }
         
         cache.set(cache_key, data, timeout=ttl)

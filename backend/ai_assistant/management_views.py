@@ -9,12 +9,12 @@ from django.shortcuts import get_object_or_404
 from django.http import FileResponse
 from .models import (
     ProjectInfo, PersonalInfo, Resume, PortfolioSettings,
-    Skill, Experience, HeroSection, PersonalProfile, ContactSection
+    Skill, Experience, HeroSection, PersonalProfile, ContactSection, Certificate
 )
 from .serializers import (
     ProjectInfoSerializer, PersonalInfoSerializer, ResumeSerializer,
     SkillSerializer, ExperienceSerializer, HeroSectionSerializer,
-    PersonalProfileSerializer, ContactSectionSerializer
+    PersonalProfileSerializer, ContactSectionSerializer, CertificateSerializer
 )
 import os
 
@@ -195,12 +195,8 @@ class ResumeDownloadView(APIView):
             if not resume or not resume.file:
                 return Response({'error': 'No active resume found'}, status=status.HTTP_404_NOT_FOUND)
             
-            response = FileResponse(
-                resume.file.open('rb'),
-                as_attachment=True,
-                filename=f"{resume.title}.pdf"
-            )
-            return response
+            from django.shortcuts import redirect
+            return redirect(resume.file.url)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -383,3 +379,36 @@ class ChatHistoryManagementView(APIView):
             ChatHistory.objects.filter(id__in=ids).delete()
             return Response({'success': True, 'message': f'{len(ids)} queries deleted successfully'})
         return Response({'success': False, 'message': 'No IDs provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+class CertificateManagementView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def get(self, request, pk=None):
+        if pk:
+            certificate = get_object_or_404(Certificate, pk=pk)
+            serializer = CertificateSerializer(certificate)
+            return Response(serializer.data)
+        certificates = Certificate.objects.all().order_by('display_order', '-created_at')
+        serializer = CertificateSerializer(certificates, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = CertificateSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, pk):
+        certificate = get_object_or_404(Certificate, pk=pk)
+        serializer = CertificateSerializer(certificate, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        certificate = get_object_or_404(Certificate, pk=pk)
+        certificate.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

@@ -5,7 +5,7 @@ from .management_views import (
     ProjectManagementView, PersonalInfoManagementView, ResumeManagementView,
     ResumeDownloadView, DashboardStatsView,
     HeroSectionManagementView, PersonalProfileManagementView, ContactSectionManagementView,
-    SkillManagementView, ExperienceManagementView, ChatHistoryManagementView
+    SkillManagementView, ExperienceManagementView, ChatHistoryManagementView, CertificateManagementView
 )
 
 urlpatterns = [
@@ -43,6 +43,9 @@ urlpatterns = [
     
     path('manage/experiences/', ExperienceManagementView.as_view(), name='manage_experiences'),
     path('manage/experiences/<int:pk>/', ExperienceManagementView.as_view(), name='manage_experiences_detail'),
+    
+    path('manage/certificates/', CertificateManagementView.as_view(), name='manage_certificates'),
+    path('manage/certificates/<int:pk>/', CertificateManagementView.as_view(), name='manage_certificates_detail'),
     
     path('manage/chats/', ChatHistoryManagementView.as_view(), name='manage_chats'),
     path('manage/chats/<int:pk>/', ChatHistoryManagementView.as_view(), name='manage_chats_detail'),

@@ -10,30 +10,48 @@ const Header = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      
-      // Change navbar background when scrolled
-      const isScrolled = currentScrollY > 50;
-      setScrolled(isScrolled);
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
 
-      // Update active section based on scroll position
-      const sections = ['home', 'about', 'experience', 'skills', 'projects', 'contact'];
-      const currentSection = sections.find(section => {
-        const element = document.getElementById(section);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          return rect.top <= 150 && rect.bottom >= 150;
-        }
-        return false;
-      });
-      
-      if (currentSection) {
-        setActiveSection(currentSection);
-      }
+    // Use Intersection Observer for robust active section tracking
+    const observerOptions = {
+      root: null,
+      rootMargin: '-30% 0px -70% 0px', // Triggers when the top of the section reaches the upper 30% of the screen
+      threshold: 0
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    const observerCallback = (entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setActiveSection(entry.target.id);
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+    const sections = ['home', 'about', 'experience', 'skills', 'projects', 'certificates', 'contact'];
+    
+    // Function to try observing all sections
+    const observeSections = () => {
+      sections.forEach(section => {
+        const el = document.getElementById(section);
+        if (el) {
+          observer.observe(el);
+        }
+      });
+    };
+
+    // Observe immediately and also set an interval to catch lazily loaded sections (like Certificates)
+    observeSections();
+    const intervalId = setInterval(observeSections, 1000);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      observer.disconnect();
+      clearInterval(intervalId);
+    };
   }, []);
 
   const linkVariants = {
@@ -75,6 +93,7 @@ const Header = () => {
     { href: '#experience', label: 'Experience' },
     { href: '#skills', label: 'Skills' },
     { href: '#projects', label: 'Projects' },
+    { href: '#certificates', label: 'Certificates' },
     { href: '#contact', label: 'Contact' }
   ];
 

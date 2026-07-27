@@ -77,6 +77,7 @@ export const PortfolioDataProvider = ({ children }) => {
     experiences: data?.experiences || [],
     projects: data?.projects || [],
     resume: data?.resume || null,
+    certificates: data?.certificates || [],
     loading,
     error,
     lastFetchedAt,

@@ -47,9 +47,17 @@ class PersonalInfo(models.Model):
     def __str__(self):
         return f"{self.key}: {self.value[:50]}..."
 
+def select_pdf_storage():
+    from django.conf import settings
+    if getattr(settings, 'DEFAULT_FILE_STORAGE', '').endswith('CloudinaryStorage'):
+        from cloudinary_storage.storage import RawMediaCloudinaryStorage
+        return RawMediaCloudinaryStorage()
+    from django.core.files.storage import default_storage
+    return default_storage()
+
 class Resume(models.Model):
     title = models.CharField(max_length=200, default="Resume")
-    file = models.FileField(upload_to='resumes/')
+    file = models.FileField(upload_to='resumes/', storage=select_pdf_storage)
     is_active = models.BooleanField(default=True)
     version_name = models.CharField(max_length=100, default="v1.0")
     last_updated_date = models.DateField(auto_now=True)
@@ -132,3 +140,17 @@ class ContactSection(models.Model):
 
     def __str__(self):
         return "Contact Section Settings"
+
+class Certificate(models.Model):
+    title = models.CharField(max_length=200)
+    issuer = models.CharField(max_length=200)
+    date_issued = models.CharField(max_length=100) # e.g. "August 2025"
+    description = models.TextField(blank=True)
+    image_url = models.ImageField(upload_to='certificates/', blank=True, null=True)
+    credential_url = models.URLField(blank=True, null=True)
+    display_order = models.IntegerField(default=0)
+    is_featured = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.title} by {self.issuer}"
