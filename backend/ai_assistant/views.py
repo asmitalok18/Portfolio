@@ -204,7 +204,9 @@ class PortfolioDataView(APIView):
         cached_data = cache.get(cache_key)
         ttl = int(os.environ.get('PORTFOLIO_DATA_CACHE_TTL', 600))
         headers = {
-            'Cache-Control': f'public, max-age={ttl}',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
             'X-Portfolio-Cache': 'HIT'
         }
         
@@ -269,7 +271,13 @@ class PortfolioDataView(APIView):
         }
         
         cache.set(cache_key, data, timeout=ttl)
-        headers['X-Portfolio-Cache'] = 'MISS'
+        
+        headers = {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+            'X-Portfolio-Cache': 'MISS'
+        }
         
         return Response(data, headers=headers)
 
