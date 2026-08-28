@@ -630,7 +630,7 @@ Remember: You represent a skilled professional developer. Every response should 
             }
             
             data = {
-                'model': 'llama-3.1-8b-instant',
+                'model': 'openai/gpt-oss-20b',
                 'messages': [
                     {'role': 'system', 'content': system_prompt},
                     {'role': 'user', 'content': user_prompt}
